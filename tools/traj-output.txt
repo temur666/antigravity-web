@@ -1,0 +1,110 @@
+﻿鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+1. antigravityUnifiedStateSync.trajectorySummaries
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  Raw length: 59244 bytes
+  Type: string
+  Format: base64 (decoded to 44432 bytes)
+  First 100 bytes (hex): 0ac4030a2461343331366666342d333064312d343834392d613837632d666163663337663263623663129b030a9803436839425a475270626d63675532567961575967526d39756443423062794242535342535a5842736157567a45493042476777496e
+  UTF-8 preview: 
+锟?
+$a4316ff4-30d1-4849-a87c-facf37f2cb6c锟?
+锟?Ch9BZGRpbmcgU2VyaWYgRm9udCB0byBBSSBSZXBsaWVzEI0BGgwInonIzAYQoN/q2AIiJDI4YzYzYzEyLTFjYTktNGE4ZC04MDNkLTA1NThlNGJkZTJkOSgBOgsIw4HIzAYQ3orFV0qmAQpWdnNjb2RlLXJlbW90ZTovL3NzaC1yZW1vdGUlMkI3YjIyNjg2ZjczNzQ0ZTYxNmQ2NTIyM2EyMjY3NjM3MDJkNjk2MTcwMjI3ZC9ob21lL3RpZW11ZXISSnZzY29kZS1yZW1vdGU6Ly9zc2gtcmVtb3RlJTJCN2IyMjY4NmY3Mzc0NGU2MTZkNjUyMjNhMjI2NzYzNzAyZDY5NjE3MDIyN2QvGgBSDAiuiMjMBhC8uNSlAXoOOgwIou3WzAYQgIvx2wOAAYAB
+锟?
+$cfb511fc-5691-4e42-8da0-eb1be3b86866锟?
+
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+2. jetskiStateSync.agentManagerInitState
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  Raw length: 239948 bytes
+  Type: string
+  Format: base64 (decoded to 179960 bytes)
+  First 200 bytes (hex): 0af8d5090aed010a2436343334613065362d306261312d343635322d393034662d62316638643831356464323012c4010a175363726f6c6c20486f6f6b20446966666572656e636573101d1a0c0899f7ccca0610def9cdc201222437636537313264342d343235352d343831642d613932382d30343539383362386237613728013a0c08c5f5ccca061086d7c1b2034a510a2e7673636f64652d72656d6f74653a2f2f77736c2532427562756e74752f686f6d652f6c696e75787469656d756572121d7673636f64
+
+  --- 鎼滅储瀵硅瘽鏍囬 ---
+  鍙瀛楃涓?(鍓?0涓?:
+    Scroll Hook Differences
+    remote
+    Bubuntu
+    linuxtiemuer
+    Agenda View Header Styling
+    WeekHeader Month Update
+    Calendar Month Weeks
+    Agenda View Header Fixes
+    Agenda Day Title Scrolling
+    Grid Week Display Logic
+    Adjust DayCell Month Font
+    Simulate User Interaction
+    Implement Search Loop
+    Agenda Week Header Refinement
+    Grid View Week Jump
+    Calendar Month Weeks Inquiry
+    Week Header Week Calculation
+    Agenda Day Date Format
+    AgendaDay Date Format
+    Agenda View Week Header Enhancements
+    Agenda Day Title Styling
+    Git Restore Local Changes
+    Fix Build Error
+    cefdfaa
+    WeekHeader Font Consistency
+    Dark Mode System Sync
+    Refactor Event Creation UI
+    Event Card Redesign
+    Agenda Event Time Display
+    Agenda Event Color Check
+    Create Global Script Aliases
+    Dayview Card Coloring Update
+    Remove Event Card Buttons
+    Dayview Event Time Position
+    Timeline Indicator Alignment
+    Timeline Label Alignment
+    Fix Unused Variable Errors
+    eabafa
+    Translate Project to ArkUI
+    Translate CalendarGridView to ArkUI
+    edfbab
+    Check ArkUI Project Status
+    Git Push CalendarArk Project
+    Fix Git Proxy Error
+    Fix ArkTS Compiler Errors
+    Fix ArkTS Color Type Errors
+    Translate CalendarAgendaView to ArkUI
+    Fix ArkTS Build Errors
+    Translate Core Modules to ArkUI
+    Translate CalendarDayView to ArkUI
+
+  UUID 鏁伴噺: 849
+  鍓?0涓?UUID:
+    6434a0e6-0ba1-4652-904f-b1f8d815dd20
+    7ce712d4-4255-481d-a928-045983b8b7a7
+    c0e2208a-41ee-41a8-a690-f5f7ea970cbb
+    c68df58a-4931-40d2-bd18-a5c7b24823ac
+    e77c6fe8-118e-442d-b66a-116e8db3851f
+    f066c620-dd10-4549-8574-9a979a7b1051
+    9502fa45-7aee-4ad1-868b-05cc144a83e7
+    09de5e12-4c39-4613-be65-ec9665ad998e
+    839b6ed7-76df-4fa6-bf7c-6ab799200874
+    3861e900-2f8e-4306-86fd-0b3cda2fa7ea
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+3. antigravityUnifiedStateSync.sidebarWorkspaces
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  Raw length: 1372
+  Decoded: 
+锟?
+锟?vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/tiemuer锟?
+锟?IsoBdnNjb2RlLXJlbW90ZTovL3NzaC1yZW1vdGUlMkI3YjIyNjg2ZjczNzQ0ZTYxNmQ2NTIyM2EyMjY5NmU3Mzc0NjE2ZTYzNjUyZDMyMzAzMjM1MzEzMjMyMzEyZDMxMzIzMTMxMzUzMTJlNzU3MzJkNjM2NTZlNzQ3MjYxNmMzMTJkNjMyZTY3NjU2ZTJkNmM2MTZlNjcyZDYzNmM2OTY1NmU3NDJkMzAzODMwMzYzMDM4MzQzOTM3MzYyMjdkL2hvbWUvdGllbXVlcioA
+|
+.vscode-remote://wsl%2Bubuntu/home/linuxtiemuerJ
+HIi52c2NvZGUtcmVtb3RlOi8vd3NsJTJCdWJ1bnR1L2hvbWUvbGludXh0aWVtdWVyKgIQAQ==
+锟?
+Vvscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuerz
+xIlZ2c2NvZGUtcmVtb3RlOi8vc3NoLXJlbW90ZSUyQjdiMjI2ODZmNzM3NDRlNjE2ZDY1MjIzYTIyNjc2MzcwMmQ2OTYxNzAyMjdkL2hvbWUvdGllbXVlcioA
+锟?
+Lfile:///c%3A/Users/Administrator/.gemini/antigravity/playground/phantom-voidr
+pIkxmaWxlOi8vL2MlM0EvVXNlcnMvQWRtaW5pc3RyYXRvci8uZ2VtaW5pL2FudGlncmF2aXR5L3BsYXlncm91
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+馃弫 瀹屾垚
+

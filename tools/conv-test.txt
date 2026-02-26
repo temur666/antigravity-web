@@ -1,0 +1,23 @@
+﻿node : [eval]:1
+所在位置 行:1 字符: 1
++ node -e "const { getConversations } = require('./lib/conversations'); ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: ([eval]:1:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+const { getConversations } = require('./lib/conversations'); const result = getConversations(); console.log('Total:', result.total); console.log('Error:', result.error); result.conv
+ersations.slice(0, 15).forEach((c, i) => console.log([]  |  | ))
+                                                                                                                                                                                     
+                                                            ^
+
+SyntaxError: Unexpected token '|'
+    at new Script (node:vm:93:7)
+    at createScript (node:vm:247:10)
+    at Object.runInThisContext (node:vm:295:10)
+    at node:internal/process/execution:83:21
+    at [eval]-wrapper:6:24
+    at runScript (node:internal/process/execution:82:62)
+    at evalScript (node:internal/process/execution:104:10)
+    at node:internal/main/eval_string:50:3
+
+Node.js v20.7.0

@@ -1,0 +1,216 @@
+﻿
+FullName                                                                                                                     Length  PSIsContainer
+--------                                                                                                                     ------  -------------
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\globalStorage                                                                         True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History                                                                               True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\snippets                                                                              True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\keybindings.json                                                     145             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\settings.json                                                        523             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\globalStorage\state.vscdb                                            1286144         False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\globalStorage\state.vscdb.backup                                     1286144         False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\globalStorage\storage.json                                           11972           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-11a6b79c                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-17b0a64                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1ebfcc07                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-224ab2b7                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-22ff51df                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-29f7711a                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-321c2c34                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-3d70e02a                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4300cea1                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-49797d1f                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4a812724                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50b2ef2f                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50e391e6                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-65438520                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-69344b64                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-76aae63b                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-7e76443f                                                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-c1504d6                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\19f77c4a                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1dc3fc3c                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1e773188                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\250994d0                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\307a1f57                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\342be053                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\3db31c09                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\45567fb5                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\4ddbd554                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\52fa8a73                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\56ed8988                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\59d00b52                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\5a5595ba                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6242dc0c                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6428c12d                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\67d1356c                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\68e1cfd6                                                                      True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\8bd0941                                                                       True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\fc2b251                                                                       True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-11a6b79c\9wQT.sh                                            468             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-11a6b79c\entries.json                                       185             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\2vxh.js                                            16013           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\57TY.js                                            16170           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\6R36.js                                            22310           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\7EqT.js                                            22368           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\8ls3.js                                            16077           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\entries.json                                       523             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-16b1449a\jFkV.js                                            21599           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-17b0a64\entries.json                                        167             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-17b0a64\Eyhd.js                                             5276            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1ebfcc07\entries.json                                       172             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1ebfcc07\Kx2x.js                                            3606            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\45AF.js                                            6351            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\entries.json                                       438             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\qkTJ.js                                            6402            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\wcSm.js                                            6706            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\xH7e.js                                            6502            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-1f647821\yjyH.js                                            6404            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-224ab2b7\entries.json                                       172             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-224ab2b7\u0il.ps1                                           3167            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-22ff51df\entries.json                                       209             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-22ff51df\h8Z6.yml                                           4313            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-29f7711a\entries.json                                       186             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-29f7711a\gHn0.yml                                           592             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-321c2c34\entries.json                                       192             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-321c2c34\ylyV.conf                                          554             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8\entries.json                                       378             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8\hBB1.js                                            26314           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8\KZ4O.js                                            26352           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8\WbUN.js                                            26314           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-37f6e7f8\xTcI.js                                            26471           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-3d70e02a\1agm                                               112             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-3d70e02a\entries.json                                       168             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4300cea1\entries.json                                       177             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4300cea1\FiET.js                                            11275           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-49797d1f\Dy2r.html                                          4975            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-49797d1f\entries.json                                       207             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4a812724\entries.json                                       202             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-4a812724\RKYA.json                                          300             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50b2ef2f\entries.json                                       173             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50b2ef2f\XrlU.js                                            8494            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50e391e6\7qvI.sh                                            468             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-50e391e6\entries.json                                       229             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-65438520\6zWA.js                                            5135            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-65438520\entries.json                                       179             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-69344b64\Bbpy.yml                                           592             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-69344b64\entries.json                                       230             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-76aae63b\3jhL.js                                            1932            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-76aae63b\entries.json                                       173             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-7e76443f\BuXR.js                                            3507            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-7e76443f\entries.json                                       304             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-7e76443f\T3b8.js                                            4601            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-7e76443f\vcYk.js                                            5200            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-c1504d6\entries.json                                        166             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\-c1504d6\MrKi.js                                             8558            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\entries.json                                        483             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\G6ZA.js                                             7782            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\K9iA.js                                             11166           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\mNZ1.js                                             8106            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\UxmE.js                                             7782            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\Vfw7.js                                             9926            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\vTIE.js                                             12612           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\16589898\Zx1o.js                                             13190           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\19f77c4a\entries.json                                        317             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\19f77c4a\i3CX.sh                                             1250            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\19f77c4a\rfua.sh                                             1254            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1dc3fc3c\entries.json                                        178             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1dc3fc3c\JKYl.js                                             5316            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1e773188\entries.json                                        228             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\1e773188\gkxF.example                                        112             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\250994d0\entries.json                                        218             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\250994d0\MCJJ.js                                             13555           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\250994d0\Zfg2.js                                             14202           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\307a1f57\entries.json                                        149             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\307a1f57\KmSC.js                                             10676           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\342be053\entries.json                                        174             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\342be053\Ycub                                                1102            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\3db31c09\entries.json                                        218             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\3db31c09\Xeqz                                                1102            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\45567fb5\entries.json                                        177             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\45567fb5\k8d7.js                                             10868           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\1QJ1                                                7838            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\d59i                                                7775            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\e40R                                                7655            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\entries.json                                        487             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\xLRd                                                7747            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\47886a8e\ZQV2                                                7785            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\4ddbd554\dIDH.js                                             7354            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\4ddbd554\entries.json                                        149             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\52fa8a73\BWtm.js                                             11629           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\56ed8988\toMw.js                                             14544           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\59d00b52\entries.json                                        184             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\59d00b52\scSu.example                                        112             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\5a5595ba\entries.json                                        172             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\5a5595ba\TBb6.js                                             8909            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6242dc0c\entries.json                                        212             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6242dc0c\JZEk                                                112             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6428c12d\entries.json                                        166             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\6428c12d\qad0.md                                             5376            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\67d1356c\69nF.css                                            17134           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\67d1356c\entries.json                                        205             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\68e1cfd6\4g5m.conf                                           554             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\68e1cfd6\entries.json                                        236             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\8bd0941\entries.json                                         167             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\8bd0941\inKk.js                                              15595           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\fc2b251\92zi                                                 1696            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\fc2b251\entries.json                                         283             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\History\fc2b251\mQCU                                                 1696            False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\0a3a6ebdc4b7133311be92f9dc6786e5                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\1f51592bbbbc9946cc2c1f5c98560053                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\36e2c4551572360da0b60cd886f06046                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\3d9269696914e8697dc7554518cec7d4                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\544bf512f7b98662f6e66f161c1d846e                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\95fefc518742e2508c861a259a0bf307                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\b8c3bfc3aeaea0c5b365d9b01cbfff65                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\bb2df7fa0024c6d36d574eaa74f8fd34                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78341970754565d91fb44a1760437c7                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78ea9ebe770c2d8730f84a81b9b5358                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d7de9beee66f5ab35e292ce0651f3292                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\e209ae54aaa13ce10e676fa6cc6d3eef                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\f577ac358f9e8d87fbcdbfd7d9914c94                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\fdab19807074c018d160b247df9aafff                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\ff022c308086e1030a3fb5ac65b7e0b3                                     True
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\0a3a6ebdc4b7133311be92f9dc6786e5\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\0a3a6ebdc4b7133311be92f9dc6786e5\workspace.json     97              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\1f51592bbbbc9946cc2c1f5c98560053\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\1f51592bbbbc9946cc2c1f5c98560053\workspace.json     97              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\36e2c4551572360da0b60cd886f06046\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\36e2c4551572360da0b60cd886f06046\state.vscdb.backup 24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\36e2c4551572360da0b60cd886f06046\workspace.json     100             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\3d9269696914e8697dc7554518cec7d4\state.vscdb        32768           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\3d9269696914e8697dc7554518cec7d4\workspace.json     97              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\544bf512f7b98662f6e66f161c1d846e\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\544bf512f7b98662f6e66f161c1d846e\workspace.json     63              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\95fefc518742e2508c861a259a0bf307\state.vscdb        225280          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\95fefc518742e2508c861a259a0bf307\state.vscdb.backup 225280          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\95fefc518742e2508c861a259a0bf307\workspace.json     64              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\b8c3bfc3aeaea0c5b365d9b01cbfff65\state.vscdb        110592          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\b8c3bfc3aeaea0c5b365d9b01cbfff65\state.vscdb.backup 110592          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\b8c3bfc3aeaea0c5b365d9b01cbfff65\workspace.json     220             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\bb2df7fa0024c6d36d574eaa74f8fd34\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\bb2df7fa0024c6d36d574eaa74f8fd34\workspace.json     50              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78341970754565d91fb44a1760437c7\state.vscdb        20480           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78341970754565d91fb44a1760437c7\workspace.json     66              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78ea9ebe770c2d8730f84a81b9b5358\state.vscdb        20480           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78ea9ebe770c2d8730f84a81b9b5358\workspace.json     163             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d7de9beee66f5ab35e292ce0651f3292\state.vscdb        253952          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d7de9beee66f5ab35e292ce0651f3292\state.vscdb.backup 253952          False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d7de9beee66f5ab35e292ce0651f3292\workspace.json     104             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\e209ae54aaa13ce10e676fa6cc6d3eef\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\e209ae54aaa13ce10e676fa6cc6d3eef\workspace.json     81              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\f577ac358f9e8d87fbcdbfd7d9914c94\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\f577ac358f9e8d87fbcdbfd7d9914c94\workspace.json     226             False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\fdab19807074c018d160b247df9aafff\state.vscdb        32768           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\fdab19807074c018d160b247df9aafff\state.vscdb.backup 32768           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\fdab19807074c018d160b247df9aafff\workspace.json     94              False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\ff022c308086e1030a3fb5ac65b7e0b3\state.vscdb        24576           False
+C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\ff022c308086e1030a3fb5ac65b7e0b3\workspace.json     132             False
+
+
+

@@ -1,0 +1,60 @@
+﻿=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\0a3a6ebdc4b7133311be92f9dc6786e5\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/harmonic-hubble"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\1f51592bbbbc9946cc2c1f5c98560053\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/photonic-parsec"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\36e2c4551572360da0b60cd886f06046\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/spectral-supernova"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\3d9269696914e8697dc7554518cec7d4\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\544bf512f7b98662f6e66f161c1d846e\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.antigravity"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\95fefc518742e2508c861a259a0bf307\workspace.json ===
+{
+  "folder": "vscode-remote://wsl%2Bubuntu/home/linuxtiemuer"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\b8c3bfc3aeaea0c5b365d9b01cbfff65\workspace.json ===
+{
+  "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/tiemuer"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\bb2df7fa0024c6d36d574eaa74f8fd34\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78341970754565d91fb44a1760437c7\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/antigravity-web"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d78ea9ebe770c2d8730f84a81b9b5358\workspace.json ===
+{
+  "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\d7de9beee66f5ab35e292ce0651f3292\workspace.json ===
+{
+  "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuer"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\e209ae54aaa13ce10e676fa6cc6d3eef\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\f577ac358f9e8d87fbcdbfd7d9914c94\workspace.json ===
+{
+  "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/Administrator"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\fdab19807074c018d160b247df9aafff\workspace.json ===
+{
+  "folder": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/phantom-void"
+}
+=== C:\Users\Administrator\AppData\Roaming\Antigravity\User\workspaceStorage\ff022c308086e1030a3fb5ac65b7e0b3\workspace.json ===
+{
+  "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/antigravity-web"
+}

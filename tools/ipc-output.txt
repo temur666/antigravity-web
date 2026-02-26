@@ -1,0 +1,271 @@
+﻿
+馃敩 IPC & FS Explorer 鈥?http://127.0.0.1:9000
+
+馃搵 杩炴帴鍒? phantom-void - Antigravity - Dockerfile [Administrator]
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+1. vscode.ipcRenderer 鏂规硶
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+["send","invoke","on","once","removeListener"]
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+2. .antigravity 鐩綍鎵弿 (鏈湴 fs)
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  馃搫 argv.json (798B)
+  馃搧 extensions/ (3 items)
+    馃搫 extensions.json (1.5KB)
+    馃搧 ms-azuretools.vscode-containers-2.3.0-universal/ (12 items)
+      馃搫 .vsixmanifest (3.1KB)
+      馃搫 changelog.md (4.7KB)
+      馃搧 dist/ (39 items)
+        馃搫 13.js (145.1KB)
+        馃搫 144.js (9.0KB)
+        馃搫 219.js (28.2KB)
+        馃搫 246.js (313B)
+        馃搫 269.js (99.5KB)
+        馃搫 303.js (173.0KB)
+        馃搫 303.js.LICENSE.txt (95B)
+        馃搫 307.js (16.6KB)
+        馃搫 333.js (18.1KB)
+        馃搫 335.js (352.2KB)
+        馃搫 341.js (81.5KB)
+        馃搫 348.js (50.8KB)
+        馃搫 365.js (121.2KB)
+        馃搫 37.js (21.0KB)
+        馃搫 379.js (1.1MB)
+        馃搫 4.js (11.4KB)
+        馃搫 401.js (7.7KB)
+        馃搫 404.js (286.2KB)
+        馃搫 404.js.LICENSE.txt (823B)
+        馃搫 462.js (78.9KB)
+        馃搫 530.js (363.9KB)
+        馃搫 664.js (70.7KB)
+        馃搫 753.js (10.4KB)
+        馃搫 756.js (192.8KB)
+        馃搫 785.js (1.6KB)
+        馃搫 813.js (227.2KB)
+        馃搫 813.js.LICENSE.txt (174B)
+        馃搫 83.js (294.7KB)
+        馃搫 83.js.LICENSE.txt (3.3KB)
+        馃搫 834.js (32.8KB)
+        馃搫 917.js (68.3KB)
+        馃搫 933.js (113.0KB)
+        馃搫 960.js (98.6KB)
+        馃搫 965.js (54.3KB)
+        馃搧 compose-language-service/ (1 items)
+        馃搧 dockerfile-language-server-nodejs/ (1 items)
+        馃搫 extension.bundle.js (1.8MB)
+        馃搫 extension.bundle.js.LICENSE.txt (668B)
+        馃搧 node_modules/ (1 items)
+      馃搫 LICENSE.md (1.1KB)
+      馃搫 main.js (1.2KB)
+      馃搫 NOTICE.html (434.1KB)
+      馃搫 package.json (98.4KB)
+      馃搫 package.nls.json (40.8KB)
+      馃搫 readme.md (9.4KB)
+      馃搧 resources/ (9 items)
+        馃搫 azureRegistry.svg (1.7KB)
+        馃搫 ContainerTools.svg (1.6KB)
+        馃搧 dark/ (1 items)
+        馃搧 light/ (1 items)
+        馃搫 Market_ContainerTools_128.png (11.5KB)
+        馃搧 netCore/ (3 items)
+        馃搧 python/ (1 items)
+        馃搧 templates/ (11 items)
+        馃搧 walkthroughs/ (1 items)
+      馃搫 SECURITY.md (2.7KB)
+      馃搫 SUPPORT.md (513B)
+    馃搧 ms-azuretools.vscode-docker-2.0.0-universal/ (9 items)
+      馃搫 .vsixmanifest (2.9KB)
+      馃搫 changelog.md (73.9KB)
+      馃搫 LICENSE.md (1.1KB)
+      馃搫 NOTICE.html (8.6KB)
+      馃搫 package.json (944B)
+      馃搫 readme.md (1.7KB)
+      馃搧 resources/ (2 items)
+        馃搫 docker_blue.png (48.9KB)
+        馃搧 walkthroughs/ (1 items)
+      馃搫 SECURITY.md (2.7KB)
+      馃搫 SUPPORT.md (509B)
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+3. AppData 涓悳绱?Antigravity / Jetski 鏁版嵁
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+  馃搧 C:\Users\Administrator\AppData\Roaming\antigravity
+    - Backups
+    - blob_storage
+    - Cache
+    - CachedConfigurations
+    - CachedData
+    - CachedExtensionVSIXs
+    - CachedProfilesData
+    - Code Cache
+    - code.lock
+    - Crashpad
+    - DawnGraphiteCache
+    - DawnWebGPUCache
+    - DevToolsActivePort
+    - DIPS
+    - DIPS-wal
+    - GPUCache
+    - IndexedDB
+    - languagepacks.json
+    - Local State
+    - Local Storage
+    - logs
+    - machineid
+    - Network
+    - Preferences
+    - Service Worker
+    - Session Storage
+    - Shared Dictionary
+    - SharedStorage
+    - SharedStorage-wal
+    - User
+    - WebStorage
+
+  馃搧 C:\Users\Administrator\AppData\Roaming\Antigravity
+    - Backups
+    - blob_storage
+    - Cache
+    - CachedConfigurations
+    - CachedData
+    - CachedExtensionVSIXs
+    - CachedProfilesData
+    - Code Cache
+    - code.lock
+    - Crashpad
+    - DawnGraphiteCache
+    - DawnWebGPUCache
+    - DevToolsActivePort
+    - DIPS
+    - DIPS-wal
+    - GPUCache
+    - IndexedDB
+    - languagepacks.json
+    - Local State
+    - Local Storage
+    - logs
+    - machineid
+    - Network
+    - Preferences
+    - Service Worker
+    - Session Storage
+    - Shared Dictionary
+    - SharedStorage
+    - SharedStorage-wal
+    - User
+    - WebStorage
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+4. 鎼滅储 VSCode/Antigravity 鐢ㄦ埛鏁版嵁
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+
+  馃搧 鎵惧埌: C:\Users\Administrator\AppData\Roaming\Antigravity
+    馃搧 Backups/
+    猸?blob_storage/
+    馃搧 Cache/
+    馃搧 CachedConfigurations/
+    猸?CachedData/
+    馃搧 CachedExtensionVSIXs/
+    猸?CachedProfilesData/
+    馃搧 Code Cache/
+    馃搧 Crashpad/
+    馃搧 DawnGraphiteCache/
+    馃搧 DawnWebGPUCache/
+    馃搧 GPUCache/
+    猸?IndexedDB/
+    猸?languagepacks.json (2B)
+    猸?Local State (434B)
+    猸?Local Storage/
+    馃搧 logs/
+    馃搧 Network/
+    馃搧 Service Worker/
+    猸?Session Storage/
+    馃搧 Shared Dictionary/
+    猸?SharedStorage (4096B)
+    猸?SharedStorage-wal (0B)
+    馃搧 User/
+    猸?WebStorage/
+
+  馃搧 鎵惧埌: C:\Users\Administrator\AppData\Roaming\antigravity
+    馃搧 Backups/
+    猸?blob_storage/
+    馃搧 Cache/
+    馃搧 CachedConfigurations/
+    猸?CachedData/
+    馃搧 CachedExtensionVSIXs/
+    猸?CachedProfilesData/
+    馃搧 Code Cache/
+    馃搧 Crashpad/
+    馃搧 DawnGraphiteCache/
+    馃搧 DawnWebGPUCache/
+    馃搧 GPUCache/
+    猸?IndexedDB/
+    猸?languagepacks.json (2B)
+    猸?Local State (434B)
+    猸?Local Storage/
+    馃搧 logs/
+    馃搧 Network/
+    馃搧 Service Worker/
+    猸?Session Storage/
+    馃搧 Shared Dictionary/
+    猸?SharedStorage (4096B)
+    猸?SharedStorage-wal (0B)
+    馃搧 User/
+    猸?WebStorage/
+
+  馃搧 鎵惧埌: C:\Users\Administrator\AppData\Roaming\Code
+    馃搧 Backups/
+    猸?blob_storage/
+    馃搧 Cache/
+    馃搧 CachedConfigurations/
+    猸?CachedData/
+    馃搧 CachedExtensionVSIXs/
+    猸?CachedProfilesData/
+    馃搧 Code Cache/
+    馃搧 Crashpad/
+    馃搧 DawnGraphiteCache/
+    馃搧 DawnWebGPUCache/
+    馃搧 GPUCache/
+    猸?languagepacks.json (16427B)
+    猸?Local State (434B)
+    猸?Local Storage/
+    馃搧 logs/
+    馃搧 Network/
+    馃搧 Service Worker/
+    猸?Session Storage/
+    馃搧 Shared Dictionary/
+    猸?SharedStorage (4096B)
+    猸?SharedStorage-wal (0B)
+    馃搧 User/
+    猸?WebStorage/
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+5. 閫氳繃 IPC 鎺㈡祴 conversation API
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  ipcRenderer structure: {"type":"object","constructor":"Object","keys":["send","invoke","on","once","removeListener"],"ownPropertyNames":["send","invoke","on","once","removeListener"],"protoMethods":["constructor","__defineGetter__","__defineSetter__","hasOwnProperty","__lookupGetter__","__lookupSetter__","isPrototypeOf","propertyIsEnumerable","toString","valueOf","toLocaleString"]}
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+6. 灏濊瘯 ipcRenderer.invoke / send
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+  vscode:getConversations: {"channel":"vscode:getConversations","success":false,"error":"Error invoking remote method 'vscode:getConversations': Error: No handler registered for 'vscode:getConversations'"}
+  vscode:getChatHistory: {"channel":"vscode:getChatHistory","success":false,"error":"Error invoking remote method 'vscode:getChatHistory': Error: No handler registered for 'vscode:getChatHistory'"}
+  jetski:getConversations: {"channel":"jetski:getConversations","success":false,"error":"Unsupported event IPC channel 'jetski:getConversations'"}
+  jetski:listThreads: {"channel":"jetski:listThreads","success":false,"error":"Unsupported event IPC channel 'jetski:listThreads'"}
+  antigravity:getConversations: {"channel":"antigravity:getConversations","success":false,"error":"Unsupported event IPC channel 'antigravity:getConversations'"}
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+7. vscode.context 瀵硅薄
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+{"total":2,"methods":["configuration","resolveConfiguration"],"objects":[],"values":{},"allKeys":["configuration","resolveConfiguration"]}
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+8. vscode.webFrame
+鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
+["setZoomLevel"]
+
+鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲鈺愨晲
+馃弫 鎺㈢储瀹屾垚
+

@@ -1,0 +1,229 @@
+﻿{
+    "antigravityUnifiedStateSync.agentPreferences.hasAgentFileAccessMigration": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasArtifactReviewPolicyMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasAutoContinueOnMaxGeneratorInvocationsMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasExplainAndFixInCurrentConversationMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasPlanningModeMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasTerminalAllowedCommandsMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasTerminalAutoExecutionPolicyMigrated": true,
+    "antigravityUnifiedStateSync.agentPreferences.hasTerminalDeniedCommandsMigrated": true,
+    "antigravityUnifiedStateSync.browserPreferences.hasAddedLocalhostToAllowlist": true,
+    "antigravityUnifiedStateSync.browserPreferences.hasBrowserAllowlistMigrated": true,
+    "antigravityUnifiedStateSync.browserPreferences.hasBrowserLaunchPreferencesMigrated": true,
+    "antigravityUnifiedStateSync.editorPreferences.hasDemoModeEnabledMigrated": true,
+    "antigravityUnifiedStateSync.editorPreferences.hasShowSelectionPopupMigrated": true,
+    "antigravityUnifiedStateSync.modelPreferences.hasLastModelDefaultOverrideVersionIdMigrated": true,
+    "antigravityUnifiedStateSync.modelPreferences.hasLastSelectedCascadeModelMigrated": true,
+    "antigravityUnifiedStateSync.oauthToken.hasLegacyMigrated": true,
+    "antigravityUnifiedStateSync.seenNuxOneTimeMigration": true,
+    "antigravityUnifiedStateSync.tabPreferences.hasMigrated": true,
+    "artifactReviewState.migratedFromInitState": true,
+    "backupWorkspaces": {
+        "workspaces": [],
+        "folders": [
+            {
+                "folderUri": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuer",
+                "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a226763702d696170227d"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/spectral-supernova"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/phantom-void"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor"
+            },
+            {
+                "folderUri": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor",
+                "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a226763702d696170227d"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/photonic-parsec"
+            },
+            {
+                "folderUri": "file:///c%3A/Users/Administrator/antigravity-web"
+            },
+            {
+                "folderUri": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/tiemuer",
+                "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d"
+            },
+            {
+                "folderUri": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/antigravity-web",
+                "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a226763702d696170227d"
+            }
+        ],
+        "emptyWindows": []
+    },
+    "jetski.agentManagerWindowClosed": false,
+    "profileAssociations": {
+        "workspaces": {
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/phantom-void": "__default__profile__",
+            "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuer": "__default__profile__",
+            "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/Administrator": "__default__profile__",
+            "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a22696e7374616e63652d32303235313232312d3132313135312e75732d63656e7472616c312d632e67656e2d6c616e672d636c69656e742d30383036303834393736227d/home/tiemuer": "__default__profile__",
+            "vscode-remote://wsl%2Bubuntu/home/linuxtiemuer": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/harmonic-hubble": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/spectral-supernova": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.antigravity": "__default__profile__",
+            "file:///c%3A/Users/Administrator": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor": "__default__profile__",
+            "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/.gemini/antigravity/playground/metallic-meteor": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground": "__default__profile__",
+            "file:///c%3A/Users/Administrator/.gemini/antigravity/playground/photonic-parsec": "__default__profile__",
+            "file:///c%3A/Users/Administrator/antigravity-web": "__default__profile__",
+            "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/c%3A/Users/Administrator/antigravity-web": "__default__profile__"
+        },
+        "emptyWindows": {}
+    },
+    "sidebarWorkspaces.migratedFromInitState": true,
+    "storage.serviceMachineId": "4c3ba245-117c-4303-8a4e-7fc3972ec22c",
+    "telemetry": {
+        "devDeviceId": "4c3ba245-117c-4303-8a4e-7fc3972ec22c",
+        "macMachineId": "7a2e0def-4c41-442c-80a9-24e789d9f73e",
+        "machineId": "auth0|user_jhlud5f9oolwexnucper1lph2wfzyosj",
+        "sqmId": "{E7A454C2-D790-4708-8A94-53EC68D6FBC3}"
+    },
+    "telemetry.devDeviceId": "fa0cf1a8-4567-4fc4-b9a6-8f5bbaa1b06c",
+    "telemetry.macMachineId": "7a2e0def-4c41-442c-80a9-24e789d9f73e",
+    "telemetry.machineId": "auth0|user_jhlud5f9oolwexnucper1lph2wfzyosj",
+    "telemetry.sqmId": "{E7A454C2-D790-4708-8A94-53EC68D6FBC3}",
+    "theme": "vs-dark",
+    "themeBackground": "#1f1f1f",
+    "unifiedStateSync.hasTrajectorySummariesMigrated": true,
+    "unifiedStateSync.hasUserStatusMigrated": true,
+    "unifiedStateSync.hasWindowPreferencesMigrated": true,
+    "windowControlHeight": 35,
+    "windowSplash": {
+        "zoomLevel": 0,
+        "baseTheme": "vs-dark",
+        "colorInfo": {
+            "foreground": "#cccccc",
+            "background": "#1f1f1f",
+            "editorBackground": "#1f1f1f",
+            "titleBarBackground": "#181818",
+            "titleBarBorder": "#2b2b2b",
+            "activityBarBackground": "#181818",
+            "activityBarBorder": "#2b2b2b",
+            "sideBarBackground": "#181818",
+            "sideBarBorder": "#2b2b2b",
+            "statusBarBackground": "#181818",
+            "statusBarBorder": "#2b2b2b",
+            "statusBarNoFolderBackground": "#1f1f1f"
+        },
+        "layoutInfo": {
+            "sideBarSide": "left",
+            "editorPartMinWidth": 220,
+            "titleBarHeight": 35,
+            "activityBarWidth": 42,
+            "sideBarWidth": 170,
+            "auxiliaryBarWidth": 1010,
+            "statusBarHeight": 22,
+            "windowBorder": false
+        }
+    },
+    "windowSplashWorkspaceOverride": {
+        "layoutInfo": {
+            "auxiliaryBarWidth": 1010,
+            "sideBarWidth": 170,
+            "workspaces": {
+                "95fefc518742e2508c861a259a0bf307": {
+                    "auxiliaryBarVisible": true,
+                    "sideBarVisible": false
+                },
+                "b8c3bfc3aeaea0c5b365d9b01cbfff65": {
+                    "auxiliaryBarVisible": true,
+                    "sideBarVisible": true
+                },
+                "f577ac358f9e8d87fbcdbfd7d9914c94": {
+                    "auxiliaryBarVisible": true,
+                    "sideBarVisible": true
+                },
+                "fdab19807074c018d160b247df9aafff": {
+                    "auxiliaryBarVisible": true,
+                    "sideBarVisible": true
+                },
+                "0a3a6ebdc4b7133311be92f9dc6786e5": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "36e2c4551572360da0b60cd886f06046": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "d7de9beee66f5ab35e292ce0651f3292": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "544bf512f7b98662f6e66f161c1d846e": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "bb2df7fa0024c6d36d574eaa74f8fd34": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "3d9269696914e8697dc7554518cec7d4": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "d78ea9ebe770c2d8730f84a81b9b5358": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "e209ae54aaa13ce10e676fa6cc6d3eef": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "1f51592bbbbc9946cc2c1f5c98560053": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "d78341970754565d91fb44a1760437c7": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                },
+                "ff022c308086e1030a3fb5ac65b7e0b3": {
+                    "sideBarVisible": true,
+                    "auxiliaryBarVisible": true
+                }
+            }
+        }
+    },
+    "windowsState": {
+        "lastActiveWindow": {
+            "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuer",
+            "backupPath": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\\Backups\\3b1c4c98ce7b083362d9337290b59505",
+            "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a226763702d696170227d",
+            "uiState": {
+                "mode": 0,
+                "x": -1712,
+                "y": -157,
+                "width": 1200,
+                "height": 805,
+                "zoomLevel": 1
+            }
+        },
+        "openedWindows": [
+            {
+                "folder": "vscode-remote://ssh-remote%2B7b22686f73744e616d65223a226763702d696170227d/home/tiemuer",
+                "backupPath": "C:\\Users\\Administrator\\AppData\\Roaming\\Antigravity\\Backups\\3b1c4c98ce7b083362d9337290b59505",
+                "remoteAuthority": "ssh-remote+7b22686f73744e616d65223a226763702d696170227d",
+                "uiState": {
+                    "mode": 0,
+                    "x": -1712,
+                    "y": -157,
+                    "width": 1200,
+                    "height": 805,
+                    "zoomLevel": 1
+                }
+            }
+        ]
+    },
+    "agentManagerWindow.migratedFromInitState": true,
+    "unifiedStateSync.hasOnboardingMigrated": true,
+    "scratchWorkspaces.migratedFromInitState": true
+}
