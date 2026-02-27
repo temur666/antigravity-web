@@ -5,7 +5,7 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store';
-import { ChevronDown } from 'lucide-react';
+import { ChevronUp } from 'lucide-react';
 
 export function ModelSelector() {
     const [open, setOpen] = useState(false);
@@ -33,18 +33,18 @@ export function ModelSelector() {
     };
 
     return (
-        <div className="header-dropdown" ref={dropdownRef}>
+        <div className="input-dropdown" ref={dropdownRef}>
             <button
-                className="header-dropdown-trigger"
+                className="input-dropdown-trigger"
                 onClick={() => setOpen(!open)}
                 id="model-selector"
             >
-                <ChevronDown size={14} className={`dropdown-chevron ${open ? 'open' : ''}`} />
+                <ChevronUp size={14} className={`dropdown-chevron-up ${open ? 'open' : ''}`} />
                 <span>{displayName}</span>
             </button>
 
             {open && (
-                <div className="header-dropdown-menu model-menu">
+                <div className="input-dropdown-menu model-menu">
                     <div className="dropdown-menu-title">Model</div>
 
                     {models.length > 0 ? (

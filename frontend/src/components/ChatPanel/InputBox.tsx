@@ -3,8 +3,10 @@
  */
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Settings, Mic, ArrowRight } from 'lucide-react';
+import { Mic, ArrowRight, Plus } from 'lucide-react';
 import { ConfigPanel } from '../ConfigPanel/ConfigPanel';
+import { ModeSelector } from '../Header/ModeSelector';
+import { ModelSelector } from '../Header/ModelSelector';
 
 export function InputBox() {
     const [text, setText] = useState('');
@@ -50,28 +52,11 @@ export function InputBox() {
 
     return (
         <div className="input-box">
-            <div className="input-box-inner">
-                <div className="input-actions-left">
-                    <button
-                        className="input-action-btn"
-                        onClick={() => setShowConfigOptions(!showConfigOptions)}
-                        title="配置"
-                    >
-                        <Settings size={20} />
-                    </button>
-                    <button className="input-action-btn" title="语音">
-                        <Mic size={20} />
-                    </button>
-                    {showConfigOptions && (
-                        <div className="input-config-popover" data-testid="config-popover">
-                            <ConfigPanel />
-                        </div>
-                    )}
-                </div>
-
+            <div className="input-box-inner-vertical">
+                {/* 文本输入区 */}
                 <textarea
                     ref={inputRef}
-                    className="input-textarea"
+                    className="input-textarea-vertical"
                     value={text}
                     onInput={handleInput}
                     onChange={e => setText(e.target.value)}
@@ -81,20 +66,50 @@ export function InputBox() {
                             ? '请先选择或创建对话'
                             : isRunning
                                 ? 'AI 正在回复...'
-                                : '输入消息... (Enter 发送, Shift+Enter 换行)'
+                                : 'Ask anything, @ to mention, / for workflows'
                     }
                     disabled={!activeConversationId}
                     rows={1}
                 />
 
-                <button
-                    className={`input-send-btn ${canSend ? 'active' : ''}`}
-                    onClick={handleSend}
-                    disabled={!canSend}
-                    title="发送"
-                >
-                    <ArrowRight size={20} />
-                </button>
+                {/* 底部功能区 */}
+                <div className="input-bottom-bar">
+                    <div className="input-actions-left-bottom">
+                        <button
+                            className="input-circle-btn ghost"
+                            onClick={() => setShowConfigOptions(!showConfigOptions)}
+                            title="配置"
+                        >
+                            <Plus size={16} />
+                        </button>
+
+                        <div className="input-selectors">
+                            <ModeSelector />
+                            <ModelSelector />
+                        </div>
+
+                        {showConfigOptions && (
+                            <div className="input-config-popover" data-testid="config-popover">
+                                <ConfigPanel />
+                            </div>
+                        )}
+                    </div>
+
+                    <div className="input-actions-right-bottom">
+                        <button className="input-circle-btn ghost" title="语音">
+                            <Mic size={16} />
+                        </button>
+
+                        <button
+                            className={`input-circle-btn solid ${canSend ? 'active' : ''}`}
+                            onClick={handleSend}
+                            disabled={!canSend}
+                            title="发送"
+                        >
+                            <ArrowRight size={16} />
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -821,78 +821,19 @@ body {
   border-top: 1px solid var(--color-border);
 }
 
-.input-box-inner {
-  margin: 0 auto;
+.input-box-inner-vertical {
+  margin: 12px auto;
   max-width: 800px;
   display: flex;
-  align-items: flex-end;
-  gap: 12px;
-  padding: 12px var(--spacing-xl);
-}
-
-
-.input-actions-left {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding-bottom: 2px;
-  position: relative;
-}
-
-.input-action-btn {
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-  padding: 8px;
+  flex-direction: column;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-  transition: var(--transition-smooth);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  padding: 12px 14px;
 }
 
-.input-action-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-text-primary);
-}
-
-.input-config-popover {
-  position: absolute;
-  bottom: 100%;
-  left: 0;
-  margin-bottom: 16px;
-  background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  overflow: hidden;
-  z-index: 100;
-  width: 320px;
-  transform-origin: bottom left;
-  animation: popUp 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
-}
-
-.input-config-popover .config-panel {
-  border-left: none;
-  /* remove default side border from config panel components */
+.input-textarea-vertical {
   width: 100%;
-}
-
-@keyframes popUp {
-  from {
-    opacity: 0;
-    transform: scale(0.95) translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
-
-.input-textarea {
-  flex: 1;
   background: none;
   border: none;
   color: var(--color-text-primary);
@@ -901,51 +842,178 @@ body {
   line-height: 1.5;
   resize: none;
   outline: none;
-  padding: 8px 12px;
+  padding: 0;
   max-height: 200px;
   min-height: 40px;
+  margin-bottom: 8px;
 }
 
-.input-textarea::placeholder {
+.input-textarea-vertical::placeholder {
   color: var(--color-text-muted);
 }
 
-.input-textarea:disabled {
+.input-textarea-vertical:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.input-send-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: none;
-  width: 40px;
-  height: 40px;
+.input-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.input-actions-left-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+}
+
+.input-selectors {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.input-actions-right-bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Circle Button (Plus, Mic, Send) */
+.input-circle-btn {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-pill);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
   cursor: pointer;
   transition: var(--transition-smooth);
-  font-weight: 600;
-  margin-bottom: 2px;
+  color: var(--color-text-secondary);
 }
 
-.input-send-btn.active {
+.input-circle-btn.ghost {
+  background: transparent;
+}
+
+.input-circle-btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
+.input-circle-btn.solid {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.input-circle-btn.solid.active {
   background: #3b82f6;
   /* Modern vivid blue */
-  color: #fff;
   box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
-.input-send-btn:hover:not(:disabled) {
+.input-circle-btn.solid:hover:not(:disabled) {
   transform: scale(1.05);
 }
 
-.input-send-btn:disabled {
+.input-circle-btn:disabled {
   opacity: 0.2;
   cursor: not-allowed;
 }
+
+/* Dropdowns in Input Box */
+.input-dropdown {
+  position: relative;
+}
+
+.input-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.input-dropdown-trigger:hover {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-chevron-up {
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.dropdown-chevron-up.open {
+  transform: rotate(180deg);
+}
+
+.input-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  min-width: 250px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  z-index: 200;
+  padding: 8px;
+  animation: dropdownUp 0.12s ease-out;
+}
+
+.input-dropdown-menu.model-menu {
+  min-width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@keyframes dropdownUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-config-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 100;
+  width: 320px;
+  transform-origin: bottom left;
+  animation: dropdownUp 0.12s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.input-config-popover .config-panel {
+  border-left: none;
+  width: 100%;
+}
+
 
 /* CONFIG PANEL */
 .config-panel {

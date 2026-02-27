@@ -8,8 +8,6 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
-import { ModeSelector } from './components/Header/ModeSelector';
-import { ModelSelector } from './components/Header/ModelSelector';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
@@ -57,10 +55,6 @@ export default function App() {
           >
             ☰
           </button>
-          <div className="header-selectors">
-            <ModeSelector />
-            <ModelSelector />
-          </div>
           <div className="header-title">Antigravity Chat</div>
           <div style={{ width: 36 }}></div>
         </header>
