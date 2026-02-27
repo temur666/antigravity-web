@@ -96,20 +96,9 @@ async function handleMessage(clientWs, data) {
                     break;
                 }
                 const traj = await controller.getTrajectory(data.cascadeId);
-                // trajectory not found → LS 内存中无此对话（历史对话）
-                const isNotFound = traj?.code === 'unknown' || !traj?.trajectory;
-                let status = traj?.status || '';
-                if (isNotFound && !status) {
-                    // 尝试从 GetAllCascadeTrajectories 获取 status
-                    try {
-                        const allTraj = await grpcCall(controller.ls.port, controller.ls.csrf, 'GetAllCascadeTrajectories', {});
-                        const summary = allTraj.data?.trajectorySummaries?.[data.cascadeId];
-                        if (summary?.status) status = summary.status;
-                    } catch { /* ignore */ }
-                }
                 send(proto.makeResponse('res_trajectory', {
                     cascadeId: data.cascadeId,
-                    status: status || 'CASCADE_RUN_STATUS_IDLE',
+                    status: traj?.status || 'CASCADE_RUN_STATUS_IDLE',
                     steps: traj?.trajectory?.steps || [],
                     totalSteps: traj?.numTotalSteps || 0,
                     metadata: traj?.trajectory?.generatorMetadata || [],
