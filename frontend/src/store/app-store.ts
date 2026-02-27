@@ -260,12 +260,24 @@ export function createAppStore(wsClient: WSClient): AppStore {
         switch (msg.type) {
             case 'event_ls_status': {
                 const event = msg as EventLsStatus;
+                const wasConnected = state.lsConnected;
                 store.setState({
                     lsConnected: event.connected,
                     lsInfo: event.connected
                         ? { port: event.port!, pid: event.pid! }
                         : null,
                 });
+
+                // LS 恢复连接 → 自动刷新数据
+                if (!wasConnected && event.connected) {
+                    const currentState = store.getState();
+                    currentState.loadConversations();
+                    currentState.loadStatus();
+                    // 恢复当前对话
+                    if (currentState.activeConversationId) {
+                        currentState.selectConversation(currentState.activeConversationId);
+                    }
+                }
                 break;
             }
 

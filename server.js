@@ -24,7 +24,21 @@ const controller = new Controller();
 
 controller.on('error', (err) => console.error('[!] Controller:', err.message));
 controller.on('ls_connected', (ls) => console.log(`[+] LS 已连接 PID=${ls.pid} Port=${ls.port}`));
-controller.on('ls_disconnected', () => console.log('[-] LS 断开'));
+controller.on('ls_disconnected', () => {
+    console.log('[-] LS 断开');
+    // 广播给所有客户端
+    const msg = proto.makeEvent('event_ls_status', { connected: false, port: null, pid: null });
+    for (const ws of clients) {
+        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
+    }
+});
+controller.on('ls_reconnected', (ls) => {
+    console.log(`[+] LS 重连成功 PID=${ls.pid} Port=${ls.port}`);
+    const msg = proto.makeEvent('event_ls_status', { connected: true, port: ls.port, pid: ls.pid });
+    for (const ws of clients) {
+        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
+    }
+});
 controller.on('status_changed', ({ cascadeId, from, to }) => {
     console.log(`[~] 对话 ${cascadeId.slice(0, 8)}... ${from} -> ${to}`);
 });
