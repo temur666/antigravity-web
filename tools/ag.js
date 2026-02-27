@@ -16,7 +16,7 @@
 const path = require('path');
 const fs = require('fs');
 const service = require('../lib/service');
-const format = require('../lib/format');
+const format = require('../lib/data/format');
 
 const EXPORT_DIR = path.join(__dirname, 'exports');
 

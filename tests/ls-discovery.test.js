@@ -64,7 +64,7 @@ function cleanupMockDir() {
 
 console.log('\n📁 parseDiscoveryFile');
 
-const { parseDiscoveryFile, discoverLS, grpcCall } = require('../lib/ls-discovery');
+const { parseDiscoveryFile, discoverLS, grpcCall } = require('../lib/core/ls-discovery');
 
 test('解析有效的 discovery JSON', () => {
     const result = parseDiscoveryFile(JSON.stringify(MOCK_DISCOVERY));

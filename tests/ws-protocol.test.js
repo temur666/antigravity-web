@@ -19,7 +19,7 @@ function test(name, fn) {
     }
 }
 
-const proto = require('../lib/ws-protocol');
+const proto = require('../lib/core/ws-protocol');
 
 // ========== Tests: 消息类型常量 ==========
 

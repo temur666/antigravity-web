@@ -32,7 +32,7 @@ async function testAsync(name, fn) {
     }
 }
 
-const { Controller } = require('../lib/controller');
+const { Controller } = require('../lib/core/controller');
 
 // ========== Tests: 构造 ==========
 

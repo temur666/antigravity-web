@@ -35,8 +35,8 @@ async function main() {
     log('Step 1: 启动 Controller + HTTP Server');
 
     const express = require('express');
-    const { Controller } = require('../lib/controller');
-    const proto = require('../lib/ws-protocol');
+    const { Controller } = require('../lib/core/controller');
+    const proto = require('../lib/core/ws-protocol');
 
     const controller = new Controller();
     const ok = await controller.init();

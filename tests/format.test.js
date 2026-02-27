@@ -3,7 +3,7 @@
  * Run: node tests/format.test.js
  */
 const assert = require('assert');
-const { toMarkdown, formatConversationList, extractMetadata, PLANNER_SKIP_KEYS } = require('../lib/format');
+const { toMarkdown, formatConversationList, extractMetadata, PLANNER_SKIP_KEYS } = require('../lib/data/format');
 
 // ========== Test Data ==========
 
