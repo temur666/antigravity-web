@@ -324,6 +324,66 @@ items: [
 ```json
 // 请求
 { "metadata": {} }
+
+// 响应
+{ "lastExtensionHeartbeat": "2026-02-27T12:27:11Z" }
+```
+
+#### 11. `GetAllCascadeTrajectories` ⭐ — 获取所有对话摘要
+
+```json
+// 请求
+{}
+
+// 响应
+{
+    "trajectorySummaries": {
+        "cascadeId-uuid": {
+            "summary": "对话标题",
+            "stepCount": 341,
+            "lastModifiedTime": "2026-02-27T07:43:57.243Z",
+            "trajectoryId": "uuid",
+            "status": "CASCADE_RUN_STATUS_IDLE",
+            "createdTime": "2026-02-27T06:18:48.548Z",
+            "workspaces": [
+                {
+                    "workspaceFolderAbsoluteUri": "file:///home/tiemuer",
+                    "repository": {}
+                }
+            ],
+            "lastUserInputTime": "2026-02-27T07:30:01.464Z",
+            "lastUserInputStepIndex": 319
+        }
+    }
+}
+```
+
+> **关键 API**: 提供当前 LS 进程内所有对话的完整元数据（标题、步骤数、状态等）
+
+#### 12. `DeleteCascadeTrajectory` — 删除对话轨迹
+
+```json
+// 请求
+{ "cascadeId": "uuid" }
+
+// 响应
+{}
+```
+
+> ⚠️ 危险操作
+
+#### 13. `AcceptTermsOfService` — 接受服务条款
+
+```json
+// 请求/响应
+{}
+```
+
+#### 14. `RecordEvent` — 记录遥测事件
+
+```json
+// 请求/响应
+{}
 ```
 
 ---
