@@ -1,6 +1,10 @@
 node_modules/
 frontend/dist/
 
+# Media files (screenshots, recordings)
+*.mp4
+*.webm
+
 # Sensitive dump/capture files (may contain tokens, secrets)
 tools/*.txt
 tools/*.pb

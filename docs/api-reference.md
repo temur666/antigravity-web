@@ -56,13 +56,13 @@ Headers:
 
 ### 端口发现
 
-- **Discovery 文件**: `~/.codeium/windsurf/config/daemon-port.json`
-- **进程参数**: `ps aux | grep language_server` → `--grpc_port`
+- **Discovery 文件**: `~/.gemini/antigravity/daemon/ls_*.json`（优先）
+- **进程参数**: `ps aux | grep language_server` → `--csrf_token`，再通过 `ss -tlnp` 找端口
 
 ### CSRF Token 获取
 
-- **Discovery 文件**: `~/.codeium/windsurf/config/daemon-port.json` → `csrf` 字段
-- **CDP 方式**: 通过 Chrome DevTools Protocol 从 IDE 窗口拦截网络请求
+- **Discovery 文件**: `~/.gemini/antigravity/daemon/ls_*.json` → `csrfToken` 字段
+- **CDP 方式**: 通过 Chrome DevTools Protocol 从 IDE 窗口拦截 Heartbeat 请求头
 
 ---
 
@@ -585,7 +585,7 @@ ws://localhost:3210
 
 ```bash
 node -e "
-const { discoverLS, grpcCall } = require('./lib/ls-discovery');
+const { discoverLS, grpcCall } = require('./lib/core/ls-discovery');
 const ls = discoverLS();
 grpcCall(ls.port, ls.csrf, 'GetUserStatus', {}).then(r => {
     const configs = r.data?.userStatus?.cascadeModelConfigData?.clientModelConfigs || [];
@@ -598,8 +598,8 @@ grpcCall(ls.port, ls.csrf, 'GetUserStatus', {}).then(r => {
 
 ```bash
 node -e "
-const { discoverLS, grpcCall } = require('./lib/ls-discovery');
-const { buildSendBody, DEFAULT_CONFIG } = require('./lib/ws-protocol');
+const { discoverLS, grpcCall } = require('./lib/core/ls-discovery');
+const { buildSendBody, DEFAULT_CONFIG } = require('./lib/core/ws-protocol');
 const ls = discoverLS();
 
 (async () => {
