@@ -52,7 +52,7 @@ test('初始状态正确', () => {
 
 test('默认配置正确', () => {
     const ctrl = new Controller();
-    assert.strictEqual(ctrl.config.model, 'MODEL_PLACEHOLDER_M18');
+    assert.strictEqual(ctrl.config.model, 'MODEL_PLACEHOLDER_M37');
     assert.strictEqual(ctrl.config.agenticMode, true);
 });
 
@@ -77,7 +77,7 @@ test('getConfig 返回副本', () => {
     const ctrl = new Controller();
     const cfg = ctrl.getConfig();
     cfg.model = 'CHANGED';
-    assert.strictEqual(ctrl.config.model, 'MODEL_PLACEHOLDER_M18', 'should not mutate');
+    assert.strictEqual(ctrl.config.model, 'MODEL_PLACEHOLDER_M37', 'should not mutate');
 });
 
 // ========== Tests: Diff 引擎 ==========

@@ -57,9 +57,14 @@ export function ConfigPanel() {
                             >
                                 {/* model 特殊处理：options 从 models 动态生成 */}
                                 {key === 'model'
-                                    ? (models.length > 0 ? models : [config.model]).map(m => (
-                                        <option key={m} value={m}>{m}</option>
-                                    ))
+                                    ? (models.length > 0
+                                        ? models.map(m => (
+                                            <option key={m.model} value={m.model}>
+                                                {m.label}{m.tag ? ` [${m.tag}]` : ''}
+                                            </option>
+                                        ))
+                                        : <option value={config.model}>{config.model}</option>
+                                    )
                                     : meta.options?.map(opt => (
                                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                                     ))

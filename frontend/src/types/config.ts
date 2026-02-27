@@ -23,7 +23,7 @@ export type ArtifactReviewMode =
     | 'ARTIFACT_REVIEW_MODE_STRICT';
 
 export const DEFAULT_CONFIG: CascadeConfig = {
-    model: 'MODEL_PLACEHOLDER_M18',
+    model: 'MODEL_PLACEHOLDER_M37',
     agenticMode: true,
     autoExecutionPolicy: 'CASCADE_COMMANDS_AUTO_EXECUTION_EAGER',
     artifactReviewMode: 'ARTIFACT_REVIEW_MODE_TURBO',
@@ -46,8 +46,8 @@ export const CONFIG_META: Record<keyof CascadeConfig, {
         options: [], // 动态从 res_status.models 填充
     },
     agenticMode: {
-        label: 'Agentic 模式',
-        description: '启用后 AI 可以主动执行工具调用',
+        label: '对话模式',
+        description: 'Planning (先规划后执行) / Fast (直接执行)',
         inputType: 'toggle',
     },
     autoExecutionPolicy: {

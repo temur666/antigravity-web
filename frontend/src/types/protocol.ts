@@ -41,6 +41,8 @@ export interface ReqSendMessage {
     cascadeId: string;
     text: string;
     config?: Partial<CascadeConfig>;
+    mentions?: Array<{ file: { absoluteUri: string } }>;
+    media?: Array<{ mimeType: string; uri: string; thumbnail?: string }>;
 }
 
 export interface ReqSubscribe {
@@ -105,7 +107,8 @@ export interface ResStatus {
         email: string;
         tier: string;
     } | null;
-    models: string[];
+    models: ModelInfo[];
+    defaultModel: string | null;
 }
 
 export interface ResConversations {
@@ -144,6 +147,12 @@ export interface ResSubscribe {
     cascadeId: string;
 }
 
+export interface ResUnsubscribe {
+    type: 'res_unsubscribe';
+    reqId?: string;
+    cascadeId: string;
+}
+
 export interface ResConfig {
     type: 'res_config';
     reqId?: string;
@@ -164,6 +173,7 @@ export type ServerMessage =
     | ResNewChat
     | ResSendMessage
     | ResSubscribe
+    | ResUnsubscribe
     | ResConfig
     | ResError
     | EventStepAdded
@@ -214,6 +224,15 @@ export interface ConversationSummary {
 
 export interface GeneratorMetadata {
     [key: string]: unknown;
+}
+
+export interface ModelInfo {
+    label: string;
+    model: string;
+    supportsImages: boolean;
+    supportedMimeTypes: Record<string, boolean>;
+    quota: number;
+    tag: string;
 }
 
 export type { Step } from './step';

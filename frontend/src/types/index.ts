@@ -16,6 +16,7 @@ export type {
     ResNewChat,
     ResSendMessage,
     ResSubscribe,
+    ResUnsubscribe,
     ResConfig,
     ResError,
     EventStepAdded,
@@ -24,6 +25,7 @@ export type {
     EventLsStatus,
     ConversationSummary,
     GeneratorMetadata,
+    ModelInfo,
 } from './protocol';
 export type { CascadeConfig } from './protocol';
 

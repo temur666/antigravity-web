@@ -53,14 +53,19 @@ async function handleMessage(clientWs, data) {
                             email: us.email || '',
                             tier: us.userTier?.name || '',
                         };
-                        const chatConfigs = us.cascadeModelConfigData?.chatConfigs || [];
-                        status.models = chatConfigs.map(c => ({
+                        const modelConfigs = us.cascadeModelConfigData?.clientModelConfigs || [];
+                        status.models = modelConfigs.map(c => ({
                             label: c.label,
                             model: c.modelOrAlias?.model,
+                            supportsImages: c.supportsImages || false,
+                            supportedMimeTypes: c.supportedMimeTypes || {},
                             quota: c.quotaInfo?.remainingFraction,
                             tag: c.tagTitle || '',
                         }));
-                    } catch { /* ignore */ }
+                        status.defaultModel = us.cascadeModelConfigData?.defaultOverrideModelConfig?.modelOrAlias?.model || null;
+                    } catch (err) {
+                        console.warn('⚠️  GetUserStatus:', err.message);
+                    }
                 }
                 send(proto.makeResponse('res_status', status, reqId));
                 break;
@@ -112,7 +117,10 @@ async function handleMessage(clientWs, data) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId or text', reqId));
                     break;
                 }
-                await controller.sendMessage(data.cascadeId, data.text, data.config);
+                const extras = {};
+                if (data.mentions) extras.mentions = data.mentions;
+                if (data.media) extras.media = data.media;
+                await controller.sendMessage(data.cascadeId, data.text, data.config, extras);
                 controller.subscribe(data.cascadeId, clientWs);
                 send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;
@@ -134,7 +142,7 @@ async function handleMessage(clientWs, data) {
                     break;
                 }
                 controller.unsubscribe(data.cascadeId, clientWs);
-                send(proto.makeResponse('res_subscribe', { ok: true, cascadeId: data.cascadeId }, reqId));
+                send(proto.makeResponse('res_unsubscribe', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;
             }
 

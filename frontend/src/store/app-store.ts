@@ -29,6 +29,7 @@ import type {
     ResConfig,
     ResStatus,
     CascadeConfig,
+    ModelInfo,
 } from '@/types';
 import { DEFAULT_CONFIG } from '@/types';
 import type { WSClient } from './ws-client';
@@ -52,7 +53,7 @@ export interface AppState {
 
     // 配置
     config: CascadeConfig;
-    models: string[];
+    models: ModelInfo[];
 
     // 账号
     account: { email: string; tier: string } | null;
@@ -66,7 +67,7 @@ export interface AppState {
     loadConversations: (limit?: number, search?: string) => Promise<void>;
     selectConversation: (id: string) => Promise<void>;
     newChat: () => Promise<string | null>;
-    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>) => Promise<void>;
+    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => Promise<void>;
     loadConfig: () => Promise<void>;
     setConfig: (partial: Partial<CascadeConfig>) => Promise<void>;
     loadStatus: () => Promise<void>;
@@ -176,7 +177,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
             return null;
         },
 
-        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>) => {
+        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => {
             const cascadeId = get().activeConversationId;
             if (!cascadeId) return;
 
@@ -188,6 +189,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 cascadeId,
                 text,
                 ...(configOverride ? { config: configOverride } : {}),
+                ...(extras?.mentions ? { mentions: extras.mentions } : {}),
+                ...(extras?.media ? { media: extras.media } : {}),
             });
         },
 

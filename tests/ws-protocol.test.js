@@ -152,7 +152,7 @@ console.log('\n⚙️ DEFAULT_CONFIG');
 
 test('默认配置完整', () => {
     const cfg = proto.DEFAULT_CONFIG;
-    assert.strictEqual(cfg.model, 'MODEL_PLACEHOLDER_M18');
+    assert.strictEqual(cfg.model, 'MODEL_PLACEHOLDER_M37');
     assert.strictEqual(cfg.agenticMode, true);
     assert(cfg.autoExecutionPolicy, 'should have autoExecutionPolicy');
     assert(cfg.artifactReviewMode, 'should have artifactReviewMode');
@@ -162,11 +162,11 @@ test('默认配置完整', () => {
 });
 
 test('buildSendBody 构造完整请求体', () => {
-    const body = proto.buildSendBody('cascade-1', 'hello world', proto.DEFAULT_CONFIG);
+    const body = proto.buildSendBody('cascade-1', 'hello world');
     assert.strictEqual(body.cascadeId, 'cascade-1');
     assert.strictEqual(body.items[0].text, 'hello world');
     assert.strictEqual(body.cascadeConfig.plannerConfig.conversational.agenticMode, true);
-    assert.strictEqual(body.cascadeConfig.plannerConfig.requestedModel.model, 'MODEL_PLACEHOLDER_M18');
+    assert.strictEqual(body.cascadeConfig.plannerConfig.requestedModel.model, 'MODEL_PLACEHOLDER_M37');
 });
 
 test('buildSendBody 自定义 config', () => {
@@ -174,6 +174,33 @@ test('buildSendBody 自定义 config', () => {
     const body = proto.buildSendBody('c2', 'test', cfg);
     assert.strictEqual(body.cascadeConfig.plannerConfig.conversational.agenticMode, false);
     assert.strictEqual(body.cascadeConfig.plannerConfig.requestedModel.model, 'MODEL_PLACEHOLDER_M26');
+});
+
+test('buildSendBody 支持 mentions (文件引用)', () => {
+    const mentions = [
+        { file: { absoluteUri: 'file:///home/user/project/app.tsx' } },
+    ];
+    const body = proto.buildSendBody('c3', 'fix this file', proto.DEFAULT_CONFIG, { mentions });
+    // items 应包含 text + mentions
+    assert.strictEqual(body.items[0].text, 'fix this file');
+    assert.strictEqual(body.items.length, 3); // text + mention + trailing space
+    assert.deepStrictEqual(body.items[1], { item: mentions[0] });
+    assert.strictEqual(body.items[2].text, ' ');
+});
+
+test('buildSendBody 支持 media (图片)', () => {
+    const media = [
+        { mimeType: 'image/png', uri: '/path/to/image.png', thumbnail: 'base64data' },
+    ];
+    const body = proto.buildSendBody('c4', 'describe this', proto.DEFAULT_CONFIG, { media });
+    assert.deepStrictEqual(body.media, media);
+    assert.strictEqual(body.items[0].text, 'describe this');
+});
+
+test('buildSendBody 无 mentions/media 时不添加额外字段', () => {
+    const body = proto.buildSendBody('c5', 'plain text');
+    assert.strictEqual(body.items.length, 1);
+    assert.strictEqual(body.media, undefined);
 });
 
 // ========== Summary ==========
