@@ -16,11 +16,18 @@ export function ChatPanel() {
     const loading = useAppStore(s => s.loading);
     const error = useAppStore(s => s.error);
     const bottomRef = useRef<HTMLDivElement>(null);
+    const prevLoadingRef = useRef(loading);
 
-    // 自动滚动到底部
+    // 自动滚动到底部：批量加载用 instant，增量推送用 smooth
     useEffect(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [steps.length]);
+        const justFinishedLoading = prevLoadingRef.current && !loading;
+        prevLoadingRef.current = loading;
+
+        if (!steps.length) return;
+
+        const behavior = justFinishedLoading ? 'instant' : 'smooth';
+        bottomRef.current?.scrollIntoView({ behavior });
+    }, [steps.length, loading]);
 
     if (!activeConversationId) {
         return (
