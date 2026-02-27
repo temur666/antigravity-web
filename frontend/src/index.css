@@ -826,10 +826,19 @@ body {
   max-width: 800px;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.03);
+  /* 更暗，且带有微弱环境光的通透感 */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  /* 极弱的描边 */
   border-radius: var(--radius-md);
   padding: 12px 14px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.input-box-inner-vertical:focus-within {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.15);
+  /* 聚焦时稍微亮起 */
 }
 
 .input-textarea-vertical {
