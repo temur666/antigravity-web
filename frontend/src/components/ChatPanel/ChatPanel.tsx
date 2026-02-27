@@ -3,7 +3,7 @@
  *
  * 渲染当前对话的所有 steps + 输入框
  */
-import { useEffect, useRef } from 'react';
+import { useEffect, useLayoutEffect, useRef } from 'react';
 import { useAppStore } from '@/store';
 import { StepRenderer } from './StepRenderer';
 import { InputBox } from './InputBox';
@@ -18,15 +18,25 @@ export function ChatPanel() {
     const bottomRef = useRef<HTMLDivElement>(null);
     const prevLoadingRef = useRef(loading);
 
-    // 自动滚动到底部：批量加载用 instant，增量推送用 smooth
-    useEffect(() => {
+    // 批量加载完成：绘制前同步跳到底部，避免闪烁
+    useLayoutEffect(() => {
         const justFinishedLoading = prevLoadingRef.current && !loading;
         prevLoadingRef.current = loading;
 
-        if (!steps.length) return;
+        if (justFinishedLoading && steps.length) {
+            bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+        }
+    }, [steps.length, loading]);
 
-        const behavior = justFinishedLoading ? 'instant' : 'smooth';
-        bottomRef.current?.scrollIntoView({ behavior });
+    // 增量推送：绘制后平滑滚动
+    const prevStepsLenRef = useRef(steps.length);
+    useEffect(() => {
+        const prev = prevStepsLenRef.current;
+        prevStepsLenRef.current = steps.length;
+
+        if (!loading && steps.length > prev && prev > 0) {
+            bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
     }, [steps.length, loading]);
 
     if (!activeConversationId) {
