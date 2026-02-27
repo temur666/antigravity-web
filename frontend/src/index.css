@@ -778,32 +778,80 @@ body {
   bottom: 0;
   left: 0;
   right: 0;
-  padding: 0 var(--spacing-xl) 32px;
-  background: linear-gradient(to top, var(--color-bg-base) 60%, transparent);
-  pointer-events: none;
+  padding: 0;
+  background: var(--color-bg-base);
+  pointer-events: auto;
+  border-top: 1px solid var(--color-border);
 }
 
 .input-box-inner {
-  pointer-events: auto;
   margin: 0 auto;
   max-width: 800px;
-  background: var(--color-bg-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
   display: flex;
   align-items: flex-end;
   gap: 12px;
-  padding: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+  padding: 12px var(--spacing-xl);
 }
 
-.input-box-inner:focus-within {
-  border-color: rgba(45, 212, 191, 0.5);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(45, 212, 191, 0.2);
-  transform: translateY(-2px);
+
+.input-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 2px;
+  position: relative;
+}
+
+.input-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  transition: var(--transition-smooth);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
+.input-config-popover {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  margin-bottom: 16px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 100;
+  width: 320px;
+  transform-origin: bottom left;
+  animation: popUp 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.input-config-popover .config-panel {
+  border-left: none;
+  /* remove default side border from config panel components */
+  width: 100%;
+}
+
+@keyframes popUp {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .input-textarea {
@@ -818,6 +866,7 @@ body {
   outline: none;
   padding: 8px 12px;
   max-height: 200px;
+  min-height: 40px;
 }
 
 .input-textarea::placeholder {
@@ -830,8 +879,8 @@ body {
 }
 
 .input-send-btn {
-  background: var(--color-text-primary);
-  color: #000;
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
   border: none;
   width: 40px;
   height: 40px;
@@ -842,12 +891,18 @@ body {
   cursor: pointer;
   transition: var(--transition-smooth);
   font-weight: 600;
-  font-size: 12px;
+  margin-bottom: 2px;
+}
+
+.input-send-btn.active {
+  background: #3b82f6;
+  /* Modern vivid blue */
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .input-send-btn:hover:not(:disabled) {
   transform: scale(1.05);
-  background: var(--color-accent);
 }
 
 .input-send-btn:disabled {

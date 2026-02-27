@@ -1,17 +1,15 @@
 /**
  * App.tsx — 主应用组件
  *
- * 布局: Sidebar | ChatPanel + ConfigPanel
+ * 布局: Sidebar | ChatPanel
  *       StatusBar (底部)
  */
 import { useState } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
-import { ConfigPanel } from './components/ConfigPanel/ConfigPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
 
 export default function App() {
-  const [showConfig, setShowConfig] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
 
   return (
@@ -31,19 +29,13 @@ export default function App() {
             ☰
           </button>
           <div className="header-title">Antigravity Chat</div>
-          <button
-            className={`header-btn ${showConfig ? 'active' : ''}`}
-            onClick={() => setShowConfig(!showConfig)}
-            title="配置"
-          >
-            ⚙️
-          </button>
+          {/* Placeholder or empty div to maintain title centering if flex is space-between */}
+          <div style={{ width: 36 }}></div>
         </header>
 
         {/* 内容区 */}
         <div className="main-content">
           <ChatPanel />
-          {showConfig && <ConfigPanel />}
         </div>
 
         {/* 状态栏 */}
