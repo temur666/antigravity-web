@@ -1,494 +1,550 @@
-# Antigravity IDE 对话数据逆向解析文档
+# Antigravity IDE 对话数据完整逆向解析文档
 
-> **日期**: 2026-02-25  
-> **目标**: 从 Antigravity IDE 的本地存储中程序化读取对话历史列表  
-> **结果**: 成功。通过直接读取 SQLite 数据库并解码 Protobuf 序列化的数据，实现了 18ms 内获取全部 296 条对话记录  
+> **日期**: 2026-02-25 ~ 2026-02-26  
+> **目标**: 从 Antigravity IDE 中程序化读取对话历史列表及**完整对话内容**  
+> **结果**: ✅ 完全成功。实现了两层数据获取：  
+>   - **第一层** — 对话列表：通过 SQLite 直读，18ms 获取全部 296 条对话元数据  
+>   - **第二层** — 对话内容：通过本地 gRPC API (`GetCascadeTrajectory`)，获取完整对话消息、AI 思考过程、工具调用等  
 
 ---
 
 ## 目录
 
-1. [背景与动机](#1-背景与动机)
-2. [探索过程](#2-探索过程)
-3. [数据存储位置](#3-数据存储位置)
-4. [数据库结构](#4-数据库结构)
-5. [Protobuf 逆向解析](#5-protobuf-逆向解析)
-6. [最终实现](#6-最终实现)
-7. [附录：工具脚本](#7-附录工具脚本)
+1. [架构总览](#1-架构总览)
+2. [第一层：对话列表获取（SQLite）](#2-第一层对话列表获取sqlite)
+3. [第二层：对话内容获取（gRPC API）](#3-第二层对话内容获取grpc-api)
+4. [远程服务器存储](#4-远程服务器存储)
+5. [完整工具链](#5-完整工具链)
+6. [附录](#6-附录)
 
 ---
 
-## 1. 背景与动机
+## 1. 架构总览
 
-### 原有方案的问题
-
-Antigravity IDE（基于 VS Code 的 AI 编程助手）的对话历史没有公开的程序化 API。原有的 `lib/ide.js` 通过 **CDP（Chrome DevTools Protocol）模拟 DOM 操作** 来获取对话列表：
+### 1.1 Antigravity 数据架构
 
 ```
-打开 History 弹窗 → 读取弹窗 DOM → 提取对话标题 → 关闭弹窗
+┌─────────────────────────────────────────────────────────────────────┐
+│                    Antigravity IDE (Electron)                       │
+│                                                                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────────────┐    │
+│  │  Workspace    │  │   Manager    │  │    Launchpad           │    │
+│  │  (编辑器窗口) │  │  (管理窗口)   │  │   (启动器窗口)         │    │
+│  │              │  │              │  │                        │    │
+│  │  #conversation│  │  侧边栏列表  │  │  工作区/对话选择器      │    │
+│  │  (虚拟滚动)   │  │  对话管理    │  │                        │    │
+│  └──────┬───────┘  └──────┬───────┘  └────────────────────────┘    │
+│         │                 │                                         │
+│         ▼                 ▼                                         │
+│  ┌──────────────────────────────────────────────────────────┐      │
+│  │           Language Server (gRPC over HTTPS)               │      │
+│  │                                                           │      │
+│  │  服务: exa.language_server_pb.LanguageServerService       │      │
+│  │  端口: 动态分配 (如 33071, 63243, 59513)                  │      │
+│  │  认证: x-codeium-csrf-token                               │      │
+│  │  协议: ConnectRPC (connect-protocol-version: 1)           │      │
+│  │                                                           │      │
+│  │  关键方法:                                                 │      │
+│  │  ├── GetCascadeTrajectory      → 获取完整对话内容 ⭐       │      │
+│  │  ├── StreamCascadeReactiveUpdates → 流式订阅对话更新       │      │
+│  │  ├── UpdateConversationAnnotations → 更新对话注释          │      │
+│  │  └── GetAgentScripts            → 获取 Agent 脚本         │      │
+│  └──────────────────────────────────────────────────────────┘      │
+│                          │                                          │
+│                          ▼                                          │
+│  ┌──────────────────────────────────────────────────────────┐      │
+│  │                本地 SQLite 数据库                          │      │
+│  │  路径: %APPDATA%\Antigravity\User\globalStorage\state.vscdb│     │
+│  │  内容: 对话元数据（UUID、标题、时间戳、工作区）             │      │
+│  └──────────────────────────────────────────────────────────┘      │
+│                          │                                          │
+│                          ▼                                          │
+│  ┌──────────────────────────────────────────────────────────┐      │
+│  │           远程服务器 (SSH)                                  │      │
+│  │  路径: ~/.gemini/antigravity/conversations/*.pb             │      │
+│  │  内容: 加密的 Protobuf 文件 (AES, entropy ≈ 7.99)          │      │
+│  │  状态: ❌ 无法直接解密                                     │      │
+│  └──────────────────────────────────────────────────────────┘      │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
-这种方式的缺陷：
+### 1.2 数据获取完整链路
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│               完整链路: 导出任意对话到 Markdown               │
+│                                                              │
+│  Step 1: 获取对话列表                                        │
+│  ━━━━━━━━━━━━━━━━━━━━                                       │
+│  SQLite (state.vscdb)                                        │
+│    ├── trajectorySummaries  → 100 条 (有标题)                │
+│    └── agentManagerInitState → 196 条 (仅 UUID)              │
+│    合并 → 296 条对话 (UUID + 标题 + 时间戳 + 工作区)          │
+│                     │                                        │
+│                     ▼                                        │
+│  Step 2: 获取 CSRF Token                                     │
+│  ━━━━━━━━━━━━━━━━━━━━                                       │
+│  CDP 连接 Manager 窗口                                       │
+│    → Network.enable                                          │
+│    → 触发对话切换 (点击侧边栏)                                │
+│    → 拦截 x-codeium-csrf-token header                        │
+│    → 同时获取 gRPC 服务端口                                   │
+│                     │                                        │
+│                     ▼                                        │
+│  Step 3: 调用 gRPC API                                       │
+│  ━━━━━━━━━━━━━━━━━━━━                                       │
+│  POST https://127.0.0.1:{port}/.../GetCascadeTrajectory     │
+│  Headers:                                                    │
+│    Content-Type: application/json                            │
+│    x-codeium-csrf-token: {token}                             │
+│    connect-protocol-version: 1                               │
+│  Body: { "cascadeId": "{UUID}" }                             │
+│     → 返回完整 JSON (数十 KB ~ 数 MB)                        │
+│                     │                                        │
+│                     ▼                                        │
+│  Step 4: 格式化输出                                          │
+│  ━━━━━━━━━━━━━━━━━━━━                                       │
+│  trajectory.steps[] → Markdown                               │
+│    ├── USER_INPUT        → 👤 用户消息                       │
+│    ├── PLANNER_RESPONSE  → 🤖 AI 回复 (含思考过程)           │
+│    ├── SEARCH_WEB        → 🔍 搜索结果                       │
+│    ├── CHECKPOINT        → 📌 意图总结                       │
+│    ├── CONVERSATION_HISTORY → (上下文, 可跳过)               │
+│    ├── KNOWLEDGE_ARTIFACTS  → (知识工件, 可跳过)              │
+│    └── EPHEMERAL_MESSAGE    → (系统指令, 可跳过)              │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 2. 第一层：对话列表获取（SQLite）
+
+### 2.1 背景与动机
+
+Antigravity IDE 没有公开的对话历史 API。原有方案通过 CDP 模拟 DOM 操作获取对话列表：
 
 | 问题 | 说明 |
 |------|------|
-| **速度慢** | 需要等待 UI 渲染，整个流程数秒 |
-| **干扰用户** | 弹窗会遮挡用户正在操作的界面 |
-| **数据不全** | 只能获取弹窗可见的几条对话 |
-| **脆弱** | UI 结构变化会导致选择器失效 |
-| **依赖连接** | 必须有活跃的 CDP 连接 |
+| **速度慢** | 需要等待 UI 渲染，数秒 |
+| **干扰用户** | 弹窗遮挡界面 |
+| **数据不全** | 只能获取可见的几条 |
+| **脆弱** | UI 变化导致选择器失效 |
 
-### 目标
-
-找到一种 **不依赖 UI、不干扰用户、能获取全部对话** 的程序化方式。
-
----
-
-## 2. 探索过程
-
-### 2.1 第一步：探索全局 API 对象
-
-通过 CDP 连接到 IDE 窗口，探测 `window` 上的全局对象：
-
-```javascript
-// tools/explore-api.js
-Object.keys(window).filter(k => {
-    const lower = k.toLowerCase();
-    return lower.includes('api') || lower.includes('conversation') || 
-           lower.includes('chat') || lower.includes('vscode');
-})
-```
-
-**发现**: `window.vscode` 存在，包含 `ipcRenderer`、`context`、`webFrame` 等属性。
-
-### 2.2 第二步：探索 vscode.ipcRenderer
-
-`vscode.ipcRenderer` 暴露了 Electron 的 IPC 通道：
-
-```javascript
-// 可用方法
-["send", "invoke", "on", "once", "removeListener"]
-```
-
-尝试各种 channel 名称均失败：
-
-```
-vscode:getConversations     → No handler registered
-vscode:getChatHistory       → No handler registered
-jetski:getConversations     → Unsupported event IPC channel
-jetski:listThreads          → Unsupported event IPC channel
-antigravity:getConversations → Unsupported event IPC channel
-```
-
-**结论**: IPC 没有暴露对话历史的端点。
-
-### 2.3 第三步：探索 vscode.context
-
-```javascript
-vscode.context → { configuration: [Function], resolveConfiguration: [Function] }
-vscode.webFrame → { setZoomLevel: [Function] }
-```
-
-**结论**: 功能极其有限，无法访问对话数据。
-
-### 2.4 第四步：扫描本地文件系统
-
-扫描 `%APPDATA%\Antigravity\` 目录结构：
-
-```
-C:\Users\Administrator\AppData\Roaming\Antigravity\
-├── Cache/
-├── IndexedDB/
-├── Local Storage/
-├── Session Storage/
-└── User/
-    ├── globalStorage/
-    │   ├── state.vscdb          ← 1.2MB SQLite 数据库 ⭐
-    │   ├── state.vscdb.backup
-    │   └── storage.json
-    └── workspaceStorage/
-        ├── <hash>/
-        │   ├── state.vscdb      ← 每个工作区一个 DB
-        │   └── workspace.json   ← 工作区路径映射
-        └── ...
-```
-
-**关键发现**: `state.vscdb` 是 SQLite 数据库，包含 VS Code 的所有持久化状态数据。
-
-### 2.5 第五步：分析 SQLite 数据库
-
-使用 `better-sqlite3` 读取 `state.vscdb`：
-
-```
-表结构: ItemTable (key TEXT, value TEXT)
-总行数: 656 行
-```
-
-在 656 个 key 中，找到两个与对话相关的关键条目：
-
-| Key | 大小 | 内容 |
-|-----|------|------|
-| `jetskiStateSync.agentManagerInitState` | **239,948 B** | Agent Manager 的完整初始状态 |
-| `antigravityUnifiedStateSync.trajectorySummaries` | **59,244 B** | 对话轨迹摘要（含标题） |
-
-两者的 value 都是 **Base64 编码的 Protobuf 数据**。
-
----
-
-## 3. 数据存储位置
-
-### 3.1 数据库路径
+### 2.2 数据存储位置
 
 ```
 Windows: %APPDATA%\Antigravity\User\globalStorage\state.vscdb
-macOS:   ~/.config/Antigravity/User/globalStorage/state.vscdb (推测)
-Linux:   ~/.config/Antigravity/User/globalStorage/state.vscdb (推测)
 ```
 
-### 3.2 数据库格式
-
-标准 SQLite 3 数据库，只有一张表：
+标准 SQLite 3 数据库，单表结构：
 
 ```sql
 CREATE TABLE ItemTable (key TEXT UNIQUE ON CONFLICT REPLACE, value TEXT);
 ```
 
-所有数据存储为 key-value 对，value 为文本（JSON 或 Base64 编码的二进制数据）。
+### 2.3 关键数据源
 
-### 3.3 相关的 key
+#### 数据源 1: `antigravityUnifiedStateSync.trajectorySummaries`
 
-完整的 Antigravity 相关 key 列表（排除通知类）：
-
-```
-antigravity.agentViewContainerId.state.hidden          (103B)  - Agent 面板可见性
-antigravityUnifiedStateSync.agentManagerWindow          (192B)  - Manager 窗口位置/大小
-antigravityUnifiedStateSync.agentPreferences            (596B)  - Agent 偏好设置
-antigravityUnifiedStateSync.artifactReview             (9596B)  - Artifact 审查状态
-antigravityUnifiedStateSync.browserPreferences          (224B)  - 浏览器偏好
-antigravityUnifiedStateSync.modelPreferences             (68B)  - 模型偏好
-antigravityUnifiedStateSync.oauthToken                  (732B)  - OAuth 令牌
-antigravityUnifiedStateSync.scratchWorkspaces           (284B)  - 临时工作区
-antigravityUnifiedStateSync.sidebarWorkspaces          (1372B)  - 侧边栏工作区
-antigravityUnifiedStateSync.trajectorySummaries       (59244B)  - ⭐ 对话摘要
-antigravityUnifiedStateSync.userStatus                 (5180B)  - 用户状态
-jetskiStateSync.agentManagerInitState                (239948B)  - ⭐ Agent Manager 状态
-chat.ChatSessionStore.index                              (26B)  - VS Code Chat 索引（空）
-chat.participantNameRegistry                           (1331B)  - Chat 参与者注册表
-```
-
----
-
-## 4. 数据库结构
-
-### 4.1 数据编码链路
-
-```
-SQLite value (TEXT)
-    ↓ Base64 decode
-Protobuf binary (bytes)
-    ↓ Protobuf decode
-结构化数据 (fields)
-    ↓ 个别字段再次 Base64 decode
-嵌套 Protobuf binary
-    ↓ Protobuf decode
-最终可读数据 (标题、时间戳等)
-```
-
-### 4.2 Protobuf Wire Types 参考
-
-| Wire Type | 含义 | 编码方式 |
-|-----------|------|----------|
-| 0 | Varint | 可变长度整数 |
-| 1 | 64-bit | 固定 8 字节 |
-| 2 | Length-delimited | 长度前缀 + 数据体 |
-| 5 | 32-bit | 固定 4 字节 |
-
----
-
-## 5. Protobuf 逆向解析
-
-### 5.1 数据源 1: `jetskiStateSync.agentManagerInitState`
-
-**编码**: `Base64 → Protobuf`
-
-#### 顶层结构
-
-```protobuf
-message AgentManagerInitState {
-    bytes  field1  = 1;   // 1 条, 用途未知
-    bytes  field5  = 5;   // 1 条
-    bytes  field6  = 6;   // 1 条
-    bytes  field7  = 7;   // 1 条
-    bytes  field9  = 9;   // 1 条
-    repeated ConversationEntry field10 = 10;  // ⭐ 196 条 — 对话条目
-    bytes  field11 = 11;  // 1 条
-    bytes  field12 = 12;  // 1 条
-    repeated bytes field14 = 14;  // 2 条
-    bytes  field15 = 15;  // 1 条
-    repeated bytes field16 = 16;  // 15 条
-    repeated bytes field17 = 17;  // 15 条
-    repeated bytes field18 = 18;  // 5 条
-    bytes  field19 = 19;  // 1 条
-}
-```
-
-#### ConversationEntry (field10) 结构
-
-```protobuf
-message ConversationEntry {
-    string    conversation_id = 1;  // UUID 格式, 如 "95fec432-25db-4e85-b4a6-9ba9fa8d1398"
-    Timestamp last_active     = 2;  // 最后活跃时间戳
-}
-
-message Timestamp {
-    int64 seconds = 1;  // Unix 秒级时间戳, 如 1764897752
-    int32 nanos   = 2;  // 纳秒部分, 如 505000000
-}
-```
-
-**示例解析**:
-
-```
-field10[0]:
-  f1(str 36B): "95fec432-25db-4e85-b4a6-9ba9fa8d1398"
-  f2(msg 12B):
-    f1(varint): 1764897752   → 2025-12-05T01:22:32Z
-    f2(varint): 505000000    → .505s (纳秒部分)
-```
-
-**特点**:
-
-- 包含 **196 条**对话条目
-- 只有 UUID 和时间戳，**没有标题**
-- 适合作为"完整 ID 列表 + 精确时间戳"的来源
-
----
-
-### 5.2 数据源 2: `antigravityUnifiedStateSync.trajectorySummaries`
-
-**编码**: `Base64 → Protobuf → 内嵌 Base64 → Protobuf`（双重编码！）
-
-#### 顶层结构
+**编码链路**: `SQLite value → Base64 → Protobuf → 内嵌 Base64 → Protobuf`
 
 ```protobuf
 message TrajectorySummaries {
-    repeated TrajectoryEntry entries = 1;  // 100 条
+    repeated TrajectoryEntry entries = 1;  // ~100 条
 }
-```
 
-#### TrajectoryEntry 结构
-
-```protobuf
 message TrajectoryEntry {
-    string  conversation_id = 1;  // UUID
-    DetailWrapper detail    = 2;  // 详情包装器
+    string conversation_id = 1;  // UUID
+    DetailWrapper detail   = 2;
 }
 
 message DetailWrapper {
-    string base64_payload = 1;  // ⚠️ 这是一个 Base64 编码的字符串！
-                                // 解码后才是真正的 protobuf 消息
+    string base64_payload = 1;  // ⚠️ Base64 编码的 protobuf
+}
+
+// base64_payload 解码后:
+message TrajectoryDetail {
+    string    title          = 1;   // ⭐ 对话标题
+    int32     step_count     = 2;   // 步骤数
+    Timestamp created_at     = 3;   // 创建时间
+    string    context_id     = 4;   // 关联 context UUID
+    int32     is_active      = 5;   // 活跃标记
+    Timestamp updated_at     = 7;   // 更新时间
+    WorkspaceInfo workspace  = 9;   // 工作区信息
+    Timestamp last_active_at = 10;  // 最后活跃时间
 }
 ```
 
-> **关键逆向发现**: `DetailWrapper.field1` 存储的不是 protobuf 子消息，而是一个 **Base64 文本字符串**。该字符串解码后得到的 bytes 才是真正的 protobuf 消息。这种"protobuf 里嵌 base64 字符串再嵌 protobuf"的模式在常规 protobuf 使用中并不常见，可能是 Antigravity 的 state sync 层对数据做了序列化封装。
+#### 数据源 2: `jetskiStateSync.agentManagerInitState`
 
-#### 内嵌 Protobuf (解码 base64_payload 后)
+**编码**: `Base64 → Protobuf`
 
 ```protobuf
-message TrajectoryDetail {
-    string    title           = 1;   // ⭐ 对话标题 (纯文本), 如 "Adding Serif Font to AI Replies"
-    int32     step_count      = 2;   // 步骤数, 如 141
-    Timestamp created_at      = 3;   // 创建时间
-    string    context_id      = 4;   // 关联的 context UUID
-    int32     is_active       = 5;   // 活跃标记 (1 = 活跃)
-    Timestamp updated_at      = 7;   // 更新时间
-    WorkspaceInfo workspace   = 9;   // 工作区信息
-    Timestamp last_active_at  = 10;  // 最后活跃时间
-    bytes     unknown_15      = 15;  // 用途未知
-    int32     unknown_16      = 16;  // 用途未知, 如 128
+message AgentManagerInitState {
+    repeated ConversationEntry field10 = 10;  // ~196 条
 }
 
-message WorkspaceInfo {
-    string folder_uri    = 1;  // 工作区 URI, 如 "vscode-remote://ssh-remote%2B.../home/tiemuer"
-    string root_uri      = 2;  // 根 URI
-    string label         = 3;  // 标签 (可能为空)
-}
-
-message Timestamp {
-    int64 seconds = 1;  // Unix 秒级时间戳
-    int32 nanos   = 2;  // 纳秒部分
+message ConversationEntry {
+    string    conversation_id = 1;  // UUID
+    Timestamp last_active     = 2;  // 时间戳
 }
 ```
 
-**示例解析（完整链路）**:
+**合并策略**:
 
 ```
-Step 1: 从 SQLite 读取 value (Base64 文本)
-  "CvjVCQrtAQokNjQzN..."
-
-Step 2: Base64 解码 → 44432 bytes Protobuf
-  0a c4 03 0a 24 61 34 33 ...
-
-Step 3: 解码外层 Protobuf
-  field1 (TrajectoryEntry):
-    f1 (string, 36B): "a4316ff4-30d1-4849-a87c-facf37f2cb6c"
-    f2 (message, 411B):
-      f1 (bytes, 408B): "Ch9BZGRpbmcgU2VyaWYg..."  ← 又是 Base64！
-
-Step 4: 对 f2.f1 做 Base64 解码 → 306 bytes Protobuf
-  0a 1f 41 64 64 69 6e 67 ...
-
-Step 5: 解码内层 Protobuf
-  f1  (string, 31B): "Adding Serif Font to AI Replies"  ← ⭐ 标题！
-  f2  (varint):      141                                  ← 步骤数
-  f3  (message):     { seconds: 1766194542 }              ← 创建时间
-  f4  (string, 36B): "28c63c12-1ca9-4a8d-803d-..."       ← context ID
-  f5  (varint):      1                                    ← is_active
-  f7  (message):     { seconds: 1766194627 }              ← 更新时间
-  f9  (message):     { folder_uri: "vscode-remote://..." }← 工作区
-  f10 (message):     { seconds: 1766194606 }              ← 最后活跃
+trajectorySummaries (100条, 有标题)  +  agentManagerInitState (196条, 仅UUID)
+                              ↓ 通过 UUID 关联合并
+                    296 条完整对话列表 (去重后)
 ```
 
-**特点**:
-
-- 包含 **100 条**对话摘要
-- 有完整的标题、步骤数、时间戳、工作区
-- 比 `agentManagerInitState` 条目少（可能只缓存最近的 100 条）
-- 使用了罕见的"protobuf 嵌 base64 嵌 protobuf"编码
-
----
-
-### 5.3 两个数据源的关系
-
-```
-agentManagerInitState (196条)    trajectorySummaries (100条)
-┌──────────────────────┐        ┌──────────────────────────┐
-│ UUID + 时间戳         │        │ UUID + 标题 + 步骤数      │
-│                      │        │ + 工作区 + 时间戳          │
-│ 较旧的对话也在里面     │        │ 只有最近的 100 条         │
-└──────────┬───────────┘        └──────────┬───────────────┘
-           │                               │
-           └───────── 通过 UUID 关联 ───────┘
-                          │
-                          ▼
-              ┌──────────────────────┐
-              │ 合并后的完整对话列表   │
-              │ 296 条 (去重后)       │
-              │ 100 条有标题          │
-              │ 全部有时间戳          │
-              └──────────────────────┘
-```
-
-合并策略：
-
-1. 以 `trajectorySummaries` 为主（有标题和详细信息）
-2. 用 `agentManagerInitState` 补充更精确的 `lastActiveAt` 时间戳
-3. 两个来源中只出现在一个的 UUID 也会被包含
-
----
-
-## 6. 最终实现
-
-### 6.1 模块: `lib/conversations.js`
+### 2.4 模块: `lib/conversations.js`
 
 ```javascript
 const { getConversations } = require('./lib/conversations');
 
 const result = getConversations();
-// result = {
-//   conversations: [
-//     {
-//       id: "a4316ff4-30d1-4849-a87c-facf37f2cb6c",
-//       title: "Adding Serif Font to AI Replies",
-//       stepCount: 141,
-//       workspace: "[SSH] tiemuer",
-//       createdAt: "2025-12-19T08:35:42.000Z",
-//       updatedAt: "2025-12-19T08:37:07.000Z",
-//     },
-//     // ... 296 条
-//   ],
-//   total: 296,
-//   error: null,
-// }
+// result.conversations = [
+//   { id, title, stepCount, workspace, createdAt, updatedAt },
+//   ...
+// ]
+// result.total = 296
 ```
 
-### 6.2 性能对比
+### 2.5 性能对比
 
-| 指标 | 旧方案 (DOM 抓取) | 新方案 (SQLite 直读) |
-|------|---------|---------|
+| 指标 | 旧 (DOM 抓取) | 新 (SQLite) |
+|------|-------------|-------------|
 | 耗时 | 3-10 秒 | **18ms** |
 | 需要 CDP | ✅ | ❌ |
-| 结果数量 | ~10 条 | **296 条** |
+| 结果数 | ~10 条 | **296 条** |
 | 有标题 | ✅ | ✅ (100/296) |
 | 有时间戳 | ❌ | ✅ |
-| 有工作区 | ❌ | ✅ |
 | 干扰用户 | ✅ 弹窗 | ❌ 无感 |
 
-### 6.3 API 端点
+---
 
-```bash
-# REST API
-GET /api/conversations?limit=50
+## 3. 第二层：对话内容获取（gRPC API）
 
-# WebSocket
-ws.send(JSON.stringify({ type: "get_chats" }))
+### 3.1 发现过程
+
+**关键突破**: 通过 CDP 连接 Manager 窗口，检查 `performance.getEntriesByType('resource')`，发现 Manager 在加载对话时会调用本地 gRPC 服务。
+
+```javascript
+// 在 Manager 窗口的 performance entries 中发现:
+https://127.0.0.1:63243/exa.language_server_pb.LanguageServerService/GetCascadeTrajectory
+https://127.0.0.1:33071/exa.language_server_pb.LanguageServerService/UpdateConversationAnnotations
 ```
 
-### 6.4 依赖项
+### 3.2 gRPC 服务详情
+
+| 属性 | 值 |
+|------|-----|
+| **服务名** | `exa.language_server_pb.LanguageServerService` |
+| **协议** | ConnectRPC (`connect-protocol-version: 1`) |
+| **传输** | HTTPS (自签名证书, 需 `NODE_TLS_REJECT_UNAUTHORIZED=0`) |
+| **端口** | 动态分配, 每次启动不同 (如 33071, 63243, 59513) |
+| **认证** | `x-codeium-csrf-token` header (UUID 格式) |
+| **Content-Type** | `application/json` |
+
+### 3.3 API 方法
+
+#### `GetCascadeTrajectory` — 获取完整对话内容 ⭐
+
+```
+POST https://127.0.0.1:{port}/exa.language_server_pb.LanguageServerService/GetCascadeTrajectory
+
+Headers:
+  Content-Type: application/json
+  x-codeium-csrf-token: {csrf-token}
+  connect-protocol-version: 1
+
+Request Body:
+  { "cascadeId": "573834e1-3029-447c-9870-7021bcfd02a8" }
+
+Response: (JSON, 数十 KB ~ 数 MB)
+  {
+    "trajectory": {
+      "trajectoryId": "b9b09e58-...",
+      "cascadeId": "573834e1-...",
+      "trajectoryType": "CORTEX_TRAJECTORY_TYPE_CASCADE",
+      "steps": [...],
+      "generatorMetadata": [...],
+      "source": "CORTEX_TRAJECTORY_SOURCE_CASCADE_CLIENT",
+      "metadata": { "createdAt": "2026-02-26T02:48:41Z" }
+    },
+    "status": "...",
+    "numTotalSteps": 34,
+    "numTotalGeneratorMetadata": 2
+  }
+```
+
+#### 其他方法
+
+| 方法 | 用途 | Request Body |
+|------|------|-------------|
+| `UpdateConversationAnnotations` | 更新对话注释 | `{ "cascadeId": "...", "annotations": { "lastUserViewTime": "..." }, "mergeAnnotations": true }` |
+| `StreamCascadeReactiveUpdates` | 流式订阅更新 | `{ "protocolVersion": 1, "id": "...", "subscriberId": "local-agent-client-main" }` |
+| `GetAgentScripts` | 获取 Agent 脚本 | `{}` |
+
+### 3.4 Trajectory Step 类型
+
+`GetCascadeTrajectory` 返回的 `trajectory.steps[]` 包含以下类型:
+
+| Step Type | 对话角色 | 关键字段 | 说明 |
+|-----------|---------|----------|------|
+| `CORTEX_STEP_TYPE_USER_INPUT` | 👤 用户 | `userInput.userResponse` | 用户发送的消息文本 |
+| `CORTEX_STEP_TYPE_PLANNER_RESPONSE` | 🤖 AI | `plannerResponse.rawThinkingText`, `plannerResponse.*` | AI 的思考过程和回复 |
+| `CORTEX_STEP_TYPE_SEARCH_WEB` | 🔍 搜索 | `searchWeb.query`, `searchWeb.results[]` | 网页搜索 |
+| `CORTEX_STEP_TYPE_CHECKPOINT` | 📌 检查点 | `checkpoint.userIntent` | 意图总结 |
+| `CORTEX_STEP_TYPE_CONVERSATION_HISTORY` | 📜 历史 | `conversationHistory` | 对话上下文（通常很大） |
+| `CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE` | ⚙️ 系统 | `ephemeralMessage` | 系统指令/提示词 |
+| `CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS` | 📚 知识 | `knowledgeArtifacts` | 知识工件 |
+
+#### `PLANNER_RESPONSE` 详细字段
 
 ```json
 {
-  "better-sqlite3": "^11.x"  // SQLite 驱动
+  "rawThinkingText": "AI 的思考过程（可能很长）",
+  "thinking": "思考 (另一种字段名)",
+  "reply": "回复文本",
+  "text": "回复文本 (另一种字段名)",
+  "content": "回复文本 (另一种字段名)",
+  "messageId": "bot-555787b3-...",
+  "stopReason": "STOP_REASON_STOP_PATTERN | STOP_REASON_CLIENT_CANCELED",
+  "steps": [
+    {
+      "toolCall": { "toolName": "...", "parameters": {...} },
+      "toolResult": { ... }
+    }
+  ]
 }
 ```
 
-不需要任何 protobuf 库 —— 使用手写的轻量级解码器（~80 行），仅支持解码（不需要编码）。
+#### `generatorMetadata` — 模型和 Token 用量
 
----
-
-## 7. 附录：工具脚本
-
-逆向过程中编写的工具脚本，保存在 `tools/` 目录下：
-
-| 脚本 | 用途 |
-|------|------|
-| `tools/explore-api.js` | 探测 IDE 窗口中的全局 API 对象 |
-| `tools/explore-vscode-api.js` | 深入探索 `vscode` 全局对象 |
-| `tools/explore-ipc.js` | 探索 IPC 通道和文件系统 |
-| `tools/explore-db.js` | 扫描 SQLite 数据库的表和 key |
-| `tools/decode-protobuf.js` | 初版 protobuf 解码器 |
-| `tools/decode-deep.js` | 深度解码 `agentManagerInitState` |
-| `tools/read-trajectories.js` | 读取 `trajectorySummaries` 数据 |
-
-### 手动验证命令
-
-```bash
-# 直接测试 conversations 模块
-node -e "const { getConversations } = require('./lib/conversations'); \
-  const r = getConversations(); \
-  console.log('Total:', r.total); \
-  r.conversations.slice(0, 5).forEach(c => console.log(c.title, c.updatedAt));"
-
-# REST API 测试
-curl http://localhost:3210/api/conversations?limit=5
+```json
+{
+  "stepIndices": [4, 5],
+  "chatModel": {
+    "model": "MODEL_PLACEHOLDER_M37",
+    "usage": {
+      "model": "MODEL_PLACEHOLDER_M37",
+      "inputTokens": "19701",
+      "outputTokens": "773",
+      "thinkingOutputTokens": "754",
+      "apiProvider": "API_PROVIDER_GOOGLE_GEMINI"
+    }
+  }
+}
 ```
 
+### 3.5 CSRF Token 获取方法
+
+CSRF Token 通过 CDP 拦截 Manager 窗口的网络请求获取：
+
+```javascript
+// 1. 连接 Manager 窗口
+const targets = await httpGet('http://127.0.0.1:9000/json');
+const manager = targets.find(t => t.type === 'page' && t.title === 'Manager');
+const ws = new WebSocket(manager.webSocketDebuggerUrl);
+
+// 2. 开启 Network 监听
+await cdpSend(ws, 'Network.enable');
+
+// 3. 触发对话切换 (点击侧边栏中的对话)
+await clickAt(ws, x, y);
+
+// 4. 从 requestWillBeSent 事件中提取
+ws.on('message', (raw) => {
+    const msg = JSON.parse(raw);
+    if (msg.method === 'Network.requestWillBeSent') {
+        const headers = msg.params.request.headers;
+        const csrf = headers['x-codeium-csrf-token'];  // UUID 格式
+        const port = new URL(msg.params.request.url).port;
+    }
+});
+```
+
+**注意**: 
+- CSRF Token 在 IDE 运行期间保持不变
+- 端口在每次 IDE 启动时动态分配
+- 也可通过 `performance.getEntriesByType('resource')` 获取历史端口
+
+### 3.6 端口发现
+
+多个端口对应不同的 workspace：
+
+| 端口 | 对应 |
+|------|------|
+| `33071` | SSH Remote workspace 的 Language Server |
+| `63243` | 本地 workspace 的 Language Server |
+| `59513` | 另一个 workspace 的 Language Server |
+
+**对话属于哪个端口**: 对话的 `cascadeId` 只在其对应 workspace 的端口上可用。如果返回 `trajectory not found`，需要尝试其他端口。
+
 ---
 
-## 补充说明
+## 4. 远程服务器存储
 
-### 数据新鲜度
+### 4.1 目录结构
 
-`state.vscdb` 由 Antigravity IDE 进程实时写入。每次创建新对话或切换对话时，数据库都会更新。读取模块使用 `readonly: true` 模式打开数据库，不会与 IDE 进程产生锁竞争。
+SSH 远程服务器上的 `~/.gemini/antigravity/` 目录：
 
-### 已知限制
+```
+~/.gemini/antigravity/
+├── conversations/        # 100 个 .pb 文件 (加密!)
+│   ├── 038f30bc-...-020d5da87d59.pb    (151 KB)
+│   ├── c43d01af-...-9cd3ae9fe152.pb    (945 KB)
+│   └── ...
+├── brain/                # 113 个 UUID 子目录
+│   └── {uuid}/.tempmediaStorage/dom_*.txt  (临时 DOM 快照)
+├── implicit/             # 隐式数据 (.pb, 加密)
+├── annotations/          # 注释数据
+├── html_artifacts/       # HTML 工件
+├── browser_recordings/   # 浏览器录制
+├── knowledge/            # 知识库
+└── user_settings.pb      # 用户设置
+```
 
-1. **标题覆盖率**: `trajectorySummaries` 只缓存最近的约 100 条对话摘要。更早的对话只有 UUID 和时间戳，没有标题。
-2. **Protobuf schema 可能变化**: 由于是逆向得到的结构，Antigravity 版本更新后 field 编号或嵌套层级可能会变化。
-3. **跨平台路径**: 目前只验证了 Windows 路径。macOS/Linux 的数据库路径需要额外验证。
+### 4.2 .pb 文件分析
 
-### 潜在的改进方向
+| 属性 | 值 |
+|------|-----|
+| **格式** | 非标准 Protobuf (无法直接解码) |
+| **Shannon Entropy** | **7.99 bits/byte** (理论最大值 8.0) |
+| **结论** | **AES 加密** (或类似对称加密) |
+| **大小范围** | 150 KB ~ 11 MB |
+| **文件名** | 对话 UUID + `.pb` |
+| **Magic bytes** | `2332c854` (非已知标准格式) |
 
-1. **补全无标题对话**: 可以通过 CDP 打开对应的对话来获取其标题（按需、懒加载）。
-2. **实时监听变化**: 监控 `state.vscdb` 文件的修改时间，在数据变化时自动刷新缓存。
-3. **读取对话内容**: 对话的具体消息内容可能存储在其他位置（IndexedDB 或远程服务器），需进一步探索。
+**结论**: `.pb` 文件是端到端加密的，无法在本地直接解密。对话内容需要通过 gRPC API 获取（API 会自动处理解密）。
+
+---
+
+## 5. 完整工具链
+
+### 5.1 一键导出脚本
+
+```bash
+# 导出指定标题的对话
+node tools/export-conversation.js "AI Design Tool Development"
+
+# 导出后格式化为干净的 Markdown
+node tools/format-clean.js tools/AI_Design_Tool_Development.json "AI Design Tool Development"
+```
+
+### 5.2 手动步骤
+
+```bash
+# Step 1: 列出所有对话
+node -e "const{getConversations}=require('./lib/conversations');const r=getConversations();r.conversations.slice(0,10).forEach(c=>console.log(c.id,c.title));"
+
+# Step 2: 获取 CSRF Token (需要 CDP 连接, IDE 用 --remote-debugging-port=9000 启动)
+node tools/find-csrf.js
+
+# Step 3: 调用 API
+curl -k -X POST \
+  https://127.0.0.1:33071/exa.language_server_pb.LanguageServerService/GetCascadeTrajectory \
+  -H "Content-Type: application/json" \
+  -H "x-codeium-csrf-token: {你的token}" \
+  -H "connect-protocol-version: 1" \
+  -d '{"cascadeId":"038f30bc-a7ab-4c79-8138-020d5da87d59"}' \
+  -o trajectory.json
+
+# Step 4: 格式化
+node tools/format-clean.js trajectory.json "对话标题"
+```
+
+### 5.3 工具脚本清单
+
+| 脚本 | 用途 | 阶段 |
+|------|------|------|
+| **核心模块** | | |
+| `lib/conversations.js` | SQLite 读取对话列表 | 第一层 |
+| `lib/cdp.js` | CDP 通信工具 | 基础 |
+| `lib/ide.js` | IDE 交互 (DOM 操作, 历史面板) | 基础 |
+| **导出工具** | | |
+| `tools/export-conversation.js` | 一键导出 (标题→UUID→API→Markdown) | 完整链路 |
+| `tools/format-clean.js` | JSON→Markdown 格式化 (去重/去噪) | 格式化 |
+| **探测工具** | | |
+| `tools/explore-manager.js` | 探测 Manager 窗口 API 和 DOM | 发现 |
+| `tools/find-csrf.js` | 拦截并提取 CSRF Token | 第二层 |
+| `tools/capture-grpc.js` | 捕获 gRPC 请求/响应详情 | 第二层 |
+| `tools/get-trajectory.js` | 直接调用 GetCascadeTrajectory | 第二层 |
+| **分析工具** | | |
+| `tools/dump-auth.js` | 导出认证数据 (OAuth Token) | 分析 |
+| `tools/inspect-pb.js` | 检查 .pb 文件格式 (加密分析) | 分析 |
+| `tools/read-latest-chat.js` | CDP DOM 方式读取当前对话 | 备用 |
+
+### 5.4 依赖项
+
+```json
+{
+  "better-sqlite3": "^11.x",   // SQLite 读取对话列表
+  "ws": "^8.x"                 // WebSocket (CDP 连接)
+}
+```
+
+### 5.5 前置条件
+
+1. **Antigravity IDE 运行中**，且用 `--remote-debugging-port=9000` 启动
+2. **Node.js 18+**
+3. `npm install` 完成
+
+---
+
+## 6. 附录
+
+### 6.1 CDP 连接目标
+
+Antigravity IDE 通过 `--remote-debugging-port=9000` 启动后，暴露多个 CDP 目标：
+
+| 目标 | type | 用途 |
+|------|------|------|
+| **Manager** | page | Agent 管理器，侧边栏对话列表 |
+| **Launchpad** | page | 启动器/窗口选择器 |
+| **Workspace** | page | 编辑器窗口 (每个工作区一个) |
+
+```javascript
+const targets = await httpGet('http://127.0.0.1:9000/json');
+// [{ title: "Manager", type: "page", webSocketDebuggerUrl: "ws://..." }, ...]
+```
+
+### 6.2 已知限制
+
+1. **CSRF Token 获取**: 需要 CDP 连接 Manager 窗口并触发一次网络请求才能拦截到 Token。Token 在 IDE 运行期间有效，但 IDE 重启后会变化。
+
+2. **端口动态分配**: gRPC 服务端口每次 IDE 启动都不同，需要通过 `performance.getEntriesByType('resource')` 或 Network 拦截来获取。
+
+3. **跨端口对话查找**: 一个 `cascadeId` 只在其所属 workspace 的 Language Server 端口上可用。如果返回 `trajectory not found`，需要尝试其他端口。
+
+4. **标题覆盖率**: SQLite 中的 `trajectorySummaries` 只缓存约 100 条对话摘要。更早的对话只有 UUID。
+
+5. **远程 .pb 文件加密**: 服务器上的 `.pb` 文件是 AES 加密的，Shannon entropy ≈ 7.99，无法本地解密。
+
+6. **Planner Response 字段不固定**: AI 回复的文本可能在 `reply`、`text`、`content`、`response` 等不同字段中，需要逐一检查。
+
+### 6.3 错误处理
+
+| 错误 | 原因 | 解决方案 |
+|------|------|---------|
+| `missing CSRF token` (401) | 未提供 `x-codeium-csrf-token` | 通过 CDP 获取 Token |
+| `trajectory not found` (500) | cascadeId 不在此端口 | 尝试其他端口 |
+| `connect ECONNREFUSED` | gRPC 服务未启动 | 确认 IDE 正在运行 |
+| CDP 连接失败 | IDE 未用 `--remote-debugging-port` 启动 | 重启 IDE 并加参数 |
+
+### 6.4 数据新鲜度
+
+- **SQLite**: 由 IDE 进程实时写入，用 `readonly: true` 读取不会和 IDE 竞争锁
+- **gRPC API**: 实时返回最新数据，包括正在进行的对话
+- **CSRF Token**: IDE 运行期间保持不变
+
+### 6.5 潜在改进方向
+
+1. **自动端口发现**: 扫描所有 localhost 端口来找到 gRPC 服务，避免依赖 CDP
+2. **批量导出**: 遍历所有 UUID + 所有端口，一次导出全部对话历史
+3. **CSRF 缓存**: 将 CSRF Token 缓存到文件，减少 CDP 依赖
+4. **Web UI**: 构建一个本地 Web 界面来浏览和导出对话
+5. **增量同步**: 监控 SQLite 变化，自动导出新对话

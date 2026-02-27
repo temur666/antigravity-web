@@ -1,1 +1,9 @@
 node_modules/
+
+# Sensitive dump/capture files (may contain tokens, secrets)
+tools/*.txt
+tools/*.pb
+tools/*.json
+tools/exports/
+tools/auth-dump.txt
+tools/csrf-capture.txt
