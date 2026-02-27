@@ -6,7 +6,13 @@ import { useAppStore } from '@/store';
 import { formatRelativeTime, formatBytes, truncate } from '@/utils/format';
 import type { ConversationSummary } from '@/types';
 
-export function Sidebar() {
+export interface SidebarProps {
+    isOpen?: boolean;
+    isMobile?: boolean;
+    onClose?: () => void;
+}
+
+export function Sidebar({ isOpen = true, isMobile = false, onClose }: SidebarProps) {
     const conversations = useAppStore(s => s.conversations);
     const activeConversationId = useAppStore(s => s.activeConversationId);
     const loadConversations = useAppStore(s => s.loadConversations);
@@ -27,7 +33,7 @@ export function Sidebar() {
     }, [loadConversations]);
 
     return (
-        <aside className="sidebar">
+        <aside className={`sidebar ${isOpen ? 'open' : 'closed'} ${isMobile ? 'mobile' : 'desktop'}`}>
             <div className="sidebar-header">
                 <div className="sidebar-logo">
                     <span className="logo-icon">✦</span>
@@ -55,7 +61,12 @@ export function Sidebar() {
                         key={conv.id}
                         conversation={conv}
                         isActive={conv.id === activeConversationId}
-                        onSelect={selectConversation}
+                        onSelect={(id) => {
+                            selectConversation(id);
+                            if (isMobile && onClose) {
+                                onClose();
+                            }
+                        }}
                     />
                 ))}
             </div>

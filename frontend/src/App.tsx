@@ -4,32 +4,64 @@
  * 布局: Sidebar | ChatPanel
  *       StatusBar (底部)
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
+import { ModeSelector } from './components/Header/ModeSelector';
+import { ModelSelector } from './components/Header/ModelSelector';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth <= 768;
+      setIsMobile(mobile);
+      if (mobile) {
+        setShowSidebar(false);
+      } else {
+        setShowSidebar(true);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   return (
     <div className="app">
+      {/* 遮罩层 (仅移动端且侧边栏打开时显示) */}
+      {isMobile && showSidebar && (
+        <div
+          className="sidebar-backdrop"
+          onClick={() => setShowSidebar(false)}
+        />
+      )}
+
       {/* 侧边栏 */}
-      {showSidebar && <Sidebar />}
+      <Sidebar isOpen={showSidebar} isMobile={isMobile} onClose={() => setShowSidebar(false)} />
 
       {/* 主区域 */}
       <main className="main-area">
         {/* Header */}
         <header className="app-header">
           <button
-            className="header-btn"
+            className={`header-btn ${showSidebar ? 'active' : ''}`}
             onClick={() => setShowSidebar(!showSidebar)}
             title="切换侧边栏"
           >
             ☰
           </button>
+          <div className="header-selectors">
+            <ModeSelector />
+            <ModelSelector />
+          </div>
           <div className="header-title">Antigravity Chat</div>
-          {/* Placeholder or empty div to maintain title centering if flex is space-between */}
           <div style={{ width: 36 }}></div>
         </header>
 

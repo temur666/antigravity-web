@@ -47,7 +47,7 @@ export const CONFIG_META: Record<keyof CascadeConfig, {
     },
     agenticMode: {
         label: '对话模式',
-        description: 'Planning (先规划后执行) / Fast (直接执行)',
+        description: 'ON = Planning (Agentic, 先规划后执行) / OFF = Fast (直接执行)',
         inputType: 'toggle',
     },
     autoExecutionPolicy: {
