@@ -21,11 +21,11 @@ const proto = require('./lib/core/ws-protocol');
 
 const controller = new Controller();
 
-controller.on('error', (err) => console.error('⚠️  Controller:', err.message));
-controller.on('ls_connected', (ls) => console.log(`✅ LS 已连接 PID=${ls.pid} Port=${ls.port}`));
-controller.on('ls_disconnected', () => console.log('❌ LS 断开'));
+controller.on('error', (err) => console.error('[!] Controller:', err.message));
+controller.on('ls_connected', (ls) => console.log(`[+] LS 已连接 PID=${ls.pid} Port=${ls.port}`));
+controller.on('ls_disconnected', () => console.log('[-] LS 断开'));
 controller.on('status_changed', ({ cascadeId, from, to }) => {
-    console.log(`🔄 对话 ${cascadeId.slice(0, 8)}... ${from} → ${to}`);
+    console.log(`[~] 对话 ${cascadeId.slice(0, 8)}... ${from} -> ${to}`);
 });
 
 // ========== WebSocket 客户端管理 ==========
@@ -64,7 +64,7 @@ async function handleMessage(clientWs, data) {
                         }));
                         status.defaultModel = us.cascadeModelConfigData?.defaultOverrideModelConfig?.modelOrAlias?.model || null;
                     } catch (err) {
-                        console.warn('⚠️  GetUserStatus:', err.message);
+                        console.warn('[!] GetUserStatus:', err.message);
                     }
                 }
                 send(proto.makeResponse('res_status', status, reqId));
@@ -206,7 +206,7 @@ app.get('/api/conversations', async (_req, res) => {
 // WebSocket
 wss.on('connection', (clientWs) => {
     clients.add(clientWs);
-    console.log(`🔗 客户端连接 (总: ${clients.size})`);
+    console.log(`[+] 客户端连接 (总: ${clients.size})`);
 
     // 发送 LS 初始状态
     clientWs.send(proto.makeEvent('event_ls_status', {
@@ -224,14 +224,14 @@ wss.on('connection', (clientWs) => {
             }
             await handleMessage(clientWs, data);
         } catch (err) {
-            console.error('❌ WS 消息处理错误:', err.message);
+            console.error('[!] WS 消息处理错误:', err.message);
         }
     });
 
     clientWs.on('close', () => {
         clients.delete(clientWs);
         controller.unsubscribeAll(clientWs);
-        console.log(`🔌 客户端断开 (总: ${clients.size})`);
+        console.log(`[-] 客户端断开 (总: ${clients.size})`);
     });
 });
 
@@ -240,27 +240,38 @@ wss.on('connection', (clientWs) => {
 const PORT = Number(process.env.PORT || 3210);
 
 async function main() {
-    console.log('');
-    console.log('🤖 Antigravity Web v2');
-    console.log('═'.repeat(50));
+    console.log(`
+    _       _   _                 _ _         
+   / \\   _ | |_(_) __ _ _ __ __ _(_) |_ _   _ 
+  / _ \\ | '_\\| | |/ _\` | '__/ _\` | | __| | | |
+ / ___ \\| |  | | | (_| | | | (_| | | |_| |_| |
+/_/   \\_\\_|  |_|_|\\__, |_|  \\__,_|_|\\__|\\__, |
+                  |___/                 |___/ 
+            __        __   _                  
+            \\ \\      / /__| |__               
+             \\ \\ /\\ / / _ \\ '_ \\              
+              \\ V  V /  __/ |_) |             
+               \\_/\\_/ \\___|_.__/   [v2]       
+`);
+    console.log('==================================================');
 
     const lsOk = await controller.init();
     if (lsOk) {
-        console.log('✅ Controller 已初始化');
+        console.log('[+] Controller 已初始化');
     } else {
-        console.log('⚠️  Controller 初始化失败 (LS 未找到)');
+        console.log('[!] Controller 初始化失败 (LS 未找到)');
     }
 
-    console.log(`📁 静态文件: ${staticPath}`);
+    console.log(`[*] 静态文件: ${staticPath}`);
 
     serverHttp.listen(PORT, '0.0.0.0', () => {
-        console.log(`🚀 Web 界面: http://localhost:${PORT}`);
-        console.log(`📡 WebSocket: ws://localhost:${PORT}`);
+        console.log(`[*] Web 界面 : http://localhost:${PORT}`);
+        console.log(`[*] WebSocket: ws://localhost:${PORT}`);
         console.log('');
     });
 }
 
 main().catch(err => {
-    console.error('❌ 致命错误:', err.message);
+    console.error('[!] 致命错误:', err.message);
     process.exit(1);
 });

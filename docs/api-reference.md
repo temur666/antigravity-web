@@ -17,7 +17,7 @@
 
 ```
 ┌──────────────┐     WebSocket v2      ┌──────────────┐      gRPC/HTTPS      ┌────────────┐
-│   Frontend   │ ◄──────────────────► │  server-v2   │ ◄──────────────────► │  Language   │
+│   Frontend   │ ◄──────────────────► │   server     │ ◄──────────────────► │  Language   │
 │   (React)    │   req_*/res_*/event_* │   (BFF)      │  SendUserCascade..  │   Server   │
 └──────────────┘                       └──────────────┘                      └────────────┘
                                               │
@@ -35,7 +35,7 @@
 ### 数据流
 
 1. **前端** 通过 WebSocket 发送 `req_*` 消息
-2. **server-v2** 解析消息，调用 Controller
+2. **server** 解析消息，调用 Controller
 3. **Controller** 通过 `ls-discovery.grpcCall()` 调用 LS gRPC API
 4. **LS** 返回结果，Controller 计算 Diff，通过 WebSocket 推送 `event_*`
 
