@@ -1,8 +1,9 @@
 /**
- * Antigravity Web Chat — 后端 (v2)
+ * @deprecated 请使用 server-v2.js — 这是 v1+v2 混合的旧入口，保留仅供参考
  *
- * Express 静态文件 + WebSocket 双向通信
+ * Antigravity Web Chat — 后端 (v1+v2 混合，已弃用)
  *
+ * 已被 server-v2.js 取代（纯 v2 协议入口）
  * 路由策略:
  *   - v2 协议 (req_* / event_*): Controller → gRPC API → LS
  *   - v1 协议 (send_message 等): CDP → IDE DOM (保留兼容)
