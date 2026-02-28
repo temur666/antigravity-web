@@ -902,6 +902,97 @@ body {
   border-top: 1px solid var(--color-border);
 }
 
+/* ===== Drag Grip Bar ===== */
+.input-box-grip {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 2px;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.input-box-grip:active {
+  cursor: grabbing;
+}
+
+.input-box-grip-bar {
+  width: 32px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: background 0.15s, width 0.15s;
+}
+
+.input-box-grip:hover .input-box-grip-bar {
+  background: rgba(255, 255, 255, 0.25);
+  width: 40px;
+}
+
+/* ===== Compact (Floating) State ===== */
+.input-box-compact {
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: var(--color-bg-surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+              0 0 0 1px rgba(255, 255, 255, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 1000;
+  user-select: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.input-box-compact .input-box-grip {
+  padding: 6px 0 0;
+}
+
+.input-box-compact .input-box-grip-bar {
+  width: 20px;
+  height: 3px;
+}
+
+.input-box-compact .input-box-grip:hover .input-box-grip-bar {
+  width: 28px;
+}
+
+.input-box-compact-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-secondary);
+  gap: 6px;
+  padding-bottom: 4px;
+}
+
+.input-box-compact-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  box-shadow: 0 0 6px var(--color-accent);
+}
+
+/* ===== Dragging State ===== */
+.input-box-dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+}
+
+.input-box-dragging .input-box-grip {
+  cursor: grabbing;
+}
+
+/* ===== Snap-back Animation ===== */
+.input-box-animating {
+  transition: left 250ms ease-out, top 250ms ease-out;
+}
+
 .input-box-inner-vertical {
   margin: 12px auto;
   max-width: 800px;

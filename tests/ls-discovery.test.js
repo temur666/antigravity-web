@@ -159,32 +159,32 @@ test('grpcCall 是函数', () => {
     assert.strictEqual(typeof grpcCall, 'function');
 });
 
-test('grpcCall 参数校验 — 缺 port', async () => {
-    try {
-        await grpcCall(null, 'test', 'Method', {});
-        assert.fail('should throw');
-    } catch (e) {
-        assert(e.message.includes('port'), `error should mention port: ${e.message}`);
-    }
-});
+(async () => {
+    await testAsync('grpcCall 参数校验 -- 缺 port', async () => {
+        try {
+            await grpcCall(null, 'test', 'Method', {});
+            assert.fail('should throw');
+        } catch (e) {
+            assert(e.message.includes('port'), `error should mention port: ${e.message}`);
+        }
+    });
 
-test('grpcCall 参数校验 — 缺 csrf', async () => {
-    try {
-        await grpcCall(12345, null, 'Method', {});
-        assert.fail('should throw');
-    } catch (e) {
-        assert(e.message.includes('csrf'), `error should mention csrf: ${e.message}`);
-    }
-});
+    await testAsync('grpcCall 参数校验 -- 缺 csrf', async () => {
+        try {
+            await grpcCall(12345, null, 'Method', {});
+            assert.fail('should throw');
+        } catch (e) {
+            assert(e.message.includes('csrf'), `error should mention csrf: ${e.message}`);
+        }
+    });
 
-// ========== Integration test (real LS) ==========
+    // ========== Integration test (real LS) ==========
 
-console.log('\n🔌 集成测试 (需要真实 LS)');
+    console.log('\n集成测试 (需要真实 LS)');
 
-const isIntegration = process.argv.includes('--integration');
+    const isIntegration = process.argv.includes('--integration');
 
-if (isIntegration) {
-    (async () => {
+    if (isIntegration) {
         await testAsync('从真实 daemon 目录发现 LS', async () => {
             const result = discoverLS();
             assert(result !== null, 'should discover LS from default path');
@@ -206,17 +206,13 @@ if (isIntegration) {
             assert(result.data.cascadeId, 'should get cascadeId');
             console.log(`     cascadeId=${result.data.cascadeId}`);
         });
+    } else {
+        console.log('  skip (用 --integration 启用)');
+    }
 
-        // Print summary
-        console.log(`\n${'═'.repeat(40)}`);
-        console.log(`结果: ${passed} passed, ${failed} failed`);
-        console.log(`${'═'.repeat(40)}\n`);
-        process.exit(failed > 0 ? 1 : 0);
-    })();
-} else {
-    console.log('  ⏭️  跳过 (用 --integration 启用)');
-    console.log(`\n${'═'.repeat(40)}`);
+    // Print summary
+    console.log(`\n${'='.repeat(40)}`);
     console.log(`结果: ${passed} passed, ${failed} failed`);
-    console.log(`${'═'.repeat(40)}\n`);
+    console.log(`${'='.repeat(40)}\n`);
     process.exit(failed > 0 ? 1 : 0);
-}
+})();
