@@ -2,14 +2,14 @@
  * useDraggable — 输入框拖拽 + 底部吸附 hook
  *
  * 状态机:
- *   snapped (底部吸附，完整形态)
+ *   snapped (底部吸附，完整宽度)
  *     ─ pointerdown on grip ─→ dragging
- *   dragging (拖拽中，紧凑形态，跟随指针)
+ *   dragging (拖拽中，窄面板，跟随指针)
  *     ─ pointerup 在吸附区内 ─→ animatingSnap
  *     ─ pointerup 在吸附区外 ─→ floating
- *   floating (停留在拖拽位置，紧凑形态)
+ *   floating (停留在拖拽位置，窄面板，可交互)
  *     ─ pointerdown on grip ─→ dragging
- *     ─ doubleclick ─→ animatingSnap
+ *     ─ doubleclick grip ─→ animatingSnap
  *   animatingSnap (回弹动画中)
  *     ─ transitionend ─→ snapped
  */
@@ -22,9 +22,8 @@ interface Position {
 
 /** 距视口底部多少 px 内松手触发吸附 */
 const SNAP_THRESHOLD = 120;
-/** 紧凑形态尺寸 */
-const COMPACT_W = 60;
-const COMPACT_H = 72;
+/** 浮动面板宽度 */
+const FLOATING_W = 280;
 
 export function useDraggable() {
     const [isDragging, setIsDragging] = useState(false);
@@ -57,8 +56,8 @@ export function useDraggable() {
             if (distFromBottom < SNAP_THRESHOLD) {
                 // 动画移向底部中央，再完成吸附
                 setPosition({
-                    x: (window.innerWidth - COMPACT_W) / 2,
-                    y: window.innerHeight - COMPACT_H - 20,
+                    x: (window.innerWidth - FLOATING_W) / 2,
+                    y: window.innerHeight - 180,
                 });
                 setIsAnimatingSnap(true);
             }
@@ -78,11 +77,11 @@ export function useDraggable() {
         e.preventDefault();
         e.stopPropagation();
 
-        // 紧凑矩形以指针为中心偏上（grip 在顶部）
-        offsetRef.current = { x: COMPACT_W / 2, y: 12 };
+        // 浮动面板以指针为中心偏上（grip 在顶部）
+        offsetRef.current = { x: FLOATING_W / 2, y: 20 };
         setPosition({
-            x: e.clientX - COMPACT_W / 2,
-            y: e.clientY - 12,
+            x: e.clientX - FLOATING_W / 2,
+            y: e.clientY - 20,
         });
         setIsSnapped(false);
         setIsDragging(true);
@@ -93,8 +92,8 @@ export function useDraggable() {
     // ── 双击回位 ──
     const handleDoubleClick = useCallback(() => {
         setPosition({
-            x: (window.innerWidth - COMPACT_W) / 2,
-            y: window.innerHeight - COMPACT_H - 20,
+            x: (window.innerWidth - FLOATING_W) / 2,
+            y: window.innerHeight - 180,
         });
         setIsAnimatingSnap(true);
         setIsDragging(false);
@@ -114,7 +113,7 @@ export function useDraggable() {
         isDragging,
         isSnapped,
         isAnimatingSnap,
-        isCompact: !isSnapped,
+        isFloating: !isSnapped,
         position,
         handleGripPointerDown,
         handleDoubleClick,

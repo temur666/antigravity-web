@@ -900,6 +900,7 @@ body {
   background: var(--color-bg-base);
   pointer-events: auto;
   border-top: 1px solid var(--color-border);
+  container-type: inline-size;
 }
 
 /* ===== Drag Grip Bar ===== */
@@ -929,53 +930,23 @@ body {
   width: 40px;
 }
 
-/* ===== Compact (Floating) State ===== */
-.input-box-compact {
-  padding: 0;
+/* ===== Floating Panel State ===== */
+.input-box-floating {
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   background: var(--color-bg-surface);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-              0 0 0 1px rgba(255, 255, 255, 0.05);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   z-index: 1000;
-  user-select: none;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
   overflow: hidden;
 }
 
-.input-box-compact .input-box-grip {
-  padding: 6px 0 0;
-}
-
-.input-box-compact .input-box-grip-bar {
-  width: 20px;
-  height: 3px;
-}
-
-.input-box-compact .input-box-grip:hover .input-box-grip-bar {
-  width: 28px;
-}
-
-.input-box-compact-content {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--color-text-secondary);
-  gap: 6px;
-  padding-bottom: 4px;
-}
-
-.input-box-compact-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-accent);
-  box-shadow: 0 0 6px var(--color-accent);
+.input-box-floating .input-box-inner-vertical {
+  margin: 0;
+  max-width: none;
+  border: none;
+  background: none;
+  border-radius: 0;
 }
 
 /* ===== Dragging State ===== */
@@ -991,6 +962,24 @@ body {
 /* ===== Snap-back Animation ===== */
 .input-box-animating {
   transition: left 250ms ease-out, top 250ms ease-out;
+}
+
+/* ===== Narrow Width: Two-Row Bottom Bar ===== */
+@container (max-width: 400px) {
+  .input-bottom-bar {
+    flex-wrap: wrap;
+  }
+
+  .input-actions-right-bottom {
+    order: 1;
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .input-actions-left-bottom {
+    order: 2;
+    width: 100%;
+  }
 }
 
 .input-box-inner-vertical {
