@@ -12,7 +12,8 @@ export type StepStatus =
     | 'CORTEX_STEP_STATUS_PENDING'
     | 'CORTEX_STEP_STATUS_GENERATING'
     | 'CORTEX_STEP_STATUS_DONE'
-    | 'CORTEX_STEP_STATUS_ERROR';
+    | 'CORTEX_STEP_STATUS_ERROR'
+    | 'CORTEX_STEP_STATUS_WAITING';
 
 // ========== Step 类型枚举 ==========
 

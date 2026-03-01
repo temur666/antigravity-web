@@ -9,6 +9,7 @@ import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
+import { ModelSelector } from './components/Header/ModelSelector';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
@@ -56,7 +57,7 @@ export default function App() {
           >
             ☰
           </button>
-          <div className="header-title">Antigravity Chat</div>
+          <ModelSelector position="header" />
           <div style={{ width: 36 }}></div>
         </header>
 

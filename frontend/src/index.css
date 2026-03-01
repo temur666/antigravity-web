@@ -1158,6 +1158,39 @@ body {
   overflow-y: auto;
 }
 
+/* Header Model Selector — 顶栏向下弹出 */
+.header-model-selector {
+  display: flex;
+  align-items: center;
+}
+
+.header-model-trigger {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  padding: 6px 10px;
+}
+
+.header-dropdown-menu {
+  top: calc(100% + 8px);
+  bottom: auto;
+  left: 0;
+  transform: none;
+  animation: dropdownDown 0.12s ease-out;
+}
+
+@keyframes dropdownDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes dropdownUp {
   from {
     opacity: 0;

@@ -11,7 +11,7 @@ import { useAppStore } from '@/store';
 import { Mic, ArrowRight, Plus } from 'lucide-react';
 import { ConfigPanel } from '../ConfigPanel/ConfigPanel';
 import { ModeSelector } from '../Header/ModeSelector';
-import { ModelSelector } from '../Header/ModelSelector';
+
 import { useDraggable } from '@/hooks/useDraggable';
 
 export function InputBox() {
@@ -145,7 +145,7 @@ export function InputBox() {
 
                         <div className="input-selectors">
                             <ModeSelector />
-                            <ModelSelector />
+
                         </div>
 
                         {showConfigOptions && (

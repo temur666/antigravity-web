@@ -283,6 +283,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             case 'event_step_added': {
                 const event = msg as EventStepAdded;
+                console.log(`[ws] step_added cid=${event.cascadeId?.slice(0, 8)} idx=${event.stepIndex} active=${state.activeConversationId?.slice(0, 8)}`);
                 if (event.cascadeId !== state.activeConversationId) break;
                 store.setState(prev => ({
                     steps: [...prev.steps, event.step],
@@ -292,6 +293,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             case 'event_step_updated': {
                 const event = msg as EventStepUpdated;
+                console.log(`[ws] step_updated cid=${event.cascadeId?.slice(0, 8)} idx=${event.stepIndex} active=${state.activeConversationId?.slice(0, 8)} stepsLen=${state.steps.length}`);
                 if (event.cascadeId !== state.activeConversationId) break;
                 store.setState(prev => {
                     const newSteps = [...prev.steps];
@@ -305,6 +307,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             case 'event_status_changed': {
                 const event = msg as EventStatusChanged;
+                console.log(`[ws] status_changed cid=${event.cascadeId?.slice(0, 8)} to=${event.to} active=${state.activeConversationId?.slice(0, 8)}`);
                 if (event.cascadeId !== state.activeConversationId) break;
                 store.setState({
                     conversationStatus: event.to,
