@@ -1725,3 +1725,118 @@ body {
   border-radius: 2px;
   transition: width 0.3s;
 }
+
+/* ===== PWA Install Prompt ===== */
+.install-prompt {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 0 var(--spacing-md);
+  padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top,
+      rgba(10, 10, 12, 0.98) 0%,
+      rgba(10, 10, 12, 0.92) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  animation: installSlideUp 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+@keyframes installSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.install-prompt-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: var(--spacing-md) 0;
+}
+
+.install-prompt-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.install-prompt-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.install-prompt-text strong {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.install-prompt-text span {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.install-prompt-share-icon {
+  display: inline-block;
+  font-weight: 700;
+  color: var(--color-accent);
+  font-size: 15px;
+  vertical-align: middle;
+}
+
+.install-prompt-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.install-prompt-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  white-space: nowrap;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.install-prompt-btn.primary {
+  background: var(--color-accent);
+  color: #000;
+  box-shadow: 0 4px 12px var(--color-accent-glow);
+}
+
+.install-prompt-btn.primary:active {
+  transform: scale(0.96);
+}
+
+.install-prompt-btn.dismiss {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.install-prompt-btn.dismiss:active {
+  color: var(--color-text-primary);
+}

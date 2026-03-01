@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { StatusBar } from './components/StatusBar/StatusBar';
+import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
@@ -67,6 +68,9 @@ export default function App() {
         {/* 状态栏 */}
         <StatusBar />
       </main>
+
+      {/* PWA 安装提示 */}
+      <InstallPrompt />
     </div>
   );
 }
