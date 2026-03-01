@@ -122,6 +122,7 @@ async function handleMessage(clientWs, data) {
                     steps: traj?.trajectory?.steps || [],
                     totalSteps: traj?.numTotalSteps || 0,
                     metadata: traj?.trajectory?.generatorMetadata || [],
+                    seq: controller.getCurrentSeq(data.cascadeId),
                 }, reqId));
                 break;
             }
@@ -141,7 +142,7 @@ async function handleMessage(clientWs, data) {
                 if (data.mentions) extras.mentions = data.mentions;
                 if (data.media) extras.media = data.media;
                 await controller.sendMessage(data.cascadeId, data.text, data.config, extras);
-                controller.subscribe(data.cascadeId, clientWs);
+                controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
                 send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;
             }
@@ -151,8 +152,12 @@ async function handleMessage(clientWs, data) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
                 }
-                controller.subscribe(data.cascadeId, clientWs);
-                send(proto.makeResponse('res_subscribe', { ok: true, cascadeId: data.cascadeId }, reqId));
+                controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
+                send(proto.makeResponse('res_subscribe', {
+                    ok: true,
+                    cascadeId: data.cascadeId,
+                    seq: controller.getCurrentSeq(data.cascadeId),
+                }, reqId));
                 break;
             }
 

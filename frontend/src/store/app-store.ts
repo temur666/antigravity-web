@@ -50,6 +50,7 @@ export interface AppState {
     steps: Step[];
     conversationStatus: string;
     metadata: unknown[];
+    lastSeq: number;  // 最后收到的事件序号，用于断点续传
 
     // 配置
     config: CascadeConfig;
@@ -90,6 +91,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         steps: [],
         conversationStatus: 'IDLE',
         metadata: [],
+        lastSeq: 0,
         config: { ...DEFAULT_CONFIG },
         models: [],
         account: null,
@@ -131,6 +133,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 activeConversationId: id,
                 steps: [],
                 conversationStatus: 'IDLE',
+                lastSeq: 0,
                 loading: true,
                 error: null,
             });
@@ -143,23 +146,26 @@ export function createAppStore(wsClient: WSClient): AppStore {
             });
 
             if (trajectoryRes.type === 'res_trajectory') {
-                const data = trajectoryRes as ResTrajectory;
+                const data = trajectoryRes as ResTrajectory & { seq?: number };
                 set({
                     steps: data.steps,
                     conversationStatus: data.status.replace('CASCADE_RUN_STATUS_', ''),
                     metadata: data.metadata,
+                    lastSeq: data.seq || 0,
                     loading: false,
                 });
             } else {
                 set({ loading: false, error: '加载对话失败' });
             }
 
-            // 订阅实时更新
+            // 订阅实时更新（带 lastSeq 用于增量恢复）
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await wsClient.sendAndWait({
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
-            });
+                lastSeq: get().lastSeq,
+            } as any);
         },
 
         newChat: async () => {
@@ -268,12 +274,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         : null,
                 });
 
-                // LS 恢复连接 → 自动刷新数据
                 if (!wasConnected && event.connected) {
                     const currentState = store.getState();
                     currentState.loadConversations();
                     currentState.loadStatus();
-                    // 恢复当前对话
                     if (currentState.activeConversationId) {
                         currentState.selectConversation(currentState.activeConversationId);
                     }
@@ -282,35 +286,81 @@ export function createAppStore(wsClient: WSClient): AppStore {
             }
 
             case 'event_step_added': {
-                const event = msg as EventStepAdded;
-                console.log(`[ws] step_added cid=${event.cascadeId?.slice(0, 8)} idx=${event.stepIndex} active=${state.activeConversationId?.slice(0, 8)}`);
+                const event = msg as EventStepAdded & { seq?: number };
                 if (event.cascadeId !== state.activeConversationId) break;
-                store.setState(prev => ({
-                    steps: [...prev.steps, event.step],
-                }));
+                store.setState(prev => {
+                    const newSteps = [...prev.steps];
+                    if (event.stepIndex < newSteps.length) {
+                        // 已存在（重复），替换
+                        newSteps[event.stepIndex] = event.step;
+                    } else {
+                        // 新 step，追加
+                        newSteps.push(event.step);
+                    }
+                    return {
+                        steps: newSteps,
+                        lastSeq: event.seq || prev.lastSeq,
+                    };
+                });
                 break;
             }
 
             case 'event_step_updated': {
-                const event = msg as EventStepUpdated;
-                console.log(`[ws] step_updated cid=${event.cascadeId?.slice(0, 8)} idx=${event.stepIndex} active=${state.activeConversationId?.slice(0, 8)} stepsLen=${state.steps.length}`);
+                const event = msg as EventStepUpdated & { seq?: number };
                 if (event.cascadeId !== state.activeConversationId) break;
                 store.setState(prev => {
                     const newSteps = [...prev.steps];
                     if (event.stepIndex < newSteps.length) {
                         newSteps[event.stepIndex] = event.step;
                     }
-                    return { steps: newSteps };
+                    return {
+                        steps: newSteps,
+                        lastSeq: event.seq || prev.lastSeq,
+                    };
                 });
                 break;
             }
 
             case 'event_status_changed': {
-                const event = msg as EventStatusChanged;
-                console.log(`[ws] status_changed cid=${event.cascadeId?.slice(0, 8)} to=${event.to} active=${state.activeConversationId?.slice(0, 8)}`);
+                const event = msg as EventStatusChanged & { seq?: number };
                 if (event.cascadeId !== state.activeConversationId) break;
-                store.setState({
+                store.setState(prev => ({
                     conversationStatus: event.to,
+                    lastSeq: event.seq || prev.lastSeq,
+                }));
+                break;
+            }
+
+            case 'events_batch' as string: {
+                // 断点续传：服务端一次性发送缓冲区中的多个事件
+                const batch = msg as unknown as { cascadeId: string; events: Array<EventStepAdded | EventStepUpdated | EventStatusChanged & { seq?: number }> };
+                if (batch.cascadeId !== state.activeConversationId) break;
+                store.setState(prev => {
+                    let newSteps = [...prev.steps];
+                    let newStatus = prev.conversationStatus;
+                    let newSeq = prev.lastSeq;
+                    for (const evt of batch.events) {
+                        if ((evt as { seq?: number }).seq) {
+                            newSeq = (evt as { seq: number }).seq;
+                        }
+                        if (evt.type === 'event_step_added') {
+                            const e = evt as EventStepAdded;
+                            if (e.stepIndex < newSteps.length) {
+                                newSteps[e.stepIndex] = e.step;
+                            } else {
+                                newSteps = [...newSteps, e.step];
+                            }
+                        } else if (evt.type === 'event_step_updated') {
+                            const e = evt as EventStepUpdated;
+                            if (e.stepIndex < newSteps.length) {
+                                newSteps = [...newSteps];
+                                newSteps[e.stepIndex] = e.step;
+                            }
+                        } else if (evt.type === 'event_status_changed') {
+                            newStatus = (evt as EventStatusChanged).to;
+                        }
+                    }
+                    return { steps: newSteps, conversationStatus: newStatus, lastSeq: newSeq };
                 });
                 break;
             }
