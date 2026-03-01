@@ -16,6 +16,7 @@ const fs = require('fs');
 const { Controller } = require('./lib/core/controller');
 const { grpcCall } = require('./lib/core/ls-discovery');
 const proto = require('./lib/core/ws-protocol');
+const { startBot } = require('./lib/telegram/bot');
 
 // ========== 静态文件检查 ==========
 
@@ -269,6 +270,11 @@ async function main() {
     }
 
     console.log(`[*] 静态文件: ${distPath}`);
+
+    // Telegram Bot (非阻塞启动，失败不影响 Web 服务)
+    startBot(controller).catch(err => {
+        console.error('[TG] Bot 启动失败:', err.message);
+    });
 
     serverHttp.listen(PORT, '0.0.0.0', () => {
         console.log(`[*] HTTP : http://localhost:${PORT}`);
