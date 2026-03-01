@@ -12,6 +12,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: ['chat.zome.life'],
     proxy: {
       '/ws': {
         target: 'ws://localhost:3210',

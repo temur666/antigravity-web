@@ -2,11 +2,11 @@
   "name": "antigravity-web",
   "version": "1.0.0",
   "description": "Antigravity Remote Chat - Web Frontend",
-  "main": "server.js",
+  "main": "main.js",
   "scripts": {
-    "start": "node server.js",
+    "start": "node main.js",
     "start:legacy": "node server-v1.js",
-    "dev": "node server.js",
+    "dev": "cd frontend && npx vite --host 0.0.0.0",
     "build:frontend": "cd frontend && npm run build",
     "setup": "cd frontend && npm install && npm run build"
   },

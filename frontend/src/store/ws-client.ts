@@ -62,9 +62,9 @@ export class WSClient {
      * 获取 WebSocket URL (基于当前页面 location)
      */
     private getWSUrl(): string {
-        if (typeof window === 'undefined') return 'ws://localhost:3210';
+        if (typeof window === 'undefined') return 'ws://localhost:3210/ws';
         const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        return `${proto}//${window.location.host}`;
+        return `${proto}//${window.location.host}/ws`;
     }
 
     /**
