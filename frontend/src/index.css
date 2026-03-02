@@ -1873,3 +1873,202 @@ body {
 .install-prompt-btn.dismiss:active {
   color: var(--color-text-primary);
 }
+
+/* ========== DASHBOARD ========== */
+
+.dashboard {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xl);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.dashboard-engine {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.engine-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.engine-dot.online {
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent-glow);
+}
+
+.engine-dot.offline {
+  background: #ef4444;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+}
+
+.engine-label {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+}
+
+.dashboard-section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.dashboard-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.dashboard-section-header h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: -0.3px;
+}
+
+.dashboard-action-btn {
+  background: none;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.dashboard-action-btn:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-muted);
+}
+
+.dashboard-action-btn.new-chat-btn {
+  color: var(--color-accent);
+  border-color: rgba(45, 212, 191, 0.3);
+}
+
+.dashboard-action-btn.new-chat-btn:hover {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: var(--color-accent);
+}
+
+.dashboard-empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: var(--spacing-lg) 0;
+  text-align: center;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-sm);
+}
+
+/* TaskCard */
+
+.task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  text-align: left;
+  color: var(--color-text-primary);
+  width: 100%;
+}
+
+.task-card:hover {
+  border-color: var(--color-text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.task-card.running {
+  border-color: rgba(45, 212, 191, 0.3);
+  background: rgba(45, 212, 191, 0.03);
+}
+
+.task-card.running:hover {
+  border-color: var(--color-accent);
+  background: rgba(45, 212, 191, 0.06);
+}
+
+.task-card-top {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.task-status-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.badge-running {
+  background: rgba(45, 212, 191, 0.2);
+  color: var(--color-accent);
+}
+
+.badge-idle {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--color-text-muted);
+}
+
+.task-step-count {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+}
+
+.task-card-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.task-card-meta {
+  display: flex;
+  gap: var(--spacing-sm);
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.task-workspace {
+  font-family: var(--font-mono);
+  color: var(--color-text-muted);
+}
+
+/* Dashboard 响应式 */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: var(--spacing-md);
+  }
+
+  .dashboard-engine {
+    padding: var(--spacing-sm) var(--spacing-md);
+  }
+
+  .engine-label {
+    font-size: 11px;
+  }
+}

@@ -7,13 +7,16 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
+import { Dashboard } from './components/Dashboard/Dashboard';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { ModelSelector } from './components/Header/ModelSelector';
+import { useAppStore } from '@/store';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const activeConversationId = useAppStore(s => s.activeConversationId);
 
   useEffect(() => {
     const handleResize = () => {
@@ -63,7 +66,7 @@ export default function App() {
 
         {/* 内容区 */}
         <div className="main-content">
-          <ChatPanel />
+          {activeConversationId ? <ChatPanel /> : <Dashboard />}
         </div>
 
         {/* 状态栏 */}

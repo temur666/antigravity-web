@@ -220,6 +220,12 @@ export interface ConversationSummary {
     title: string;
     updatedAt: string;
     sizeBytes: number;
+    status?: string;          // IDLE | RUNNING | UNKNOWN
+    stepCount?: number;
+    createdAt?: string;
+    lastUserInputTime?: string;
+    workspace?: string;
+    source?: string;          // ls | file | sqlite
 }
 
 export interface GeneratorMetadata {
