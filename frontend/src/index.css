@@ -2108,6 +2108,15 @@ body {
     column-count: 2;
     column-gap: 48px;
     column-rule: 1px solid var(--color-border);
+    width: 100%;
+  }
+
+  .dual-column .step-wrapper {
+    width: 100%;
+  }
+
+  .dual-column .step {
+    width: 100%;
   }
 
   /* 代码块/表格不要被分栏截断 */
