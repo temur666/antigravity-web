@@ -2097,43 +2097,23 @@ body {
     display: flex !important;
   }
 
-  /* 双栏模式生效时 */
+  /* 双栏模式生效时：整个消息区两栏排版 */
   .dual-column .chat-panel-messages {
-    max-width: 1100px;
+    max-width: 1200px;
     padding-left: var(--spacing-xl);
     padding-right: var(--spacing-xl);
-  }
-
-  .dual-column .ai-response {
+    /* columns 不兼容 flex，切换为 block */
+    display: block;
     column-count: 2;
     column-gap: 48px;
     column-rule: 1px solid var(--color-border);
-    width: 100%;
   }
 
+  /* 每个 step 块不要被截断到两栏 */
   .dual-column .step-wrapper {
-    width: 100%;
-  }
-
-  .dual-column .step {
-    width: 100%;
-  }
-
-  /* 代码块/表格不要被分栏截断 */
-  .dual-column .ai-response pre,
-  .dual-column .ai-response table,
-  .dual-column .ai-response blockquote,
-  .dual-column .ai-response .thinking-block,
-  .dual-column .ai-response ul,
-  .dual-column .ai-response ol {
     break-inside: avoid;
-  }
-
-  /* 标题不要落在栏底 */
-  .dual-column .ai-response h1,
-  .dual-column .ai-response h2,
-  .dual-column .ai-response h3,
-  .dual-column .ai-response h4 {
-    break-after: avoid;
+    width: 100%;
+    /* 替代 flex gap */
+    margin-bottom: var(--spacing-xl);
   }
 }
