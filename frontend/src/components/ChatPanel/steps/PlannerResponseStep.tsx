@@ -5,6 +5,26 @@ import { useState } from 'react';
 import type { Step, ToolCall } from '@/types';
 import { renderMarkdown } from '@/utils/markdown';
 
+/**
+ * 已有专属 Step UI 的工具名白名单。
+ * 这些工具会由后续独立的 Step 来渲染，所以在 PlannerResponse 中跳过，
+ * 避免同一操作在界面上重复出现。
+ */
+const TOOLS_WITH_DEDICATED_STEP = new Set([
+    'run_command',
+    'command_status',
+    'view_file',
+    'view_file_outline',
+    'view_code_item',
+    'write_to_file',
+    'replace_file_content',
+    'multi_replace_file_content',
+    'list_dir',
+    'find_by_name',
+    'grep_search',
+    'search_web',
+]);
+
 interface Props {
     step: Step;
 }
@@ -48,14 +68,19 @@ export function PlannerResponseStep({ step }: Props) {
                 />
             )}
 
-            {/* Tool Calls */}
-            {pr.toolCalls && pr.toolCalls.length > 0 && (
-                <div className="tool-calls">
-                    {pr.toolCalls.map((tc, i) => (
-                        <ToolCallBlock key={i} toolCall={tc} />
-                    ))}
-                </div>
-            )}
+            {/* Tool Calls — 过滤掉有专属 Step UI 的工具 */}
+            {pr.toolCalls && pr.toolCalls.length > 0 && (() => {
+                const visibleCalls = pr.toolCalls.filter(
+                    tc => !TOOLS_WITH_DEDICATED_STEP.has(tc.name)
+                );
+                return visibleCalls.length > 0 ? (
+                    <div className="tool-calls">
+                        {visibleCalls.map((tc, i) => (
+                            <ToolCallBlock key={i} toolCall={tc} />
+                        ))}
+                    </div>
+                ) : null;
+            })()}
 
             {/* 无内容时的 fallback */}
             {!pr.response && !pr.thinking && (!pr.toolCalls || pr.toolCalls.length === 0) && (

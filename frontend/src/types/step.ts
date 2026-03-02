@@ -80,14 +80,27 @@ export interface CodeActionPayload {
 
 export interface RunCommandPayload {
     command?: string;
+    commandLine?: string;
+    proposedCommandLine?: string;
     cwd?: string;
+    waitMsBeforeAsync?: string | number;
+    shouldAutoRun?: boolean;
+    blocking?: boolean;
+    exitCode?: number;
+    autoRunDecision?: string;
+    combinedOutput?: { full?: string };
     [key: string]: unknown;
 }
 
 export interface CommandStatusPayload {
-    output?: string;
-    exitCode?: number;
     commandId?: string;
+    outputCharacterCount?: number;
+    waitDurationSeconds?: number;
+    waitedDurationSeconds?: number;
+    status?: string;
+    combined?: string;
+    delta?: string;
+    exitCode?: number;
     [key: string]: unknown;
 }
 

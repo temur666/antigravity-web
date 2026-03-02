@@ -14,6 +14,8 @@ export function CommandStatusStep({ step }: Props) {
     if (!cs) return null;
 
     const exitOk = cs.exitCode === 0 || cs.exitCode === undefined;
+    // LS 真实字段: combined (完整输出), delta (增量输出)
+    const output = cs.combined || cs.delta || '';
 
     return (
         <div className={`step step-command-status ${exitOk ? '' : 'error'}`}>
@@ -24,9 +26,10 @@ export function CommandStatusStep({ step }: Props) {
                     {cs.exitCode !== undefined && ` (exit: ${cs.exitCode})`}
                 </span>
             </button>
-            {expanded && cs.output && (
-                <pre className="step-output">{cs.output}</pre>
+            {expanded && output && (
+                <pre className="step-output">{output}</pre>
             )}
         </div>
     );
 }
+

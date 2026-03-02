@@ -16,7 +16,6 @@ import { useAppStore } from '@/store';
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const [dualColumn, setDualColumn] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
 
   useEffect(() => {
@@ -38,7 +37,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className={`app ${dualColumn ? 'dual-column' : ''}`}>
+    <div className="app">
       {/* 遮罩层 (仅移动端且侧边栏打开时显示) */}
       {isMobile && showSidebar && (
         <div
@@ -62,14 +61,7 @@ export default function App() {
             ☰
           </button>
           <ModelSelector position="header" />
-          {/* 双栏切换 (仅桌面宽屏) */}
-          <button
-            className={`header-btn dual-column-toggle ${dualColumn ? 'active' : ''}`}
-            onClick={() => setDualColumn(!dualColumn)}
-            title={dualColumn ? '单栏模式' : '双栏阅读'}
-          >
-            ⫏
-          </button>
+          <div style={{ width: 36 }}></div>
         </header>
 
         {/* 内容区 */}
