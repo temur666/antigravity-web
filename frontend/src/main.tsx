@@ -23,11 +23,19 @@ setStoreInstance(store);
 // 3. 连接 WebSocket
 wsClient.connect();
 
-// 4. 连接后加载初始状态
+// 4. 连接 / 重连后加载状态
+let wasConnected = false;
 wsClient.onStateChange((state) => {
   if (state === 'CONNECTED') {
-    store.getState().loadStatus();
-    store.getState().loadConversations();
+    const s = store.getState();
+    s.loadStatus();
+    s.loadConversations();
+
+    // 重连时恢复活跃对话的订阅
+    if (wasConnected && s.activeConversationId) {
+      s.selectConversation(s.activeConversationId);
+    }
+    wasConnected = true;
   }
 });
 

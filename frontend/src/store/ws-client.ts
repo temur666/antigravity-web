@@ -5,7 +5,7 @@
  *   - 管理 WebSocket 连接生命周期
  *   - 发送 JSON 消息 (send / sendAndWait)
  *   - 分发接收到的消息给订阅者
- *   - 自动重连 (可选)
+ *   - 断线自动重连 (指数退避 + navigator.onLine 监听)
  *
  * 设计:
  *   - 通过工厂函数注入 WebSocket，方便测试
@@ -36,6 +36,13 @@ interface PendingRequest {
     timer: ReturnType<typeof setTimeout>;
 }
 
+interface ReconnectConfig {
+    enabled: boolean;
+    minDelay: number;   // 初始重连延迟 (ms)
+    maxDelay: number;   // 最大重连延迟 (ms)
+    factor: number;     // 退避因子
+}
+
 // ========== WSClient ==========
 
 export class WSClient {
@@ -48,8 +55,23 @@ export class WSClient {
     private _state: WSClientState = WSClientState.DISCONNECTED;
     private destroyed = false;
 
+    // 自动重连
+    private reconnect: ReconnectConfig = {
+        enabled: true,
+        minDelay: 1000,
+        maxDelay: 30000,
+        factor: 2,
+    };
+    private _reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+    private _reconnectDelay: number = 1000;
+    private _onOnline = () => this._handleOnline();
+
     constructor(factory?: WSFactory) {
         this.factory = factory ?? (() => new WebSocket(this.getWSUrl()));
+        // 监听网络恢复
+        if (typeof window !== 'undefined') {
+            window.addEventListener('online', this._onOnline);
+        }
     }
 
     // ========== 公共 API ==========
@@ -79,6 +101,7 @@ export class WSClient {
         this.ws = ws;
 
         ws.onopen = () => {
+            this._reconnectDelay = this.reconnect.minDelay; // 重置退避
             this.setState(WSClientState.CONNECTED);
         };
 
@@ -86,6 +109,7 @@ export class WSClient {
             this.ws = null;
             this.setState(WSClientState.DISCONNECTED);
             this.rejectAllPending('Connection closed');
+            this._scheduleReconnect();
         };
 
         ws.onerror = () => {
@@ -98,9 +122,10 @@ export class WSClient {
     }
 
     /**
-     * 主动断开连接
+     * 主动断开连接 (不触发自动重连)
      */
     disconnect(): void {
+        this._clearReconnect();
         if (this.ws) {
             this.ws.close();
             this.ws = null;
@@ -186,6 +211,10 @@ export class WSClient {
 
     destroy(): void {
         this.destroyed = true;
+        this._clearReconnect();
+        if (typeof window !== 'undefined') {
+            window.removeEventListener('online', this._onOnline);
+        }
         this.disconnect();
         this.messageHandlers.clear();
         this.stateHandlers.clear();
@@ -241,5 +270,39 @@ export class WSClient {
             } as ServerMessage);
         }
         this.pendingRequests.clear();
+    }
+
+    // ========== 自动重连 ==========
+
+    private _scheduleReconnect(): void {
+        if (!this.reconnect.enabled || this.destroyed) return;
+
+        const delay = this._reconnectDelay;
+        this._reconnectDelay = Math.min(
+            this._reconnectDelay * this.reconnect.factor,
+            this.reconnect.maxDelay,
+        );
+
+        this._reconnectTimer = setTimeout(() => {
+            this._reconnectTimer = null;
+            if (!this.destroyed && this._state === WSClientState.DISCONNECTED) {
+                this.connect();
+            }
+        }, delay);
+    }
+
+    private _clearReconnect(): void {
+        if (this._reconnectTimer) {
+            clearTimeout(this._reconnectTimer);
+            this._reconnectTimer = null;
+        }
+    }
+
+    private _handleOnline(): void {
+        // 网络恢复，立即尝试重连 (跳过退避等待)
+        if (this.destroyed || this._state !== WSClientState.DISCONNECTED) return;
+        this._clearReconnect();
+        this._reconnectDelay = this.reconnect.minDelay;
+        this.connect();
     }
 }
