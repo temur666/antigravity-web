@@ -2062,6 +2062,7 @@ body {
 @media (max-width: 768px) {
   .dashboard {
     padding: var(--spacing-md);
+    padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
   }
 
   .dashboard-engine {
@@ -2070,5 +2071,16 @@ body {
 
   .engine-label {
     font-size: 11px;
+  }
+
+  .task-card {
+    min-height: 44px;
+    padding: var(--spacing-md);
+  }
+
+  .dashboard-action-btn {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 }
