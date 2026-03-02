@@ -2084,3 +2084,47 @@ body {
     align-items: center;
   }
 }
+
+/* ========== DUAL COLUMN (阅读模式) ========== */
+
+/* 切换按钮：默认隐藏，仅宽屏显示 */
+.dual-column-toggle {
+  display: none !important;
+}
+
+@media (min-width: 1200px) {
+  .dual-column-toggle {
+    display: flex !important;
+  }
+
+  /* 双栏模式生效时 */
+  .dual-column .chat-panel-messages {
+    max-width: 1100px;
+    padding-left: var(--spacing-xl);
+    padding-right: var(--spacing-xl);
+  }
+
+  .dual-column .ai-response {
+    column-count: 2;
+    column-gap: 48px;
+    column-rule: 1px solid var(--color-border);
+  }
+
+  /* 代码块/表格不要被分栏截断 */
+  .dual-column .ai-response pre,
+  .dual-column .ai-response table,
+  .dual-column .ai-response blockquote,
+  .dual-column .ai-response .thinking-block,
+  .dual-column .ai-response ul,
+  .dual-column .ai-response ol {
+    break-inside: avoid;
+  }
+
+  /* 标题不要落在栏底 */
+  .dual-column .ai-response h1,
+  .dual-column .ai-response h2,
+  .dual-column .ai-response h3,
+  .dual-column .ai-response h4 {
+    break-after: avoid;
+  }
+}
