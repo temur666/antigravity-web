@@ -235,5 +235,5 @@ export function isHiddenStep(step: Step): boolean {
 export function getUserInputText(step: Step): string {
     if (step.type !== 'CORTEX_STEP_TYPE_USER_INPUT') return '';
     const items = step.userInput?.items ?? [];
-    return items.map(item => item.text ?? '').join('\n');
+    return items.map(item => (item.text ?? '').trim()).join('\n');
 }
