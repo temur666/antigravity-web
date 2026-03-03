@@ -1,29 +1,27 @@
 /**
- * PagedOverlay — 翻页模式浮层
+ * PagedOverlay — 翻页模式浮层（左右翻页）
  *
- * 显示：
- *   - 上翻 / 下翻按钮
- *   - 当前页码 "3 / 12"
- *   - "有新内容" 提示条（当不在底部时出现新 step）
+ * 底部居中：左翻 | 页码 | 右翻
+ * + "有新内容" 提示
  */
-import { ChevronUp, ChevronDown, ArrowDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
 interface Props {
     currentPage: number;
     totalPages: number;
     hasNewContent: boolean;
-    onPageUp: () => void;
-    onPageDown: () => void;
-    onJumpToBottom: () => void;
+    onPageLeft: () => void;
+    onPageRight: () => void;
+    onJumpToEnd: () => void;
 }
 
 export function PagedOverlay({
     currentPage,
     totalPages,
     hasNewContent,
-    onPageUp,
-    onPageDown,
-    onJumpToBottom,
+    onPageLeft,
+    onPageRight,
+    onJumpToEnd,
 }: Props) {
     return (
         <div className="paged-overlay">
@@ -31,32 +29,32 @@ export function PagedOverlay({
             <div className="paged-controls">
                 <button
                     className="paged-btn"
-                    onClick={onPageUp}
-                    disabled={currentPage <= 1}
-                    title="上一页 (PageUp)"
+                    onClick={onPageLeft}
+                    disabled={currentPage <= 0}
+                    title="上一页 (←)"
                 >
-                    <ChevronUp size={18} />
+                    <ChevronLeft size={18} />
                 </button>
 
                 <span className="paged-indicator">
-                    {currentPage} / {totalPages}
+                    {currentPage + 1} / {totalPages}
                 </span>
 
                 <button
                     className="paged-btn"
-                    onClick={onPageDown}
-                    disabled={currentPage >= totalPages}
-                    title="下一页 (PageDown)"
+                    onClick={onPageRight}
+                    disabled={currentPage >= totalPages - 1}
+                    title="下一页 (→)"
                 >
-                    <ChevronDown size={18} />
+                    <ChevronRight size={18} />
                 </button>
             </div>
 
             {/* 有新内容提示 */}
             {hasNewContent && (
-                <button className="new-content-toast" onClick={onJumpToBottom}>
-                    <ArrowDown size={14} />
+                <button className="new-content-toast" onClick={onJumpToEnd}>
                     <span>有新内容</span>
+                    <ArrowRight size={14} />
                 </button>
             )}
         </div>

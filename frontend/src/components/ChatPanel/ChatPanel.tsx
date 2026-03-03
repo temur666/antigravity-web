@@ -2,8 +2,8 @@
  * ChatPanel — 对话面板主组件
  *
  * 支持两种浏览模式:
- *   - scroll: 传统直排滚动（默认）
- *   - paged:  翻页模式，scroll-snap + 键盘/按钮翻页
+ *   - scroll: 传统直排滚动
+ *   - paged:  微信读书式左右翻页（CSS multi-column + JS 计算）
  */
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '@/store';
@@ -20,64 +20,128 @@ export function ChatPanel() {
     const loading = useAppStore(s => s.loading);
     const error = useAppStore(s => s.error);
 
-    const messagesRef = useRef<HTMLDivElement>(null);
+    // 滚动模式的 refs
     const bottomRef = useRef<HTMLDivElement>(null);
     const prevLoadingRef = useRef(loading);
-
-    // 翻页状态（local state，纯 UI）
-    const [currentPage, setCurrentPage] = useState(1);
-    const [totalPages, setTotalPages] = useState(1);
-    const [hasNewContent, setHasNewContent] = useState(false);
     const prevStepsLenRef = useRef(steps.length);
 
-    // ---- 计算页码 ----
-    const updatePageInfo = useCallback(() => {
-        const el = messagesRef.current;
-        if (!el || viewMode !== 'paged') return;
+    // 翻页模式的 refs & state
+    const viewportRef = useRef<HTMLDivElement>(null);
+    const contentRef = useRef<HTMLDivElement>(null);
+    const [currentPage, setCurrentPage] = useState(0);
+    const [totalPages, setTotalPages] = useState(1);
+    const [hasNewContent, setHasNewContent] = useState(false);
 
-        const containerHeight = el.clientHeight;
-        if (containerHeight === 0) return;
+    // 触摸滑动
+    const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-        const scrollableHeight = el.scrollHeight - containerHeight;
-        const pages = Math.max(1, Math.ceil(scrollableHeight / containerHeight) + 1);
-        const page = scrollableHeight > 0
-            ? Math.min(pages, Math.round(el.scrollTop / containerHeight) + 1)
-            : 1;
+    const isPaged = viewMode === 'paged';
 
+    // ---- 重算分页 ----
+    const recalcPages = useCallback(() => {
+        const content = contentRef.current;
+        const viewport = viewportRef.current;
+        if (!content || !viewport || !isPaged) return;
+
+        const w = viewport.clientWidth;
+        if (w === 0) return;
+
+        const pages = Math.max(1, Math.ceil(content.scrollWidth / w));
         setTotalPages(pages);
-        setCurrentPage(page);
-    }, [viewMode]);
 
-    // ---- scroll 监听 → 更新页码 ----
+        // 如果当前页超出范围，修正
+        setCurrentPage(prev => Math.min(prev, pages - 1));
+    }, [isPaged]);
+
+    // ---- 应用 translateX ----
     useEffect(() => {
-        const el = messagesRef.current;
-        if (!el || viewMode !== 'paged') return;
+        const content = contentRef.current;
+        const viewport = viewportRef.current;
+        if (!content || !viewport || !isPaged) return;
 
-        const onScroll = () => {
-            updatePageInfo();
-            // 如果滚到底部了，清除"有新内容"提示
-            const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
-            if (atBottom) setHasNewContent(false);
+        const w = viewport.clientWidth;
+        content.style.transform = `translateX(-${currentPage * w}px)`;
+    }, [currentPage, isPaged]);
+
+    // ---- 设置列宽 & 重算 ----
+    useEffect(() => {
+        if (!isPaged) return;
+
+        const viewport = viewportRef.current;
+        const content = contentRef.current;
+        if (!viewport || !content) return;
+
+        const apply = () => {
+            const w = viewport.clientWidth;
+            content.style.columnWidth = `${w}px`;
+            content.style.columnGap = '0px';
+            content.style.height = '100%';
+            // 给浏览器一帧排版时间再算页数
+            requestAnimationFrame(recalcPages);
         };
 
-        el.addEventListener('scroll', onScroll, { passive: true });
-        return () => el.removeEventListener('scroll', onScroll);
-    }, [viewMode, updatePageInfo]);
+        apply();
 
-    // ---- 内容变化时重算页码 ----
+        const ro = new ResizeObserver(apply);
+        ro.observe(viewport);
+        return () => ro.disconnect();
+    }, [isPaged, recalcPages]);
+
+    // ---- 内容变化时重算 ----
     useEffect(() => {
-        updatePageInfo();
-    }, [steps.length, viewMode, updatePageInfo]);
+        if (!isPaged) return;
+        // 给排版一帧时间
+        requestAnimationFrame(() => {
+            requestAnimationFrame(recalcPages);
+        });
+    }, [steps.length, isPaged, recalcPages, loading]);
 
-    // ---- 批量加载完成：绘制前同步跳到底部 ----
+    // ---- 模式切换时重置 ----
+    useEffect(() => {
+        if (isPaged) {
+            setCurrentPage(0);
+            setHasNewContent(false);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(recalcPages);
+            });
+        } else {
+            // 切回滚动模式，清理 inline styles
+            const content = contentRef.current;
+            if (content) {
+                content.style.transform = '';
+                content.style.columnWidth = '';
+                content.style.columnGap = '';
+                content.style.height = '';
+            }
+        }
+    }, [isPaged, recalcPages]);
+
+    // ---- 滚动模式：批量加载完成，跳到底部 ----
     useLayoutEffect(() => {
         const justFinishedLoading = prevLoadingRef.current && !loading;
         prevLoadingRef.current = loading;
 
         if (justFinishedLoading && steps.length) {
-            bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+            if (!isPaged) {
+                bottomRef.current?.scrollIntoView({ behavior: 'instant' });
+            } else {
+                // 翻页模式：加载完跳到最后一页
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        recalcPages();
+                        setCurrentPage(prev => {
+                            const content = contentRef.current;
+                            const viewport = viewportRef.current;
+                            if (!content || !viewport) return prev;
+                            const w = viewport.clientWidth;
+                            const pages = Math.max(1, Math.ceil(content.scrollWidth / w));
+                            return pages - 1;
+                        });
+                    });
+                });
+            }
         }
-    }, [steps.length, loading]);
+    }, [steps.length, loading, isPaged, recalcPages]);
 
     // ---- 增量推送处理 ----
     useEffect(() => {
@@ -85,88 +149,116 @@ export function ChatPanel() {
         prevStepsLenRef.current = steps.length;
 
         if (!loading && steps.length > prev && prev > 0) {
-            if (viewMode === 'paged') {
-                // 翻页模式：不自动滚动，检查是否在最后一页
-                const el = messagesRef.current;
-                if (el) {
-                    const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 50;
-                    if (!atBottom) {
+            if (isPaged) {
+                // 翻页模式：不自动跳，显示提示
+                const content = contentRef.current;
+                const viewport = viewportRef.current;
+                if (content && viewport) {
+                    const w = viewport.clientWidth;
+                    const newTotal = Math.max(1, Math.ceil(content.scrollWidth / w));
+                    const isOnLastPage = currentPage >= newTotal - 2; // 接近最后一页
+                    if (!isOnLastPage) {
                         setHasNewContent(true);
-                    } else {
-                        // 已在底部，静默滚动到最底
-                        bottomRef.current?.scrollIntoView({ behavior: 'instant' });
                     }
                 }
             } else {
-                // 滚动模式：平滑滚到底部
                 bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
             }
         }
-    }, [steps.length, loading, viewMode]);
+    }, [steps.length, loading, isPaged, currentPage]);
 
     // ---- 翻页操作 ----
-    const pageUp = useCallback(() => {
-        const el = messagesRef.current;
-        if (!el) return;
-        el.scrollBy({ top: -el.clientHeight, behavior: 'smooth' });
-    }, []);
+    const goToPage = useCallback((page: number) => {
+        setCurrentPage(Math.max(0, Math.min(page, totalPages - 1)));
+    }, [totalPages]);
 
-    const pageDown = useCallback(() => {
-        const el = messagesRef.current;
-        if (!el) return;
-        el.scrollBy({ top: el.clientHeight, behavior: 'smooth' });
-    }, []);
+    const pageLeft = useCallback(() => {
+        goToPage(currentPage - 1);
+    }, [currentPage, goToPage]);
 
-    const jumpToBottom = useCallback(() => {
-        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    const pageRight = useCallback(() => {
+        goToPage(currentPage + 1);
+    }, [currentPage, goToPage]);
+
+    const jumpToEnd = useCallback(() => {
+        setCurrentPage(totalPages - 1);
         setHasNewContent(false);
-    }, []);
+    }, [totalPages]);
 
     // ---- 键盘翻页 ----
     useEffect(() => {
-        if (viewMode !== 'paged') return;
+        if (!isPaged) return;
 
         const onKeyDown = (e: KeyboardEvent) => {
-            // 如果焦点在输入框中，不拦截
             const tag = (e.target as HTMLElement)?.tagName;
             if (tag === 'INPUT' || tag === 'TEXTAREA') return;
 
             switch (e.key) {
+                case 'ArrowLeft':
                 case 'PageUp':
-                case 'ArrowUp':
                     e.preventDefault();
-                    pageUp();
+                    pageLeft();
                     break;
+                case 'ArrowRight':
                 case 'PageDown':
-                case 'ArrowDown':
                 case ' ':
                     e.preventDefault();
-                    pageDown();
+                    pageRight();
                     break;
                 case 'Home':
                     e.preventDefault();
-                    messagesRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                    goToPage(0);
                     break;
                 case 'End':
                     e.preventDefault();
-                    jumpToBottom();
+                    jumpToEnd();
                     break;
             }
         };
 
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
-    }, [viewMode, pageUp, pageDown, jumpToBottom]);
+    }, [isPaged, pageLeft, pageRight, goToPage, jumpToEnd]);
 
-    // ---- 模式切换时重置状态 ----
+    // ---- 触摸滑动 ----
     useEffect(() => {
-        setHasNewContent(false);
-        if (viewMode === 'paged') {
-            // 切换到翻页模式时，计算一次页码
-            requestAnimationFrame(updatePageInfo);
-        }
-    }, [viewMode, updatePageInfo]);
+        if (!isPaged) return;
+        const el = viewportRef.current;
+        if (!el) return;
 
+        const SWIPE_THRESHOLD = 50;
+
+        const onTouchStart = (e: TouchEvent) => {
+            const t = e.touches[0];
+            touchStartRef.current = { x: t.clientX, y: t.clientY };
+        };
+
+        const onTouchEnd = (e: TouchEvent) => {
+            if (!touchStartRef.current) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartRef.current.x;
+            const dy = t.clientY - touchStartRef.current.y;
+            touchStartRef.current = null;
+
+            // 只在水平滑动幅度 > 垂直时触发翻页
+            if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > SWIPE_THRESHOLD) {
+                if (dx < 0) {
+                    pageRight(); // 左滑 → 下一页
+                } else {
+                    pageLeft();  // 右滑 → 上一页
+                }
+            }
+        };
+
+        el.addEventListener('touchstart', onTouchStart, { passive: true });
+        el.addEventListener('touchend', onTouchEnd, { passive: true });
+        return () => {
+            el.removeEventListener('touchstart', onTouchStart);
+            el.removeEventListener('touchend', onTouchEnd);
+        };
+    }, [isPaged, pageLeft, pageRight]);
+
+    // ---- 空对话 ----
     if (!activeConversationId) {
         return (
             <div className="chat-panel">
@@ -180,8 +272,28 @@ export function ChatPanel() {
         );
     }
 
-    const isPaged = viewMode === 'paged';
-    const messagesClass = `chat-panel-messages${isPaged ? ' paged' : ''}`;
+    // ---- 渲染 steps 列表 ----
+    const stepsContent = (
+        <>
+            {loading && <div className="chat-loading">加载中...</div>}
+            {error && <div className="chat-error">{error}</div>}
+
+            {steps.map((step, index) => (
+                <StepRenderer
+                    key={`${index}-${step.type}`}
+                    step={step}
+                    index={index}
+                    debugMode={debugMode}
+                />
+            ))}
+
+            {conversationStatus === 'RUNNING' && (
+                <div className="chat-typing">
+                    <span>●</span><span>●</span><span>●</span>
+                </div>
+            )}
+        </>
+    );
 
     return (
         <div className="chat-panel">
@@ -192,37 +304,30 @@ export function ChatPanel() {
                 </span>
             </div>
 
-            <div className={messagesClass} ref={messagesRef}>
-                {loading && <div className="chat-loading">加载中...</div>}
-                {error && <div className="chat-error">{error}</div>}
-
-                {steps.map((step, index) => (
-                    <StepRenderer
-                        key={`${index}-${step.type}`}
-                        step={step}
-                        index={index}
-                        debugMode={debugMode}
-                    />
-                ))}
-
-                {conversationStatus === 'RUNNING' && (
-                    <div className="chat-typing">
-                        <span>●</span><span>●</span><span>●</span>
+            {isPaged ? (
+                /* ====== 翻页模式 ====== */
+                <div className="paged-viewport" ref={viewportRef}>
+                    <div className="paged-content" ref={contentRef}>
+                        {stepsContent}
                     </div>
-                )}
+                </div>
+            ) : (
+                /* ====== 滚动模式 ====== */
+                <div className="chat-panel-messages" ref={contentRef}>
+                    {stepsContent}
+                    <div ref={bottomRef} />
+                </div>
+            )}
 
-                <div ref={bottomRef} />
-            </div>
-
-            {/* 翻页模式浮层 */}
+            {/* 翻页浮层 */}
             {isPaged && (
                 <PagedOverlay
                     currentPage={currentPage}
                     totalPages={totalPages}
                     hasNewContent={hasNewContent}
-                    onPageUp={pageUp}
-                    onPageDown={pageDown}
-                    onJumpToBottom={jumpToBottom}
+                    onPageLeft={pageLeft}
+                    onPageRight={pageRight}
+                    onJumpToEnd={jumpToEnd}
                 />
             )}
 

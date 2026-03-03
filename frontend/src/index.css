@@ -412,24 +412,43 @@ body {
   width: 100%;
 }
 
-/* ========== Paged Mode ========== */
-.chat-panel-messages.paged {
-  scroll-snap-type: y proximity;
+/* ========== Paged Mode (微信读书式左右翻页) ========== */
+.paged-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  min-height: 0;
 }
 
-.chat-panel-messages.paged .step-wrapper {
-  scroll-snap-align: start;
-  min-height: 60vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
+.paged-content {
+  padding: 60px var(--spacing-xl) 24px;
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-/* 翻页浮层 */
+/* step 内部避免列中断问题 */
+.paged-content .step-wrapper {
+  break-inside: auto;
+  margin-bottom: var(--spacing-xl);
+}
+
+/* 代码块等限制宽度避免溢出列 */
+.paged-content pre,
+.paged-content .step-file-content,
+.paged-content .step-diff,
+.paged-content .step-output {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 翻页浮层 — 底部居中 */
 .paged-overlay {
   position: absolute;
-  right: 24px;
-  bottom: 100px;
+  bottom: 72px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -440,14 +459,13 @@ body {
 
 .paged-controls {
   display: flex;
-  flex-direction: column;
   align-items: center;
   gap: 4px;
   pointer-events: auto;
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-light);
-  border-radius: var(--radius-lg);
-  padding: 6px;
+  border-radius: var(--radius-pill);
+  padding: 4px 6px;
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
@@ -456,8 +474,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 32px;
+  height: 32px;
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
@@ -481,9 +499,11 @@ body {
   font-weight: 600;
   color: var(--color-text-muted);
   font-family: var(--font-mono);
-  padding: 2px 0;
+  padding: 0 6px;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  min-width: 48px;
+  text-align: center;
 }
 
 /* 有新内容提示 */
