@@ -3,7 +3,7 @@
  *
  * 布局: Sidebar | ChatPanel
  */
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { Dashboard } from './components/Dashboard/Dashboard';
@@ -36,6 +36,48 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // ── 移动端触摸滑动切换侧边栏 ──
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  const sidebarOpenRef = useRef(showSidebar);
+  sidebarOpenRef.current = showSidebar;
+
+  const EDGE_ZONE = 30;       // 左侧边缘触发区 (px)
+  const SWIPE_THRESHOLD = 50; // 滑动阈值 (px)
+
+  const onTouchStart = useCallback((e: TouchEvent) => {
+    const t = e.touches[0];
+    // 打开手势：必须从左边缘起始；关闭手势：侧边栏已打开时任意位置起始
+    if (!sidebarOpenRef.current && t.clientX > EDGE_ZONE) return;
+    touchStartRef.current = { x: t.clientX, y: t.clientY };
+  }, []);
+
+  const onTouchEnd = useCallback((e: TouchEvent) => {
+    if (!touchStartRef.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartRef.current.x;
+    const dy = t.clientY - touchStartRef.current.y;
+    touchStartRef.current = null;
+
+    // 水平位移必须大于垂直位移，避免与正常滚动冲突
+    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < SWIPE_THRESHOLD) return;
+
+    if (dx > 0 && !sidebarOpenRef.current) {
+      setShowSidebar(true);
+    } else if (dx < 0 && sidebarOpenRef.current) {
+      setShowSidebar(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchend', onTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [isMobile, onTouchStart, onTouchEnd]);
 
   return (
     <div className="app">
