@@ -12,6 +12,11 @@ import { ModelSelector } from './components/Header/ModelSelector';
 import { Rows3, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/store';
 
+const SIDEBAR_WIDTH = 300;      // 与 CSS .sidebar width 一致
+const EDGE_ZONE = 30;           // 左侧边缘触发区 (px)
+const SNAP_RATIO = 0.4;         // 拖过 40% 即吸附
+const VELOCITY_THRESHOLD = 0.3; // px/ms，快速滑动直接吸附
+
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
@@ -29,62 +34,139 @@ export default function App() {
         setShowSidebar(true);
       }
     };
-
-    // Initial check
     handleResize();
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // ── 移动端触摸滑动切换侧边栏 ──
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
+  // ── 移动端触摸跟手拖拽侧边栏 ──
   const sidebarOpenRef = useRef(showSidebar);
   sidebarOpenRef.current = showSidebar;
 
-  const EDGE_ZONE = 30;       // 左侧边缘触发区 (px)
-  const SWIPE_THRESHOLD = 50; // 滑动阈值 (px)
+  const draggingRef = useRef(false);
+  const touchStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
+  const directionLockedRef = useRef<'h' | 'v' | null>(null);
+
+  const getSidebarEl = () => document.querySelector<HTMLElement>('.sidebar.mobile');
+  const getBackdropEl = () => document.querySelector<HTMLElement>('.sidebar-backdrop');
+
+  /** 实时设置 sidebar 位移（-300 ~ 0） */
+  const applySidebarOffset = useCallback((offsetX: number) => {
+    const sidebar = getSidebarEl();
+    const backdrop = getBackdropEl();
+    if (sidebar) {
+      sidebar.style.transition = 'none';
+      sidebar.style.transform = `translateX(${offsetX}px)`;
+    }
+    if (backdrop) {
+      const progress = (offsetX + SIDEBAR_WIDTH) / SIDEBAR_WIDTH; // 0~1
+      backdrop.style.transition = 'none';
+      backdrop.style.opacity = `${Math.max(0, Math.min(1, progress))}`;
+      backdrop.style.pointerEvents = progress > 0.05 ? 'auto' : 'none';
+    }
+  }, []);
+
+  /** 恢复 CSS transition */
+  const restoreTransition = useCallback(() => {
+    const sidebar = getSidebarEl();
+    const backdrop = getBackdropEl();
+    if (sidebar) sidebar.style.transition = '';
+    if (backdrop) backdrop.style.transition = '';
+  }, []);
+
+  /** 清除 inline style，交还 CSS class 控制 */
+  const clearInlineStyles = useCallback(() => {
+    const sidebar = getSidebarEl();
+    const backdrop = getBackdropEl();
+    if (sidebar) { sidebar.style.transition = ''; sidebar.style.transform = ''; }
+    if (backdrop) { backdrop.style.transition = ''; backdrop.style.opacity = ''; backdrop.style.pointerEvents = ''; }
+  }, []);
 
   const onTouchStart = useCallback((e: TouchEvent) => {
     const t = e.touches[0];
-    // 打开手势：必须从左边缘起始；关闭手势：侧边栏已打开时任意位置起始
-    if (!sidebarOpenRef.current && t.clientX > EDGE_ZONE) return;
-    touchStartRef.current = { x: t.clientX, y: t.clientY };
+    const isOpen = sidebarOpenRef.current;
+    if (!isOpen && t.clientX > EDGE_ZONE) return;
+    touchStartRef.current = { x: t.clientX, y: t.clientY, t: e.timeStamp };
+    directionLockedRef.current = null;
+    draggingRef.current = false;
   }, []);
 
-  const onTouchEnd = useCallback((e: TouchEvent) => {
+  const onTouchMove = useCallback((e: TouchEvent) => {
     if (!touchStartRef.current) return;
-    const t = e.changedTouches[0];
+    const t = e.touches[0];
     const dx = t.clientX - touchStartRef.current.x;
     const dy = t.clientY - touchStartRef.current.y;
+
+    // 方向锁定
+    if (!directionLockedRef.current) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      directionLockedRef.current = Math.abs(dx) >= Math.abs(dy) ? 'h' : 'v';
+    }
+    if (directionLockedRef.current === 'v') return;
+
+    draggingRef.current = true;
+
+    const isOpen = sidebarOpenRef.current;
+    const baseOffset = isOpen ? 0 : -SIDEBAR_WIDTH;
+    const rawOffset = baseOffset + dx;
+    const clampedOffset = Math.max(-SIDEBAR_WIDTH, Math.min(0, rawOffset));
+    applySidebarOffset(clampedOffset);
+  }, [applySidebarOffset]);
+
+  const onTouchEnd = useCallback((e: TouchEvent) => {
+    if (!touchStartRef.current || !draggingRef.current) {
+      touchStartRef.current = null;
+      return;
+    }
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStartRef.current.x;
+    const dt = e.timeStamp - touchStartRef.current.t;
     touchStartRef.current = null;
+    draggingRef.current = false;
+    directionLockedRef.current = null;
 
-    // 水平位移必须大于垂直位移，避免与正常滚动冲突
-    if (Math.abs(dx) <= Math.abs(dy) || Math.abs(dx) < SWIPE_THRESHOLD) return;
+    const velocity = Math.abs(dx) / (dt || 1);
+    const isOpen = sidebarOpenRef.current;
+    const baseOffset = isOpen ? 0 : -SIDEBAR_WIDTH;
+    const currentOffset = Math.max(-SIDEBAR_WIDTH, Math.min(0, baseOffset + dx));
+    const progress = (currentOffset + SIDEBAR_WIDTH) / SIDEBAR_WIDTH;
 
-    if (dx > 0 && !sidebarOpenRef.current) {
+    let shouldOpen: boolean;
+    if (velocity > VELOCITY_THRESHOLD) {
+      shouldOpen = dx > 0;
+    } else {
+      shouldOpen = progress > SNAP_RATIO;
+    }
+
+    restoreTransition();
+    if (shouldOpen) {
+      applySidebarOffset(0);
       setShowSidebar(true);
-    } else if (dx < 0 && sidebarOpenRef.current) {
+    } else {
+      applySidebarOffset(-SIDEBAR_WIDTH);
       setShowSidebar(false);
     }
-  }, []);
+    setTimeout(clearInlineStyles, 350);
+  }, [applySidebarOffset, restoreTransition, clearInlineStyles]);
 
   useEffect(() => {
     if (!isMobile) return;
     document.addEventListener('touchstart', onTouchStart, { passive: true });
+    document.addEventListener('touchmove', onTouchMove, { passive: true });
     document.addEventListener('touchend', onTouchEnd, { passive: true });
     return () => {
       document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove', onTouchMove);
       document.removeEventListener('touchend', onTouchEnd);
     };
-  }, [isMobile, onTouchStart, onTouchEnd]);
+  }, [isMobile, onTouchStart, onTouchMove, onTouchEnd]);
 
   return (
     <div className="app">
-      {/* 遮罩层 (仅移动端且侧边栏打开时显示) */}
-      {isMobile && showSidebar && (
+      {/* 遮罩层 — 移动端始终渲染，通过 opacity/pointer-events 控制 */}
+      {isMobile && (
         <div
-          className="sidebar-backdrop"
+          className={`sidebar-backdrop ${showSidebar ? 'visible' : ''}`}
           onClick={() => setShowSidebar(false)}
         />
       )}
@@ -94,7 +176,6 @@ export default function App() {
 
       {/* 主区域 */}
       <main className="main-area">
-        {/* Header */}
         <header className="app-header">
           <button
             className={`header-btn ${showSidebar ? 'active' : ''}`}
@@ -113,13 +194,11 @@ export default function App() {
           </button>
         </header>
 
-        {/* 内容区 */}
         <div className="main-content">
           {activeConversationId ? <ChatPanel /> : <Dashboard />}
         </div>
       </main>
 
-      {/* PWA 安装提示 */}
       <InstallPrompt />
     </div>
   );

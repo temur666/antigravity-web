@@ -341,6 +341,9 @@ export function ChatPanel() {
         </>
     );
 
+    const cancelConversation = useAppStore(s => s.cancelConversation);
+    const isRunning = conversationStatus === 'RUNNING';
+
     return (
         <div className="chat-panel">
             <div className="chat-panel-header">
@@ -348,6 +351,15 @@ export function ChatPanel() {
                 <span className={`conversation-status status-${conversationStatus.toLowerCase()}`}>
                     {conversationStatus}
                 </span>
+                {isRunning && (
+                    <button
+                        className="header-btn cancel-btn"
+                        onClick={cancelConversation}
+                        title="终止对话"
+                    >
+                        ■
+                    </button>
+                )}
                 <MetadataPopover />
             </div>
 

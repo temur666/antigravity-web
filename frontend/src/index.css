@@ -260,7 +260,7 @@ body {
   transform: translateX(0);
 }
 
-/* Sidebar Backdrop */
+/* Sidebar Backdrop — 移动端始终渲染，默认透明不可交互 */
 .sidebar-backdrop {
   position: absolute;
   top: 0;
@@ -270,7 +270,14 @@ body {
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(2px);
   z-index: 90;
-  animation: fadeIn 0.2s ease-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.sidebar-backdrop.visible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .sidebar-list {
@@ -389,9 +396,34 @@ body {
 }
 
 /* header 内可交互元素允许点击 */
-.chat-panel-header .metadata-popover-anchor {
+.chat-panel-header .metadata-popover-anchor,
+.chat-panel-header .cancel-btn,
+.chat-panel-header .conversation-status {
   pointer-events: auto;
+}
+
+.chat-panel-header .metadata-popover-anchor {
   margin-left: auto;
+}
+
+.cancel-btn {
+  color: #ef4444;
+  font-size: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.1);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.cancel-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.6);
 }
 
 .conversation-id {

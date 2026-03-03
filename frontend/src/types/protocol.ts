@@ -74,6 +74,12 @@ export interface ReqGetConfig {
     reqId?: string;
 }
 
+export interface ReqCancel {
+    type: 'req_cancel';
+    reqId?: string;
+    cascadeId: string;
+}
+
 export type ClientMessage =
     | ReqStatus
     | ReqConversations
@@ -83,7 +89,8 @@ export type ClientMessage =
     | ReqSubscribe
     | ReqUnsubscribe
     | ReqSetConfig
-    | ReqGetConfig;
+    | ReqGetConfig
+    | ReqCancel;
 
 // ========== 响应类型 (服务端 → 客户端) ==========
 
@@ -166,6 +173,13 @@ export interface ResError {
     message: string;
 }
 
+export interface ResCancel {
+    type: 'res_cancel';
+    reqId?: string;
+    ok: boolean;
+    cascadeId: string;
+}
+
 export type ServerMessage =
     | ResStatus
     | ResConversations
@@ -176,6 +190,7 @@ export type ServerMessage =
     | ResUnsubscribe
     | ResConfig
     | ResError
+    | ResCancel
     | EventStepAdded
     | EventStepUpdated
     | EventStatusChanged

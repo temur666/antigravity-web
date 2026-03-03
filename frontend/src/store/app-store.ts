@@ -83,6 +83,7 @@ export interface AppState {
     toggleViewMode: () => void;
     togglePagedColumns: () => void;
     setActiveConversation: (id: string | null) => void;
+    cancelConversation: () => Promise<void>;
 }
 
 export type AppStore = StoreApi<AppState>;
@@ -173,7 +174,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
             }
 
             // 订阅实时更新（带 lastSeq 用于增量恢复）
-             
+
             await wsClient.sendAndWait({
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
@@ -276,6 +277,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 activeConversationId: id,
                 steps: [],
                 conversationStatus: 'IDLE',
+            });
+        },
+
+        cancelConversation: async () => {
+            const cascadeId = get().activeConversationId;
+            if (!cascadeId) return;
+            await wsClient.sendAndWait({
+                type: 'req_cancel',
+                reqId: wsClient.nextReqId(),
+                cascadeId,
             });
         },
     }));
