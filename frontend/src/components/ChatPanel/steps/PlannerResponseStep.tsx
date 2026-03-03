@@ -4,6 +4,8 @@
 import { useState } from 'react';
 import type { Step, ToolCall } from '@/types';
 import { renderMarkdown } from '@/utils/markdown';
+import { useAppStore } from '@/store';
+import { formatTokenCount, formatDuration } from '@/utils/metadata';
 
 /**
  * 已有专属 Step UI 的工具名白名单。
@@ -27,10 +29,12 @@ const TOOLS_WITH_DEDICATED_STEP = new Set([
 
 interface Props {
     step: Step;
+    stepIndex: number;
 }
 
-export function PlannerResponseStep({ step }: Props) {
+export function PlannerResponseStep({ step, stepIndex }: Props) {
     const [showThinking, setShowThinking] = useState(false);
+    const usage = useAppStore(s => s.stepUsageMap.get(stepIndex));
     const pr = step.plannerResponse;
     if (!pr) return null;
 
@@ -39,7 +43,16 @@ export function PlannerResponseStep({ step }: Props) {
     return (
         <div className="step step-planner-response">
             <div className="step-label">
-                🤖 AI {isGenerating && <span className="generating-indicator">生成中...</span>}
+                AI {isGenerating && <span className="generating-indicator">生成中...</span>}
+                {usage && !isGenerating && (
+                    <span className="step-usage-inline">
+                        <span className="usage-model">{usage.model}</span>
+                        <span className="usage-sep">·</span>
+                        <span className="usage-ttft">{formatDuration(usage.ttftMs)}</span>
+                        <span className="usage-sep">·</span>
+                        <span className="usage-tokens">{formatTokenCount(usage.outputTokens)} tok</span>
+                    </span>
+                )}
             </div>
 
             {/* Thinking 折叠块 */}

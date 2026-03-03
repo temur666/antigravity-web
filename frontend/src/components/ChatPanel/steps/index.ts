@@ -12,4 +12,7 @@ export { NotifyUserStep } from './NotifyUserStep';
 export { ErrorMessageStep } from './ErrorMessageStep';
 export { CheckpointStep } from './CheckpointStep';
 export { SearchWebStep } from './SearchWebStep';
+export { GrepSearchStep } from './GrepSearchStep';
+export { FindStep } from './FindStep';
+export { ViewFileOutlineStep } from './ViewFileOutlineStep';
 export { SystemStep } from './SystemStep';

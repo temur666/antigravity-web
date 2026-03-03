@@ -25,6 +25,8 @@ export type {
     EventLsStatus,
     ConversationSummary,
     GeneratorMetadata,
+    TokenUsage,
+    StepUsageInfo,
     ModelInfo,
 } from './protocol';
 export type { CascadeConfig } from './protocol';
@@ -49,6 +51,10 @@ export type {
     KnowledgeArtifactsPayload,
     TaskBoundaryPayload,
     SearchWebPayload,
+    GrepSearchPayload,
+    FindPayload,
+    ViewFileOutlinePayload,
+    CodeAcknowledgementPayload,
 } from './step';
 
 export {

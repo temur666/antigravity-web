@@ -228,8 +228,55 @@ export interface ConversationSummary {
     source?: string;          // ls | file | sqlite
 }
 
-export interface GeneratorMetadata {
+export interface TokenUsage {
+    model: string;
+    inputTokens: string;
+    outputTokens: string;
+    responseOutputTokens?: string;
+    cacheReadTokens?: string;
+    apiProvider?: string;
+    responseId?: string;
     [key: string]: unknown;
+}
+
+export interface GeneratorMetadata {
+    stepIndices: number[];
+    chatModel?: {
+        model: string;
+        usage: TokenUsage;
+        timeToFirstToken?: string;
+        streamingDuration?: string;
+        completionConfig?: {
+            maxTokens?: string;
+            temperature?: number;
+            topK?: string;
+            topP?: number;
+            [key: string]: unknown;
+        };
+        chatStartMetadata?: {
+            createdAt?: string;
+            contextWindowMetadata?: {
+                estimatedTokensUsed?: number;
+            };
+            [key: string]: unknown;
+        };
+        [key: string]: unknown;
+    };
+    [key: string]: unknown;
+}
+
+/**
+ * 关联到单个 step 上的 usage 精简视图
+ * 由 store 从 GeneratorMetadata + stepIndices 派生
+ */
+export interface StepUsageInfo {
+    model: string;
+    inputTokens: number;
+    outputTokens: number;
+    cacheReadTokens: number;
+    ttftMs: number;           // 首 token 延迟 (ms)
+    streamingMs: number;      // 流式持续时间 (ms)
+    contextTokensUsed: number;
 }
 
 export interface ModelInfo {

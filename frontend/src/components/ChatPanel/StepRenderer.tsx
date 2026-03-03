@@ -17,6 +17,9 @@ import {
     ErrorMessageStep,
     CheckpointStep,
     SearchWebStep,
+    GrepSearchStep,
+    FindStep,
+    ViewFileOutlineStep,
     SystemStep,
 } from './steps';
 
@@ -34,17 +37,17 @@ export function StepRenderer({ step, index, debugMode }: Props) {
 
     return (
         <div className="step-wrapper" data-step-index={index} data-step-type={step.type}>
-            {renderStep(step)}
+            {renderStep(step, index)}
         </div>
     );
 }
 
-function renderStep(step: Step) {
+function renderStep(step: Step, index: number) {
     switch (step.type) {
         case 'CORTEX_STEP_TYPE_USER_INPUT':
             return <UserInputStep step={step} />;
         case 'CORTEX_STEP_TYPE_PLANNER_RESPONSE':
-            return <PlannerResponseStep step={step} />;
+            return <PlannerResponseStep step={step} stepIndex={index} />;
         case 'CORTEX_STEP_TYPE_VIEW_FILE':
             return <ViewFileStep step={step} />;
         case 'CORTEX_STEP_TYPE_CODE_ACTION':
@@ -63,7 +66,16 @@ function renderStep(step: Step) {
             return <CheckpointStep step={step} />;
         case 'CORTEX_STEP_TYPE_SEARCH_WEB':
             return <SearchWebStep step={step} />;
-        // 4 种系统消息 → 通用 SystemStep
+        case 'CORTEX_STEP_TYPE_GREP_SEARCH':
+            return <GrepSearchStep step={step} />;
+        case 'CORTEX_STEP_TYPE_FIND':
+            return <FindStep step={step} />;
+        case 'CORTEX_STEP_TYPE_VIEW_FILE_OUTLINE':
+            return <ViewFileOutlineStep step={step} />;
+        // CODE_ACKNOWLEDGEMENT 通常隐藏，但 debug 模式下走系统步骤渲染
+        case 'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT':
+            return <SystemStep step={step} />;
+        // 4 种系统消息 -> 通用 SystemStep
         case 'CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE':
         case 'CORTEX_STEP_TYPE_CONVERSATION_HISTORY':
         case 'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS':
@@ -72,7 +84,7 @@ function renderStep(step: Step) {
         default:
             return (
                 <div className="step step-unknown">
-                    <div className="step-label">⚠️ 未知类型: {getStepShortType(step.type)}</div>
+                    <div className="step-label">未知类型: {getStepShortType(step.type)}</div>
                     <pre>{JSON.stringify(step, null, 2)}</pre>
                 </div>
             );

@@ -10,6 +10,7 @@ import { useAppStore } from '@/store';
 import { StepRenderer } from './StepRenderer';
 import { InputBox } from './InputBox';
 import { PagedOverlay } from './PagedOverlay';
+import { MetadataPopover } from './MetadataPopover';
 
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
@@ -320,6 +321,7 @@ export function ChatPanel() {
                 <span className={`conversation-status status-${conversationStatus.toLowerCase()}`}>
                     {conversationStatus}
                 </span>
+                <MetadataPopover />
             </div>
 
             {isPaged ? (

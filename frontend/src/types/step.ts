@@ -21,7 +21,9 @@ export type StepType =
     | 'CORTEX_STEP_TYPE_USER_INPUT'
     | 'CORTEX_STEP_TYPE_PLANNER_RESPONSE'
     | 'CORTEX_STEP_TYPE_VIEW_FILE'
+    | 'CORTEX_STEP_TYPE_VIEW_FILE_OUTLINE'
     | 'CORTEX_STEP_TYPE_CODE_ACTION'
+    | 'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT'
     | 'CORTEX_STEP_TYPE_RUN_COMMAND'
     | 'CORTEX_STEP_TYPE_COMMAND_STATUS'
     | 'CORTEX_STEP_TYPE_LIST_DIRECTORY'
@@ -32,7 +34,9 @@ export type StepType =
     | 'CORTEX_STEP_TYPE_CONVERSATION_HISTORY'
     | 'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS'
     | 'CORTEX_STEP_TYPE_TASK_BOUNDARY'
-    | 'CORTEX_STEP_TYPE_SEARCH_WEB';
+    | 'CORTEX_STEP_TYPE_SEARCH_WEB'
+    | 'CORTEX_STEP_TYPE_GREP_SEARCH'
+    | 'CORTEX_STEP_TYPE_FIND';
 
 // ========== 隐藏的 Step 类型 ==========
 
@@ -41,6 +45,7 @@ export const HIDDEN_STEP_TYPES: StepType[] = [
     'CORTEX_STEP_TYPE_CONVERSATION_HISTORY',
     'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS',
     'CORTEX_STEP_TYPE_TASK_BOUNDARY',
+    'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT',
 ];
 
 // ========== Step Payload 类型 ==========
@@ -152,15 +157,47 @@ export interface SearchWebPayload {
     [key: string]: unknown;
 }
 
+export interface GrepSearchPayload {
+    searchPath?: string;
+    query?: string;
+    results?: Array<{ file: string; lineNumber: number; lineContent: string }>;
+    totalResults?: number;
+    matchPerLine?: boolean;
+    [key: string]: unknown;
+}
+
+export interface FindPayload {
+    searchDirectory?: string;
+    pattern?: string;
+    totalResults?: number;
+    [key: string]: unknown;
+}
+
+export interface ViewFileOutlinePayload {
+    filePath?: string;
+    outlineItems?: Array<{ [key: string]: unknown }>;
+    numLines?: number;
+    numBytes?: number;
+    [key: string]: unknown;
+}
+
+export interface CodeAcknowledgementPayload {
+    isAccept?: boolean;
+    [key: string]: unknown;
+}
+
 // ========== Step 主类型 ==========
 
 export interface Step {
     type: StepType;
     status: StepStatus;
+    metadata?: { [key: string]: unknown };
     userInput?: UserInputPayload;
     plannerResponse?: PlannerResponsePayload;
     viewFile?: ViewFilePayload;
+    viewFileOutline?: ViewFileOutlinePayload;
     codeAction?: CodeActionPayload;
+    codeAcknowledgement?: CodeAcknowledgementPayload;
     runCommand?: RunCommandPayload;
     commandStatus?: CommandStatusPayload;
     listDirectory?: ListDirectoryPayload;
@@ -172,6 +209,8 @@ export interface Step {
     knowledgeArtifacts?: KnowledgeArtifactsPayload;
     taskBoundary?: TaskBoundaryPayload;
     searchWeb?: SearchWebPayload;
+    grepSearch?: GrepSearchPayload;
+    find?: FindPayload;
 }
 
 // ========== 工具函数 ==========

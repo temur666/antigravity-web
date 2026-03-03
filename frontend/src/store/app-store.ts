@@ -30,9 +30,12 @@ import type {
     ResStatus,
     CascadeConfig,
     ModelInfo,
+    GeneratorMetadata,
+    StepUsageInfo,
 } from '@/types';
 import { DEFAULT_CONFIG } from '@/types';
 import type { WSClient } from './ws-client';
+import { buildStepUsageMap } from '@/utils/metadata';
 
 // ========== State 类型 ==========
 
@@ -49,7 +52,8 @@ export interface AppState {
     // 当前对话
     steps: Step[];
     conversationStatus: string;
-    metadata: unknown[];
+    metadata: GeneratorMetadata[];
+    stepUsageMap: Map<number, StepUsageInfo>;
     lastSeq: number;  // 最后收到的事件序号，用于断点续传
 
     // 配置
@@ -95,6 +99,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         steps: [],
         conversationStatus: 'IDLE',
         metadata: [],
+        stepUsageMap: new Map(),
         lastSeq: 0,
         config: { ...DEFAULT_CONFIG },
         models: [],
@@ -153,10 +158,12 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             if (trajectoryRes.type === 'res_trajectory') {
                 const data = trajectoryRes as ResTrajectory & { seq?: number };
+                const meta = (data.metadata || []) as GeneratorMetadata[];
                 set({
                     steps: data.steps,
                     conversationStatus: data.status.replace('CASCADE_RUN_STATUS_', ''),
-                    metadata: data.metadata,
+                    metadata: meta,
+                    stepUsageMap: buildStepUsageMap(meta),
                     lastSeq: data.seq || 0,
                     loading: false,
                 });
