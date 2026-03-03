@@ -76,6 +76,7 @@ export function ChatPanel() {
 
         const apply = () => {
             const w = viewport.clientWidth;
+            const h = viewport.clientHeight;
             if (pagedColumns === 2) {
                 const colWidth = (w - COLUMN_GAP) / 2;
                 content.style.columnWidth = `${colWidth}px`;
@@ -84,7 +85,7 @@ export function ChatPanel() {
                 content.style.columnWidth = `${w}px`;
                 content.style.columnGap = '0px';
             }
-            content.style.height = '100%';
+            content.style.height = `${h}px`;
             requestAnimationFrame(recalcPages);
         };
 
