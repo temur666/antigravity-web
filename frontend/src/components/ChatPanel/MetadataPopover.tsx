@@ -6,15 +6,26 @@
  */
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store';
-import { buildConversationUsageSummary, formatTokenCount, formatDuration } from '@/utils/metadata';
+import { buildConversationUsageSummary, formatTokenCount, formatDuration, shortenModelLabel } from '@/utils/metadata';
 
 export function MetadataPopover() {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const metadata = useAppStore(s => s.metadata);
+    const storeModels = useAppStore(s => s.models);
+    const steps = useAppStore(s => s.steps);
 
     const summary = buildConversationUsageSummary(metadata);
     const hasData = summary.totalCalls > 0;
+
+    // 轮次: USER_INPUT step 的数量
+    const turnCount = steps.filter(s => s.type === 'CORTEX_STEP_TYPE_USER_INPUT').length;
+
+    // 模型名映射: 用 store.models 查找 label，再缩短
+    const resolveModelName = (rawModel: string): string => {
+        const info = storeModels.find(m => m.model === rawModel);
+        return info ? shortenModelLabel(info.label) : rawModel;
+    };
 
     // 点击外部关闭
     useEffect(() => {
@@ -47,6 +58,10 @@ export function MetadataPopover() {
                     ) : (
                         <div className="metadata-grid">
                             <div className="metadata-item">
+                                <span className="metadata-label">轮次</span>
+                                <span className="metadata-value">{turnCount}</span>
+                            </div>
+                            <div className="metadata-item">
                                 <span className="metadata-label">模型调用</span>
                                 <span className="metadata-value">{summary.totalCalls} 次</span>
                             </div>
@@ -74,7 +89,7 @@ export function MetadataPopover() {
                                 <div className="metadata-item metadata-item-full">
                                     <span className="metadata-label">使用模型</span>
                                     <span className="metadata-value metadata-models">
-                                        {summary.models.join(', ')}
+                                        {summary.models.map(m => resolveModelName(m)).join(', ')}
                                     </span>
                                 </div>
                             )}
@@ -85,3 +100,4 @@ export function MetadataPopover() {
         </div>
     );
 }
+

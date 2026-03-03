@@ -677,7 +677,8 @@ body {
 }
 
 .usage-ttft,
-.usage-tokens {
+.usage-tokens,
+.usage-turn {
   color: var(--color-text-secondary);
   font-family: var(--font-mono);
   font-size: 10px;
@@ -902,6 +903,7 @@ body {
 
 /* Thinking Block */
 .thinking-block {
+  width: 100%;
   margin-bottom: 16px;
   border-radius: var(--radius-md);
   overflow: hidden;

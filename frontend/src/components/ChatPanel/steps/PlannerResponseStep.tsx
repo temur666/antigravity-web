@@ -5,7 +5,7 @@ import { useState } from 'react';
 import type { Step, ToolCall } from '@/types';
 import { renderMarkdown } from '@/utils/markdown';
 import { useAppStore } from '@/store';
-import { formatTokenCount, formatDuration } from '@/utils/metadata';
+import { formatTokenCount, formatDuration, shortenModelLabel } from '@/utils/metadata';
 
 /**
  * 已有专属 Step UI 的工具名白名单。
@@ -35,10 +35,24 @@ interface Props {
 export function PlannerResponseStep({ step, stepIndex }: Props) {
     const [showThinking, setShowThinking] = useState(false);
     const usage = useAppStore(s => s.stepUsageMap.get(stepIndex));
+    const models = useAppStore(s => s.models);
+    const steps = useAppStore(s => s.steps);
     const pr = step.plannerResponse;
     if (!pr) return null;
 
     const isGenerating = step.status === 'CORTEX_STEP_STATUS_GENERATING';
+
+    // 计算轮次: 当前 stepIndex 之前有多少个 USER_INPUT
+    const turnNumber = steps
+        .slice(0, stepIndex)
+        .filter(s => s.type === 'CORTEX_STEP_TYPE_USER_INPUT')
+        .length;
+
+    // 模型名映射: 用 store.models 查找 label，再缩短
+    const resolveModelName = (rawModel: string): string => {
+        const info = models.find(m => m.model === rawModel);
+        return info ? shortenModelLabel(info.label) : rawModel;
+    };
 
     return (
         <div className="step step-planner-response">
@@ -46,11 +60,17 @@ export function PlannerResponseStep({ step, stepIndex }: Props) {
                 AI {isGenerating && <span className="generating-indicator">生成中...</span>}
                 {usage && !isGenerating && (
                     <span className="step-usage-inline">
-                        <span className="usage-model">{usage.model}</span>
+                        <span className="usage-model">{resolveModelName(usage.model)}</span>
                         <span className="usage-sep">·</span>
                         <span className="usage-ttft">{formatDuration(usage.ttftMs)}</span>
                         <span className="usage-sep">·</span>
-                        <span className="usage-tokens">{formatTokenCount(usage.outputTokens)} tok</span>
+                        <span className="usage-tokens">{formatTokenCount(usage.outputTokens)} token</span>
+                        {turnNumber > 0 && (
+                            <>
+                                <span className="usage-sep">·</span>
+                                <span className="usage-turn">Turn {turnNumber}</span>
+                            </>
+                        )}
                     </span>
                 )}
             </div>

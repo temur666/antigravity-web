@@ -39,6 +39,29 @@ export function formatModelName(model: string): string {
         .replace(/^PLACEHOLDER_/, '');
 }
 
+/**
+ * 将完整模型 label 缩短为 inline 短名
+ *
+ * 规则:
+ *   1. 括号后缀: (High) → " H", (Low) → " L", 其他 (Thinking) 等直接去掉
+ *   2. 去掉 "Claude " 前缀 (Sonnet/Opus 已足够辨识)
+ *
+ * 示例:
+ *   "Claude Opus 4.6 (Thinking)"  → "Opus 4.6"
+ *   "Gemini 3.1 Pro (High)"       → "Gemini 3.1 Pro H"
+ *   "GPT-OSS 120B (Medium)"       → "GPT-OSS 120B"
+ */
+export function shortenModelLabel(label: string): string {
+    let s = label;
+    // 处理括号后缀
+    s = s.replace(/\s*\(High\)$/i, ' H');
+    s = s.replace(/\s*\(Low\)$/i, ' L');
+    s = s.replace(/\s*\([^)]+\)$/, '');
+    // 去掉 Claude 前缀
+    s = s.replace(/^Claude\s+/i, '');
+    return s.trim();
+}
+
 // ========== 核心 API ==========
 
 /**
@@ -53,7 +76,7 @@ export function buildStepUsageMap(metadata: GeneratorMetadata[]): Map<number, St
 
         const usage = gm.chatModel.usage;
         const info: StepUsageInfo = {
-            model: formatModelName(usage.model || gm.chatModel.model || ''),
+            model: usage.model || gm.chatModel.model || '',
             inputTokens: safeInt(usage.inputTokens),
             outputTokens: safeInt(usage.outputTokens),
             cacheReadTokens: safeInt(usage.cacheReadTokens),
@@ -120,8 +143,8 @@ export function buildConversationUsageSummary(metadata: GeneratorMetadata[]): Co
 
         summary.totalStreamingMs += parseDurationMs(gm.chatModel.streamingDuration);
 
-        const modelName = formatModelName(usage.model || gm.chatModel.model || '');
-        if (modelName) modelSet.add(modelName);
+        const rawModel = usage.model || gm.chatModel.model || '';
+        if (rawModel) modelSet.add(rawModel);
     }
 
     summary.avgTtftMs = ttftCount > 0 ? Math.round(totalTtft / ttftCount) : 0;
