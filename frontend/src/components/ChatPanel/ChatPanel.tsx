@@ -27,6 +27,7 @@ export function ChatPanel() {
     const bottomRef = useRef<HTMLDivElement>(null);
     const prevLoadingRef = useRef(loading);
     const prevStepsLenRef = useRef(steps.length);
+    const isNearBottomRef = useRef(true);
 
     // 翻页模式的 refs & state
     const viewportRef = useRef<HTMLDivElement>(null);
@@ -131,12 +132,34 @@ export function ChatPanel() {
         }
     }, [isPaged, recalcPages]);
 
+    // ---- 滚动模式：监听滚动位置 ----
+    useEffect(() => {
+        if (isPaged) return;
+        const el = contentRef.current;
+        if (!el) return;
+
+        const THRESHOLD = 150;
+        const onScroll = () => {
+            const { scrollTop, scrollHeight, clientHeight } = el;
+            const nearBottom = scrollHeight - scrollTop - clientHeight < THRESHOLD;
+            isNearBottomRef.current = nearBottom;
+            if (nearBottom) {
+                setHasNewContent(false);
+            }
+        };
+
+        el.addEventListener('scroll', onScroll, { passive: true });
+        return () => el.removeEventListener('scroll', onScroll);
+    }, [isPaged]);
+
     // ---- 滚动模式：批量加载完成，跳到底部 ----
     useLayoutEffect(() => {
         const justFinishedLoading = prevLoadingRef.current && !loading;
         prevLoadingRef.current = loading;
 
         if (justFinishedLoading && steps.length) {
+            isNearBottomRef.current = true;
+            setHasNewContent(false);
             if (!isPaged) {
                 bottomRef.current?.scrollIntoView({ behavior: 'instant' });
             } else {
@@ -181,7 +204,11 @@ export function ChatPanel() {
                     }
                 }
             } else {
-                bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+                if (isNearBottomRef.current) {
+                    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    setHasNewContent(true);
+                }
             }
         }
     }, [steps.length, loading, isPaged, currentPage]);
@@ -337,6 +364,19 @@ export function ChatPanel() {
                     {stepsContent}
                     <div ref={bottomRef} />
                 </div>
+            )}
+
+            {/* 滚动模式：新内容提示 */}
+            {!isPaged && hasNewContent && (
+                <button
+                    className="scroll-new-content-toast"
+                    onClick={() => {
+                        bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+                        setHasNewContent(false);
+                    }}
+                >
+                    ↓ 有新内容
+                </button>
             )}
 
             {/* 翻页浮层 */}

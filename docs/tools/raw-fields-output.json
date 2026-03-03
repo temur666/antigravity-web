@@ -1,0 +1,2048 @@
+{
+  "_metadata": {
+    "sample": {
+      "stepIndices": [
+        4,
+        5,
+        6,
+        7
+      ],
+      "chatModel": {
+        "model": "MODEL_PLACEHOLDER_M26",
+        "usage": {
+          "model": "MODEL_PLACEHOLDER_M26",
+          "inputTokens": "6303",
+          "outputTokens": "534",
+          "responseOutputTokens": "534",
+          "cacheReadTokens": "15940",
+          "apiProvider": "API_PROVIDER_ANTHROPIC_VERTEX",
+          "responseHeader": {
+            "sessionID": "-3750763034362895579"
+          },
+          "responseId": "req_vrtx_011CYfnLMEf9aZ3aXFLBxt2Y"
+        },
+        "lastCacheIndex": 1,
+        "toolChoice": {
+          "optionName": "auto"
+        },
+        "chatStartMetadata": {
+          "createdAt": "2026-03-03T07:51:15.883545948Z",
+          "checkpointIndex": -1,
+          "latestStableMessageIndex": 1,
+          "cacheBreakpoints": [
+            {
+              "index": 1,
+              "options": {
+                "type": "CACHE_CONTROL_TYPE_EPHEMERAL"
+              },
+              "contentChecksum": "6b13a41b"
+            }
+          ],
+          "systemPromptCache": {
+            "options": {
+              "type": "CACHE_CONTROL_TYPE_EPHEMERAL"
+            },
+            "contentChecksum": "f297c992"
+          },
+          "timeSinceLastInvocation": "0s",
+          "contextWindowMetadata": {
+            "estimatedTokensUsed": 3023
+          }
+        },
+        "timeToFirstToken": "2.288739440s",
+        "streamingDuration": "9.096086294s",
+        "completionConfig": {
+          "numCompletions": "1",
+          "maxTokens": "16384",
+          "maxNewlines": "200",
+          "temperature": 0.4,
+          "firstTemperature": 0.4,
+          "topK": "50",
+          "topP": 1,
+          "stopPatterns": [
+            "<|user|>",
+            "<|bot|>",
+            "<|context_request|>",
+            "<|endoftext|>",
+            "<|end_of_turn|>"
+          ],
+          "fimEotProbThreshold": 1
+        },
+        "retryInfos": [
+          {
+            "usage": {
+              "model": "MODEL_PLACEHOLDER_M26",
+              "inputTokens": "6303",
+              "outputTokens": "534",
+              "responseOutputTokens": "534",
+              "cacheReadTokens": "15940",
+              "apiProvider": "API_PROVIDER_ANTHROPIC_VERTEX",
+              "responseHeader": {
+                "sessionID": "-3750763034362895579"
+              },
+              "responseId": "req_vrtx_011CYfnLMEf9aZ3aXFLBxt2Y"
+            },
+            "traceId": "2c7fff73350c1092"
+          }
+        ],
+        "responseModel": "claude-opus-4-6-thinking"
+      },
+      "executionId": "a8bb1d34-981a-49d5-a8dd-07d3915a221e"
+    },
+    "count": 12
+  },
+  "CORTEX_STEP_TYPE_USER_INPUT": {
+    "payloadKey": "userInput",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "userInput"
+    ],
+    "payloadFields": {
+      "items": [
+        {
+          "text": "我希望这里的思考过程的组件宽度fill父级。"
+        }
+      ],
+      "items_count": 7,
+      "userResponse": "我希望这里的思考过程的组件宽度fill父级。\n然后这里的M26什么意思？\ntok -> token (完整表述）\n加上轮数 不知道有没有。",
+      "activeUserState": {
+        "activeDocument": {
+          "absoluteUri": "file:///home/tiemuer/antigravity-web/docs/stream-payload-analysis.md",
+          "workspaceUri": "file:///home/tiemuer",
+          "editorLanguage": "markdown",
+          "language": "LANGUAGE_MARKDOWN",
+          "cursorPosition": {},
+          "lineEnding": "\n"
+        },
+        "openDocuments": [
+          {
+            "absoluteUri": "file:///home/tiemuer/antigravity-web/lib/core/ws-protocol.js",
+            "workspaceUri": "file:///home/tiemuer",
+            "editorLanguage": "javascript",
+            "language": "LANGUAGE_JAVASCRIPT",
+            "lineEnding": "\n"
+          }
+        ],
+        "openDocuments_count": 22
+      },
+      "clientType": "CHAT_CLIENT_REQUEST_STREAM_CLIENT_TYPE_IDE",
+      "userConfig": {
+        "plannerConfig": {
+          "conversational": {
+            "plannerMode": "CONVERSATIONAL_PLANNER_MODE_DEFAULT",
+            "agenticMode": false
+          },
+          "toolConfig": {
+            "runCommand": {
+              "autoCommandConfig": {
+                "autoExecutionPolicy": "CASCADE_COMMANDS_AUTO_EXECUTION_EAGER"
+              }
+            },
+            "notifyUser": {
+              "artifactReviewMode": "ARTIFACT_REVIEW_MODE_TURBO"
+            }
+          },
+          "requestedModel": {
+            "model": "MODEL_PLACEHOLDER_M26"
+          },
+          "ephemeralMessagesConfig": {
+            "enabled": true
+          },
+          "knowledgeConfig": {
+            "enabled": true
+          }
+        },
+        "conversationHistoryConfig": {
+          "enabled": true
+        }
+      },
+      "media": [
+        {
+          "mimeType": "image/png",
+          "inlineData": "",
+          "uri": "/home/tiemuer/.gemini/antigravity/brain/0bccf511-1287-4712-bab6-b3a608f4e16d/media__1772524203556.png",
+          "thumbnail": "iVBORw0KGgoAAAANSUhEUgAAAPsAAACMCAYAAAC6Vd/fAAAQAElEQVR4AexdB3xUVfY+b5JMeiON0JsCClIk/EFEQKpIXZVddUUQREFsyIKhSXERFEWB/QOC..."
+        }
+      ],
+      "media_count": 1
+    }
+  },
+  "CORTEX_STEP_TYPE_CONVERSATION_HISTORY": {
+    "payloadKey": "conversationHistory",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "conversationHistory"
+    ],
+    "payloadFields": {
+      "content": "# Conversation History\nHere are the conversation IDs, titles, and summaries of your most recent 11 conversations, in rev..."
+    }
+  },
+  "CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS": {
+    "payloadKey": "knowledgeArtifacts",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "knowledgeArtifacts"
+    ],
+    "payloadFields": {}
+  },
+  "CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE": {
+    "payloadKey": "ephemeralMessage",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "ephemeralMessage"
+    ],
+    "payloadFields": {}
+  },
+  "CORTEX_STEP_TYPE_PLANNER_RESPONSE": {
+    "payloadKey": "plannerResponse",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "plannerResponse"
+    ],
+    "payloadFields": {
+      "response": "让我先看一下相关组件的代码，了解当前的实现情况。",
+      "modifiedResponse": "让我先看一下相关组件的代码，了解当前的实现情况。",
+      "thinking": "The user is asking about several things related to their chat UI:\n\n1. The \"思考过程\" (thinking process) component should hav...",
+      "thinkingSignature": "RXY0R0NrZ0lDeEFDR0FJcVFPUVlDN1ViTDB0N0NHS3ErSTlKcFV1QU9odzIrT0V2QVZVeHc5WEdLdlpUUFRReXZ5eGRvSGoyVFdqa3I2OVZFL1cydE1DYWxR...",
+      "messageId": "bot-f8c80a52-1766-41a4-900f-0fe2bbfd0f1a",
+      "toolCalls": [
+        {
+          "id": "toolu_vrtx_01DA18ynhGwp3UTgSwXKtUw1",
+          "name": "grep_search",
+          "argumentsJson": "{\"MatchPerLine\":true,\"Query\":\"思考过程\",\"SearchPath\":\"/home/tiemuer/antigravity-web/frontend/src\"}"
+        }
+      ],
+      "toolCalls_count": 3,
+      "thinkingDuration": "6.049546898s",
+      "stopReason": "STOP_REASON_STOP_PATTERN"
+    }
+  },
+  "CORTEX_STEP_TYPE_GREP_SEARCH": {
+    "payloadKey": "grepSearch",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "grepSearch"
+    ],
+    "payloadFields": {
+      "searchPathUri": "file:///home/tiemuer/antigravity-web/frontend/src",
+      "query": "思考过程",
+      "matchPerLine": true,
+      "results": [
+        {
+          "relativePath": "components/ChatPanel/steps/PlannerResponseStep.tsx",
+          "lineNumber": 65,
+          "content": "                        <span>思考过程</span>",
+          "absolutePath": "/home/tiemuer/antigravity-web/frontend/src/components/ChatPanel/steps/PlannerResponseStep.tsx"
+        }
+      ],
+      "results_count": 1,
+      "totalResults": 1,
+      "rawOutput": "/home/tiemuer/antigravity-web/.antigravityignore: No such file or directory (os error 2)\ncomponents/ChatPanel/steps/Plan...",
+      "commandRun": "/home/tiemuer/.antigravity-server/bin/1.19.6-d2597a5c475647ed306b22de1e39853c7812d07d/node_modules/@vscode/ripgrep/bin/r..."
+    }
+  },
+  "CORTEX_STEP_TYPE_CHECKPOINT": {
+    "payloadKey": "checkpoint",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "checkpoint"
+    ],
+    "payloadFields": {
+      "intentOnly": true,
+      "includedStepIndexEnd": 8,
+      "userIntent": "思考过程组件宽度与M26含义\n\nThe user wants to adjust the width of the \"思考过程\" (thinking process) component to fill its parent contain...",
+      "artifactSnapshots": [
+        {
+          "artifactName": "media__1772524203556",
+          "artifactAbsoluteUri": "file:///home/tiemuer/.gemini/antigravity/brain/0bccf511-1287-4712-bab6-b3a608f4e16d/media__1772524203556.png",
+          "lastEdited": "2026-03-03T07:51:15.499727813Z"
+        }
+      ],
+      "artifactSnapshots_count": 1,
+      "conversationLogUris": [
+        "file:///home/tiemuer/.gemini/antigravity/brain/0bccf511-1287-4712-bab6-b3a608f4e16d/.system_generated/logs/overview.txt"
+      ],
+      "conversationLogUris_count": 1,
+      "userRequests": [
+        "我希望这里的思考过程的组件宽度fill父级。\n然后这里的M26什么意思？\ntok -> token (完整表述）\n加上轮数 不知道有没有。"
+      ],
+      "userRequests_count": 1
+    }
+  },
+  "CORTEX_STEP_TYPE_VIEW_FILE": {
+    "payloadKey": "viewFile",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "viewFile"
+    ],
+    "payloadFields": {
+      "absolutePathUri": "file:///home/tiemuer/antigravity-web/frontend/src/components/ChatPanel/steps/PlannerResponseStep.tsx",
+      "endLine": 135,
+      "content": "/**\n * PlannerResponseStep — AI 回复 (含 thinking + toolCalls)\n */\nimport { useState } from 'react';\nimport type { Step, To...",
+      "numLines": 136,
+      "numBytes": 5020
+    }
+  },
+  "CORTEX_STEP_TYPE_LIST_DIRECTORY": {
+    "payloadKey": "listDirectory",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "listDirectory"
+    ],
+    "payloadFields": {
+      "directoryPathUri": "file:///home/tiemuer/antigravity-web/frontend/src",
+      "results": [
+        {
+          "name": "App.tsx",
+          "sizeBytes": "2318"
+        }
+      ],
+      "results_count": 9
+    }
+  },
+  "CORTEX_STEP_TYPE_VIEW_FILE_OUTLINE": {
+    "payloadKey": "viewFileOutline",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "viewFileOutline"
+    ],
+    "payloadFields": {
+      "absolutePathUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+      "ccis": [
+        {
+          "absoluteUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+          "nodeName": "(0-37)",
+          "endLine": 37,
+          "contextType": "CODE_CONTEXT_TYPE_NAIVE_LINECHUNK",
+          "language": "LANGUAGE_TYPESCRIPT",
+          "snippetByType": {
+            "CONTEXT_SNIPPET_TYPE_RAW_SOURCE": {
+              "snippet": "/**\n * store/app-store.ts — 全局状态管理 (zustand)\n *\n * 餐厅类比:\n *   - Store = 厨师长 + 点单台\n *   - State = 正在做的菜\n *   - Action = 点..."
+            },
+            "CONTEXT_SNIPPET_TYPE_SIGNATURE": {}
+          }
+        }
+      ],
+      "ccis_count": 14,
+      "outlineItems": [
+        "{\"NodePath\":\"(0-37)\",\"ContextType\":\"Code Snippet\",\"Content\":\"/**\\n * store/app-store.ts — 全局状态管理 (zustand)\\n *\\n * 餐厅类比:\\n *   - Store = 厨师长 + 点单台\\n *   - State = 正在做的菜\\n *   - Action = 点单\\n *\\n * 职责:\\n *   - 管理 LS 连接状态\\n *   - 管理对话列表和当前对话\\n\\u003ctruncated 16 lines\\u003e\\n    ResTrajectory,\\n    ResNewChat,\\n    ResConfig,\\n    ResStatus,\\n    CascadeConfig,\\n    ModelInfo,\\n} from '@/types';\\nimport { DEFAULT_CONFIG } from '@/types';\\nimport type { WSClient } from './ws-client';\\n\\n// ========== State 类型 ==========\\n\",\"ContentType\":\"raw_content\",\"ContentTruncated\":true,\"StartLine\":1,\"EndLine\":38}"
+      ],
+      "outlineItems_count": 14,
+      "numItemsScanned": 14,
+      "totalCciCount": 14,
+      "numLines": 372,
+      "numBytes": 12880,
+      "rawContent": "/**\n * store/app-store.ts — 全局状态管理 (zustand)\n *\n * 餐厅类比:\n *   - Store = 厨师长 + 点单台\n *   - State = 正在做的菜\n *   - Action = 点..."
+    }
+  },
+  "CORTEX_STEP_TYPE_CODE_ACTION": {
+    "payloadKey": "codeAction",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "codeAction"
+    ],
+    "payloadFields": {
+      "actionSpec": {
+        "command": {
+          "instruction": "Add viewMode state field and toggleViewMode action to AppState interface and store implementation",
+          "replacementChunks": [
+            {
+              "targetContent": "    // UI 状态\n    debugMode: boolean;\n    loading: boolean;\n    error: string | null;",
+              "replacementContent": "    // UI 状态\n    debugMode: boolean;\n    viewMode: 'scroll' | 'paged';\n    loading: boolean;\n    error: string | null;",
+              "startLine": 62,
+              "endLine": 65
+            }
+          ],
+          "replacementChunks_count": 4,
+          "isEdit": true,
+          "useFastApply": true,
+          "file": {
+            "absoluteUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+            "workspaceUrisToRelativePaths": {
+              "file:///home/tiemuer": "antigravity-web/frontend/src/store/app-store.ts"
+            }
+          }
+        }
+      },
+      "actionResult": {
+        "edit": {
+          "diff": {
+            "endLine": 372,
+            "unifiedDiff": {
+              "lines": [
+                {
+                  "text": "/**",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " * store/app-store.ts — 全局状态管理 (zustand)",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " * 餐厅类比:",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - Store = 厨师长 + 点单台",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - State = 正在做的菜",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - Action = 点单",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " * 职责:",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - 管理 LS 连接状态",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - 管理对话列表和当前对话",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - 处理 WebSocket 事件驱动的增量更新",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " *   - 配置管理",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": " */",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "import { createStore } from 'zustand/vanilla';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "import type { StoreApi } from 'zustand';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "import type {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ConversationSummary,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    Step,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ServerMessage,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    EventStepAdded,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    EventStepUpdated,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    EventStatusChanged,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    EventLsStatus,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ResConversations,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ResTrajectory,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ResNewChat,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ResConfig,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ResStatus,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    CascadeConfig,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    ModelInfo,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "} from '@/types';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "import { DEFAULT_CONFIG } from '@/types';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "import type { WSClient } from './ws-client';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "// ========== State 类型 ==========",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "export interface AppState {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // LS 连接",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    lsConnected: boolean;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    lsInfo: { port: number; pid: number } | null;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // 对话列表",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    conversations: ConversationSummary[];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    conversationsTotal: number;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    activeConversationId: string | null;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // 当前对话",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    steps: Step[];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    conversationStatus: string;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    metadata: unknown[];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    lastSeq: number;  // 最后收到的事件序号，用于断点续传",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // 配置",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    config: CascadeConfig;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    models: ModelInfo[];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // 账号",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    account: { email: string; tier: string } | null;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // UI 状态",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    debugMode: boolean;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    viewMode: 'scroll' | 'paged';",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "    loading: boolean;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    error: string | null;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // Actions",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    loadConversations: (limit?: number, search?: string) => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    selectConversation: (id: string) => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    newChat: () => Promise<string | null>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    loadConfig: () => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    setConfig: (partial: Partial<CascadeConfig>) => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    loadStatus: () => Promise<void>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    toggleDebugMode: () => void;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    toggleViewMode: () => void;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "    setActiveConversation: (id: string | null) => void;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "}",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "export type AppStore = StoreApi<AppState>;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "// ========== Store 工厂 ==========",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "export function createAppStore(wsClient: WSClient): AppStore {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    const store = createStore<AppState>((set, get) => ({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        // ---- 初始状态 ----",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        lsConnected: false,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        lsInfo: null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        conversations: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        conversationsTotal: 0,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        activeConversationId: null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        steps: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        conversationStatus: 'IDLE',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        metadata: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        lastSeq: 0,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        config: { ...DEFAULT_CONFIG },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        models: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        account: null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        debugMode: false,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        viewMode: 'scroll',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "        loading: false,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        error: null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        // ---- Actions ----",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        loadConversations: async (limit = 50, search?: string) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const res = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_conversations',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                limit,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                search,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (res.type === 'res_conversations') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = res as ResConversations;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    conversations: data.conversations,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    conversationsTotal: data.total,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        selectConversation: async (id: string) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            // 如果有旧订阅，取消",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const oldId = get().activeConversationId;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (oldId && oldId !== id) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                wsClient.send({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    type: 'req_unsubscribe',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    cascadeId: oldId,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            set({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                activeConversationId: id,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                steps: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                conversationStatus: 'IDLE',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                lastSeq: 0,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                loading: true,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                error: null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            // 拉取完整轨迹",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const trajectoryRes = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_trajectory',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                cascadeId: id,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (trajectoryRes.type === 'res_trajectory') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = trajectoryRes as ResTrajectory & { seq?: number };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    steps: data.steps,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    conversationStatus: data.status.replace('CASCADE_RUN_STATUS_', ''),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    metadata: data.metadata,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lastSeq: data.seq || 0,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    loading: false,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            } else {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({ loading: false, error: '加载对话失败' });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            // 订阅实时更新（带 lastSeq 用于增量恢复）",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            // eslint-disable-next-line @typescript-eslint/no-explicit-any",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_subscribe',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                cascadeId: id,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                lastSeq: get().lastSeq,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            } as any);",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        newChat: async () => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const res = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_new_chat',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (res.type === 'res_new_chat') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = res as ResNewChat;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                await get().selectConversation(data.cascadeId);",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                return data.cascadeId;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            return null;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const cascadeId = get().activeConversationId;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (!cascadeId) return;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            set({ conversationStatus: 'RUNNING' });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_send_message',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                cascadeId,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                text,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                ...(configOverride ? { config: configOverride } : {}),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                ...(extras?.mentions ? { mentions: extras.mentions } : {}),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                ...(extras?.media ? { media: extras.media } : {}),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        loadConfig: async () => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const res = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_get_config',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (res.type === 'res_config') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = res as ResConfig;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({ config: data.config });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        setConfig: async (partial: Partial<CascadeConfig>) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const res = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_set_config',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                ...partial,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (res.type === 'res_config') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = res as ResConfig;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({ config: data.config });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        loadStatus: async () => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            const res = await wsClient.sendAndWait({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                type: 'req_status',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                reqId: wsClient.nextReqId(),",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            if (res.type === 'res_status') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const data = res as ResStatus;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                set({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lsConnected: data.ls.connected,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lsInfo: data.ls.connected",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        ? { port: data.ls.port!, pid: data.ls.pid! }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        : null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    config: data.config,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    models: data.models,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    account: data.account,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        toggleDebugMode: () => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            set(state => ({ debugMode: !state.debugMode }));",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        toggleViewMode: () => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "            set(state => ({ viewMode: state.viewMode === 'scroll' ? 'paged' : 'scroll' }));",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_INSERT"
+                },
+                {
+                  "text": "        setActiveConversation: (id: string | null) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            set({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                activeConversationId: id,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                steps: [],",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                conversationStatus: 'IDLE',",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        },",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    }));",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    // ========== 事件监听 ==========",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    wsClient.onMessage((msg: ServerMessage) => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        const state = store.getState();",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        switch (msg.type) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            case 'event_ls_status': {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const event = msg as EventLsStatus;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const wasConnected = state.lsConnected;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                store.setState({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lsConnected: event.connected,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lsInfo: event.connected",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        ? { port: event.port!, pid: event.pid! }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        : null,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                if (!wasConnected && event.connected) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    const currentState = store.getState();",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    currentState.loadConversations();",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    currentState.loadStatus();",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    if (currentState.activeConversationId) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        currentState.selectConversation(currentState.activeConversationId);",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            case 'event_step_added': {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const event = msg as EventStepAdded & { seq?: number };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                if (event.cascadeId !== state.activeConversationId) break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                store.setState(prev => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    const newSteps = [...prev.steps];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    if (event.stepIndex < newSteps.length) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        // 已存在（重复），替换",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        newSteps[event.stepIndex] = event.step;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    } else {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        // 新 step，追加",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        newSteps.push(event.step);",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    return {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        steps: newSteps,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        lastSeq: event.seq || prev.lastSeq,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            case 'event_step_updated': {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const event = msg as EventStepUpdated & { seq?: number };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                if (event.cascadeId !== state.activeConversationId) break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                store.setState(prev => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    const newSteps = [...prev.steps];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    if (event.stepIndex < newSteps.length) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        newSteps[event.stepIndex] = event.step;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    return {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        steps: newSteps,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        lastSeq: event.seq || prev.lastSeq,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            case 'event_status_changed': {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const event = msg as EventStatusChanged & { seq?: number };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                if (event.cascadeId !== state.activeConversationId) break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                store.setState(prev => ({",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    conversationStatus: event.to,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    lastSeq: event.seq || prev.lastSeq,",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                }));",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            case 'events_batch' as string: {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                // 断点续传：服务端一次性发送缓冲区中的多个事件",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                const batch = msg as unknown as { cascadeId: string; events: Array<EventStepAdded | EventStepUpdated | EventStatusChanged & { seq?: number }> };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                if (batch.cascadeId !== state.activeConversationId) break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                store.setState(prev => {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    let newSteps = [...prev.steps];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    let newStatus = prev.conversationStatus;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    let newSeq = prev.lastSeq;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    for (const evt of batch.events) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        if ((evt as { seq?: number }).seq) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            newSeq = (evt as { seq: number }).seq;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        if (evt.type === 'event_step_added') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            const e = evt as EventStepAdded;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            if (e.stepIndex < newSteps.length) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                                newSteps[e.stepIndex] = e.step;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            } else {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                                newSteps = [...newSteps, e.step];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        } else if (evt.type === 'event_step_updated') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            const e = evt as EventStepUpdated;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            if (e.stepIndex < newSteps.length) {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                                newSteps = [...newSteps];",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                                newSteps[e.stepIndex] = e.step;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        } else if (evt.type === 'event_status_changed') {",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                            newStatus = (evt as EventStatusChanged).to;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                        }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                    return { steps: newSteps, conversationStatus: newStatus, lastSeq: newSeq };",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "                break;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "            }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "        }",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    });",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "    return store;",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "text": "}",
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                },
+                {
+                  "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+                }
+              ]
+            }
+          },
+          "absoluteUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+          "originalContent": "/**\n * store/app-store.ts — 全局状态管理 (zustand)\n *\n * 餐厅类比:\n *   - Store = 厨师长 + 点单台\n *   - State = 正在做的菜\n *   - Action = 点..."
+        }
+      },
+      "useFastApply": true,
+      "acknowledgementType": "ACKNOWLEDGEMENT_TYPE_ACCEPT",
+      "markdownLanguage": "typescript",
+      "replacementInfos": [
+        {
+          "originalChunk": {
+            "targetContent": "    // UI 状态\n    debugMode: boolean;\n    loading: boolean;\n    error: string | null;",
+            "replacementContent": "    // UI 状态\n    debugMode: boolean;\n    viewMode: 'scroll' | 'paged';\n    loading: boolean;\n    error: string | null;",
+            "startLine": 62,
+            "endLine": 65
+          },
+          "numMatches": 1
+        }
+      ],
+      "replacementInfos_count": 4,
+      "description": "在 store 中新增 `viewMode: 'scroll' | 'paged'` 状态和 `toggleViewMode` action，用于全局切换 Chat 的浏览模式。"
+    }
+  },
+  "CORTEX_STEP_TYPE_RUN_COMMAND": {
+    "payloadKey": "runCommand",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "runCommand"
+    ],
+    "payloadFields": {
+      "commandLine": "npx tsc --noEmit 2>&1 | head -40",
+      "proposedCommandLine": "npx tsc --noEmit 2>&1 | head -40",
+      "cwd": "/home/tiemuer/antigravity-web/frontend",
+      "waitMsBeforeAsync": "10000",
+      "shouldAutoRun": true,
+      "blocking": true,
+      "exitCode": 0,
+      "autoRunDecision": "AUTO_RUN_DECISION_DEFAULT_ALLOW",
+      "terminalId": "3401826",
+      "combinedOutput": {},
+      "usedIdeTerminal": true,
+      "rawDebugOutput": "\u001b]633;C\u0007"
+    }
+  },
+  "CORTEX_STEP_TYPE_COMMAND_STATUS": {
+    "payloadKey": "commandStatus",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "commandStatus"
+    ],
+    "payloadFields": {
+      "commandId": "6e51de29-6588-4e63-967c-6f73be8707d1",
+      "outputCharacterCount": 2000,
+      "waitDurationSeconds": 15,
+      "status": "CORTEX_STEP_STATUS_DONE",
+      "combined": "* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n...",
+      "delta": "* Subscribe for updates from some external system, calling setState in a callback function when external state changes.\n...",
+      "exitCode": 0
+    }
+  },
+  "CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT": {
+    "payloadKey": "codeAcknowledgement",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "codeAcknowledgement"
+    ],
+    "payloadFields": {
+      "isAccept": true,
+      "acknowledgementScope": "CODE_ACKNOWLEDGEMENT_SCOPE_FILE",
+      "codeAcknowledgementInfos": [
+        {
+          "uriPath": "/home/tiemuer/antigravity-web/frontend/src/components/ChatPanel/ChatPanel.tsx",
+          "stepIndices": [
+            97
+          ],
+          "stepIndices_count": 1,
+          "diff": {
+            "lines": [
+              {
+                "text": "/**",
+                "type": "UNIFIED_DIFF_LINE_TYPE_UNCHANGED"
+              }
+            ],
+            "lines_count": 463
+          }
+        }
+      ],
+      "codeAcknowledgementInfos_count": 1
+    }
+  },
+  "CORTEX_STEP_TYPE_ERROR_MESSAGE": {
+    "payloadKey": "errorMessage",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "errorMessage"
+    ],
+    "payloadFields": {
+      "error": {
+        "userErrorMessage": "Encountered retryable error from model provider: Our servers are experiencing high traffic right now, please try again i...",
+        "modelErrorMessage": "The model is currently unreachable.",
+        "shortError": "UNAVAILABLE (code 503): No capacity available for model claude-opus-4-6-thinking on the server",
+        "fullError": "HTTP 503 Service Unavailable\nSherlog: \nTraceID: 0x9021472836309e4f\nHeaders: {\"Content-Length\":[\"429\"],\"Content-Type\":[\"t...",
+        "errorCode": 503,
+        "details": "{\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"No capacity available for model claude-opus-4-6-thinking on the server\",...",
+        "rpcErrorDetails": [
+          "{\"@type\":\"type.googleapis.com/google.rpc.ErrorInfo\", \"reason\":\"MODEL_CAPACITY_EXHAUSTED\", \"domain\":\"cloudcode-pa.googleapis.com\", \"metadata\":{\"model\":\"claude-opus-4-6-thinking\"}}"
+        ],
+        "rpcErrorDetails_count": 1
+      }
+    }
+  },
+  "CORTEX_STEP_TYPE_FIND": {
+    "payloadKey": "find",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "find"
+    ],
+    "payloadFields": {
+      "searchDirectory": "/home/tiemuer/antigravity-web",
+      "pattern": "*",
+      "type": "FIND_RESULT_TYPE_DIRECTORY",
+      "maxDepth": 1,
+      "truncatedOutput": "data/\ndocs/\nfrontend/\nlib/\nlogs/\nnode_modules/\npublic/\ntests/\ntools/",
+      "truncatedTotalResults": 9,
+      "totalResults": 9,
+      "rawOutput": "data/\ndocs/\nfrontend/\nlib/\nlogs/\nnode_modules/\npublic/\ntests/\ntools/",
+      "commandRun": "/home/tiemuer/.antigravity-server/bin/1.19.6-d2597a5c475647ed306b22de1e39853c7812d07d/extensions/antigravity/bin/fd --no..."
+    }
+  },
+  "CORTEX_STEP_TYPE_VIEW_CODE_ITEM": {
+    "payloadKey": "viewCodeItem",
+    "topLevelKeys": [
+      "type",
+      "status",
+      "metadata",
+      "viewCodeItem"
+    ],
+    "payloadFields": {
+      "absoluteUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+      "nodePaths": [
+        "createAppStore.selectConversation"
+      ],
+      "nodePaths_count": 1,
+      "ccis": [
+        {
+          "absoluteUri": "file:///home/tiemuer/antigravity-web/frontend/src/store/app-store.ts",
+          "nodeName": "selectConversation",
+          "nodeLineage": [
+            "createAppStore"
+          ],
+          "nodeLineage_count": 1,
+          "startLine": 131,
+          "startCol": 8,
+          "endLine": 181,
+          "endCol": 9,
+          "contextType": "CODE_CONTEXT_TYPE_FUNCTION",
+          "language": "LANGUAGE_TYPESCRIPT",
+          "snippetByType": {
+            "CONTEXT_SNIPPET_TYPE_RAW_SOURCE": {
+              "snippet": "selectConversation: async (id: string) => {\n    // 如果有旧订阅，取消\n    const oldId = get().activeConversationId;\n    if (oldId..."
+            },
+            "CONTEXT_SNIPPET_TYPE_SIGNATURE": {
+              "snippet": "createAppStore.selectConversation(id: string)"
+            }
+          }
+        }
+      ],
+      "ccis_count": 1
+    }
+  }
+}

@@ -546,6 +546,28 @@ body {
   white-space: nowrap;
 }
 
+/* 滚动模式：新内容提示按钮 */
+.scroll-new-content-toast {
+  position: absolute;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: var(--color-accent);
+  color: #000;
+  border: none;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 16px var(--color-accent-glow);
+  white-space: nowrap;
+}
+
 .chat-panel-empty {
   flex: 1;
   display: flex;
