@@ -421,17 +421,17 @@ body {
 }
 
 .paged-content {
-  padding: 60px var(--spacing-xl) 24px;
-  max-width: 800px;
-  margin: 0 auto;
+  padding: 60px 0 24px;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* step 内部避免列中断问题 */
+/* step-wrapper 控制阅读宽度，居中显示 */
 .paged-content .step-wrapper {
   break-inside: auto;
-  margin-bottom: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto var(--spacing-xl);
+  padding: 0 var(--spacing-xl);
 }
 
 /* 代码块等限制宽度避免溢出列 */
