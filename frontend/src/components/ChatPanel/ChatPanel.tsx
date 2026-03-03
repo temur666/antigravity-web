@@ -48,12 +48,15 @@ export function ChatPanel() {
         const w = viewport.clientWidth;
         if (w === 0) return;
 
-        const pages = Math.max(1, Math.ceil(content.scrollWidth / w));
+        const gap = pagedColumns === 2 ? 48 : 0;
+        const stride = w + gap;
+
+        const pages = Math.max(1, Math.ceil(content.scrollWidth / stride));
         setTotalPages(pages);
 
         // 如果当前页超出范围，修正
         setCurrentPage(prev => Math.min(prev, pages - 1));
-    }, [isPaged]);
+    }, [isPaged, pagedColumns]);
 
     // ---- 应用 translateX ----
     useEffect(() => {
@@ -62,8 +65,10 @@ export function ChatPanel() {
         if (!content || !viewport || !isPaged) return;
 
         const w = viewport.clientWidth;
-        content.style.transform = `translateX(-${currentPage * w}px)`;
-    }, [currentPage, isPaged]);
+        const gap = pagedColumns === 2 ? 48 : 0;
+        const stride = w + gap;
+        content.style.transform = `translateX(-${currentPage * stride}px)`;
+    }, [currentPage, isPaged, pagedColumns]);
 
     // ---- 设置列宽 & 重算 ----
     const COLUMN_GAP = 48; // 双栏间距
@@ -143,7 +148,9 @@ export function ChatPanel() {
                             const viewport = viewportRef.current;
                             if (!content || !viewport) return prev;
                             const w = viewport.clientWidth;
-                            const pages = Math.max(1, Math.ceil(content.scrollWidth / w));
+                            const gap = pagedColumns === 2 ? 48 : 0;
+                            const stride = w + gap;
+                            const pages = Math.max(1, Math.ceil(content.scrollWidth / stride));
                             return pages - 1;
                         });
                     });
@@ -164,7 +171,9 @@ export function ChatPanel() {
                 const viewport = viewportRef.current;
                 if (content && viewport) {
                     const w = viewport.clientWidth;
-                    const newTotal = Math.max(1, Math.ceil(content.scrollWidth / w));
+                    const gap = pagedColumns === 2 ? 48 : 0;
+                    const stride = w + gap;
+                    const newTotal = Math.max(1, Math.ceil(content.scrollWidth / stride));
                     const isOnLastPage = currentPage >= newTotal - 2; // 接近最后一页
                     if (!isOnLastPage) {
                         setHasNewContent(true);
