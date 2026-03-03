@@ -22,6 +22,7 @@ export type StepType =
     | 'CORTEX_STEP_TYPE_PLANNER_RESPONSE'
     | 'CORTEX_STEP_TYPE_VIEW_FILE'
     | 'CORTEX_STEP_TYPE_VIEW_FILE_OUTLINE'
+    | 'CORTEX_STEP_TYPE_VIEW_CODE_ITEM'
     | 'CORTEX_STEP_TYPE_CODE_ACTION'
     | 'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT'
     | 'CORTEX_STEP_TYPE_RUN_COMMAND'
@@ -186,6 +187,25 @@ export interface CodeAcknowledgementPayload {
     [key: string]: unknown;
 }
 
+export interface CodeContextItem {
+    nodeName: string;
+    startLine: number;
+    endLine: number;
+    contextType?: string;
+    language?: string;
+    snippet?: string;           // RAW_SOURCE snippet
+    signature?: string;         // SIGNATURE snippet
+    absoluteUri?: string;
+    [key: string]: unknown;
+}
+
+export interface ViewCodeItemPayload {
+    filePath?: string;
+    nodePaths?: string[];
+    items?: CodeContextItem[];
+    [key: string]: unknown;
+}
+
 // ========== Step 主类型 ==========
 
 export interface Step {
@@ -196,6 +216,7 @@ export interface Step {
     plannerResponse?: PlannerResponsePayload;
     viewFile?: ViewFilePayload;
     viewFileOutline?: ViewFileOutlinePayload;
+    viewCodeItem?: ViewCodeItemPayload;
     codeAction?: CodeActionPayload;
     codeAcknowledgement?: CodeAcknowledgementPayload;
     runCommand?: RunCommandPayload;

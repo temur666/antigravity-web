@@ -15,4 +15,5 @@ export { SearchWebStep } from './SearchWebStep';
 export { GrepSearchStep } from './GrepSearchStep';
 export { FindStep } from './FindStep';
 export { ViewFileOutlineStep } from './ViewFileOutlineStep';
+export { ViewCodeItemStep } from './ViewCodeItemStep';
 export { SystemStep } from './SystemStep';

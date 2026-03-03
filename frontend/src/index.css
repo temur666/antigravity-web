@@ -1160,6 +1160,62 @@ body {
   padding: 24px 0;
 }
 
+/* ========== Code Item Modal ========== */
+.code-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.code-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+}
+
+.code-item-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.code-item-type {
+  color: var(--color-text-muted);
+  text-transform: lowercase;
+}
+
+.code-item-range {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.code-item-snippet {
+  margin: 0;
+  padding: 12px;
+  background: #000;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  overflow-x: auto;
+}
+
+.code-item-snippet code {
+  font-family: inherit;
+}
+
 /* 工具步骤内：ViewFile pill 撑满宽度 */
 .step-wrapper:not([data-step-type="CORTEX_STEP_TYPE_USER_INPUT"]):not([data-step-type="CORTEX_STEP_TYPE_PLANNER_RESPONSE"]) .step-view-file-pill {
   display: flex;

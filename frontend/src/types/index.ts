@@ -55,6 +55,8 @@ export type {
     FindPayload,
     ViewFileOutlinePayload,
     CodeAcknowledgementPayload,
+    ViewCodeItemPayload,
+    CodeContextItem,
 } from './step';
 
 export {

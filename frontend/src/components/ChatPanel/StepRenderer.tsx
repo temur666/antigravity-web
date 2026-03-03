@@ -20,6 +20,7 @@ import {
     GrepSearchStep,
     FindStep,
     ViewFileOutlineStep,
+    ViewCodeItemStep,
     SystemStep,
 } from './steps';
 
@@ -72,6 +73,8 @@ function renderStep(step: Step, index: number) {
             return <FindStep step={step} />;
         case 'CORTEX_STEP_TYPE_VIEW_FILE_OUTLINE':
             return <ViewFileOutlineStep step={step} />;
+        case 'CORTEX_STEP_TYPE_VIEW_CODE_ITEM':
+            return <ViewCodeItemStep step={step} />;
         // CODE_ACKNOWLEDGEMENT 通常隐藏，但 debug 模式下走系统步骤渲染
         case 'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT':
             return <SystemStep step={step} />;
