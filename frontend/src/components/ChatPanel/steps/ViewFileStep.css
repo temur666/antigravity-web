@@ -1,0 +1,93 @@
+.step-view-file-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    background-color: var(--color-bg-elevated, #1a1a20);
+    border: 1px solid var(--color-border-light, rgba(255, 255, 255, 0.1));
+    border-radius: var(--radius-pill, 9999px);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: var(--color-text-secondary, #a1a1aa);
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.step-view-file-pill:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+    color: var(--color-text-primary, #ffffff);
+}
+
+.pill-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-text-muted, #52525b);
+}
+
+.step-view-file-pill:hover .pill-icon {
+    color: var(--color-accent, #2dd4bf);
+}
+
+.pill-action {
+    font-weight: 500;
+}
+
+.pill-filename {
+    font-weight: 600;
+    color: var(--color-text-primary, #ffffff);
+    font-family: var(--font-mono, monospace);
+    display: flex;
+    align-items: center;
+}
+
+.pill-filename .ext {
+    color: var(--color-accent-orange, #fb923c);
+}
+
+.pill-ext-ts,
+.pill-ext-tsx {
+    color: #3178c6;
+}
+
+.pill-ext-js,
+.pill-ext-jsx {
+    color: #f7df1e;
+}
+
+.pill-ext-css {
+    color: #2965f1;
+}
+
+.pill-ext-json {
+    color: #cbd5e1;
+}
+
+.pill-ext-md {
+    color: #10b981;
+}
+
+.pill-lines {
+    color: var(--color-text-muted, #52525b);
+    font-family: var(--font-mono, monospace);
+    font-size: 12px;
+}
+
+/* Modal Content Styles for Code */
+.view-file-code {
+    background-color: #000;
+    padding: 16px;
+    border-radius: var(--radius-md, 8px);
+    overflow-x: auto;
+    font-family: var(--font-mono, monospace);
+    font-size: 13px;
+    line-height: 1.5;
+    margin: 0;
+    border: 1px solid var(--color-border, #27272a);
+}
+
+.view-file-code code {
+    font-family: inherit;
+}
