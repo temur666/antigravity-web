@@ -13,6 +13,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const { Controller } = require('./lib/core/controller');
 const { grpcCall } = require('./lib/core/ls-discovery');
@@ -215,6 +216,51 @@ app.get('/api/conversations', async (_req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// Configure multer for file uploads
+const uploadDir = path.join('/tmp', 'antigravity_uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Ensure the directory is writable, or use /tmp as fallback
+let actualUploadDir = uploadDir;
+try {
+    fs.accessSync(uploadDir, fs.constants.W_OK);
+} catch (err) {
+    actualUploadDir = '/tmp';
+}
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, actualUploadDir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname) || '';
+        cb(null, 'upload-' + uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage: storage });
+
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    // Convert generic media types to specific ones if needed, or rely on client
+    let mimeType = req.file.mimetype;
+    if (mimeType === 'image/jpg') {
+        mimeType = 'image/jpeg';
+    }
+
+    res.json({
+        uri: `file://${req.file.path}`,
+        mimeType: mimeType,
+        originalName: req.file.originalname,
+        size: req.file.size
+    });
 });
 
 // WebSocket

@@ -2,13 +2,11 @@
  * App.tsx — 主应用组件
  *
  * 布局: Sidebar | ChatPanel
- *       StatusBar (底部)
  */
 import { useState, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar/Sidebar';
 import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { Dashboard } from './components/Dashboard/Dashboard';
-import { StatusBar } from './components/StatusBar/StatusBar';
 import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { ModelSelector } from './components/Header/ModelSelector';
 import { Rows3, BookOpen } from 'lucide-react';
@@ -77,9 +75,6 @@ export default function App() {
         <div className="main-content">
           {activeConversationId ? <ChatPanel /> : <Dashboard />}
         </div>
-
-        {/* 状态栏 */}
-        <StatusBar />
       </main>
 
       {/* PWA 安装提示 */}

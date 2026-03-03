@@ -8,7 +8,7 @@
  */
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Mic, ArrowRight, Plus } from 'lucide-react';
+import { Mic, ArrowRight, Plus, Paperclip, X } from 'lucide-react';
 import { ConfigPanel } from '../ConfigPanel/ConfigPanel';
 import { ModeSelector } from '../Header/ModeSelector';
 
@@ -17,10 +17,15 @@ import { useDraggable } from '@/hooks/useDraggable';
 export function InputBox() {
     const [text, setText] = useState('');
     const [showConfigOptions, setShowConfigOptions] = useState(false);
+    const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
+    const [isUploading, setIsUploading] = useState(false);
+    const [isDragOver, setIsDragOver] = useState(false);
+
     const sendMessage = useAppStore(s => s.sendMessage);
     const conversationStatus = useAppStore(s => s.conversationStatus);
     const activeConversationId = useAppStore(s => s.activeConversationId);
     const inputRef = useRef<HTMLTextAreaElement>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const {
         isDragging,
@@ -35,18 +40,56 @@ export function InputBox() {
     } = useDraggable();
 
     const isRunning = conversationStatus === 'RUNNING';
-    const canSend = text.trim().length > 0 && !isRunning && !!activeConversationId;
+    const canSend = (text.trim().length > 0 || attachments.length > 0) && !isRunning && !!activeConversationId && !isUploading;
 
-    const handleSend = useCallback(() => {
+    const handleSend = useCallback(async () => {
         if (!canSend) return;
-        const msg = text.trim();
-        setText('');
-        if (inputRef.current) {
-            inputRef.current.style.height = 'auto';
+
+        setIsUploading(true);
+        const mediaDetails: { uri: string, mimeType: string }[] = [];
+
+        try {
+            // Upload all attachments
+            for (const att of attachments) {
+                const formData = new FormData();
+                formData.append('file', att.file);
+
+                const res = await fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Upload failed: ${res.statusText}`);
+                }
+
+                const data = await res.json();
+                mediaDetails.push({
+                    uri: data.uri,
+                    mimeType: data.mimeType
+                });
+            }
+
+            const msg = text.trim();
+            setText('');
+            setAttachments([]);
+            if (inputRef.current) {
+                inputRef.current.style.height = 'auto';
+            }
+
+            // Send message with media if any
+            sendMessage(msg, undefined, mediaDetails.length > 0 ? { media: mediaDetails } : undefined);
+
+            // Revoke object URLs to prevent memory leaks
+            attachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
+        } catch (err) {
+            console.error('Failed to send message:', err);
+            // Ideally we'd show a toast here, but we'll minimally reset state for now
+        } finally {
+            setIsUploading(false);
+            inputRef.current?.focus();
         }
-        sendMessage(msg);
-        inputRef.current?.focus();
-    }, [canSend, text, sendMessage]);
+    }, [canSend, text, attachments, sendMessage]);
 
     const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -61,6 +104,66 @@ export function InputBox() {
             inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
         }
     }, []);
+
+    // ── File Handling ──
+    const handleFiles = useCallback((files: FileList | File[]) => {
+        const imageFiles = Array.from(files).filter(f => f.type.startsWith('image/'));
+        if (imageFiles.length === 0) return;
+
+        setAttachments(prev => [
+            ...prev,
+            ...imageFiles.map(file => ({
+                file,
+                previewUrl: URL.createObjectURL(file)
+            }))
+        ]);
+    }, []);
+
+    const handleRemoveAttachment = useCallback((index: number) => {
+        setAttachments(prev => {
+            const next = [...prev];
+            URL.revokeObjectURL(next[index].previewUrl);
+            next.splice(index, 1);
+            return next;
+        });
+    }, []);
+
+    const handlePaste = useCallback((e: React.ClipboardEvent) => {
+        if (e.clipboardData.files.length > 0) {
+            handleFiles(e.clipboardData.files);
+            // Don't prevent default, allow pasting text still
+        }
+    }, [handleFiles]);
+
+    const handleDragOver = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.dataTransfer.types.includes('Files')) {
+            setIsDragOver(true);
+        }
+    }, []);
+
+    const handleDragLeave = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+    }, []);
+
+    const handleDrop = useCallback((e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setIsDragOver(false);
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            handleFiles(e.dataTransfer.files);
+        }
+    }, [handleFiles]);
+
+    // Clean up previews on unmount
+    useEffect(() => {
+        return () => {
+            attachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
+        };
+    }, [attachments]);
 
     useEffect(() => {
         if (text === '' && inputRef.current) {
@@ -81,6 +184,7 @@ export function InputBox() {
         isFloating && 'input-box-floating',
         isDragging && 'input-box-dragging',
         isAnimatingSnap && 'input-box-animating',
+        isDragOver && 'input-box-drag-over',
     ].filter(Boolean).join(' ');
 
     // ── 浮动定位（仅脱离吸附时生效） ──
@@ -112,7 +216,45 @@ export function InputBox() {
             </div>
 
             {/* 输入框主体（始终渲染，宽度不同时自动切换布局） */}
-            <div className="input-box-inner-vertical">
+            <div
+                className="input-box-inner-vertical"
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+            >
+                {/* 隐藏的文件输入 */}
+                <input
+                    type="file"
+                    ref={fileInputRef}
+                    accept="image/*"
+                    multiple
+                    style={{ display: 'none' }}
+                    onChange={e => {
+                        if (e.target.files && e.target.files.length > 0) {
+                            handleFiles(e.target.files);
+                        }
+                        // Reset to allow selecting the same file again
+                        if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
+                />
+
+                {/* 附件缩略图预览区 */}
+                {attachments.length > 0 && (
+                    <div className="input-attachments-preview">
+                        {attachments.map((att, idx) => (
+                            <div key={Math.random() /* temporary key */} className="input-attachment-item">
+                                <img src={att.previewUrl} alt="attachment" />
+                                <button
+                                    className="input-attachment-remove"
+                                    onClick={() => handleRemoveAttachment(idx)}
+                                >
+                                    <X size={12} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
                 {/* 文本输入区 */}
                 <textarea
                     ref={inputRef}
@@ -121,6 +263,7 @@ export function InputBox() {
                     onInput={handleInput}
                     onChange={e => setText(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     placeholder={
                         !activeConversationId
                             ? '请先选择或创建对话'
@@ -128,7 +271,7 @@ export function InputBox() {
                                 ? 'AI 正在回复...'
                                 : 'Ask anything, @ to mention, / for workflows'
                     }
-                    disabled={!activeConversationId}
+                    disabled={!activeConversationId || isUploading}
                     rows={1}
                 />
 
@@ -141,6 +284,15 @@ export function InputBox() {
                             title="配置"
                         >
                             <Plus size={16} />
+                        </button>
+
+                        <button
+                            className="input-circle-btn ghost"
+                            onClick={() => fileInputRef.current?.click()}
+                            title="上传附件"
+                            disabled={!activeConversationId || isUploading}
+                        >
+                            <Paperclip size={16} />
                         </button>
 
                         <div className="input-selectors">

@@ -13,6 +13,11 @@ export function MetadataPopover() {
     const ref = useRef<HTMLDivElement>(null);
     const metadata = useAppStore(s => s.metadata);
     const storeModels = useAppStore(s => s.models);
+    const lsConnected = useAppStore(s => s.lsConnected);
+    const lsInfo = useAppStore(s => s.lsInfo);
+    const account = useAppStore(s => s.account);
+    const debugMode = useAppStore(s => s.debugMode);
+    const toggleDebugMode = useAppStore(s => s.toggleDebugMode);
 
     const summary = buildConversationUsageSummary(metadata);
     const hasData = summary.totalCalls > 0;
@@ -87,6 +92,31 @@ export function MetadataPopover() {
                             )}
                         </div>
                     )}
+
+                    <div className="metadata-divider"></div>
+
+                    <div className="metadata-status-section">
+                        <div className={`status-indicator ${lsConnected ? 'connected' : 'disconnected'}`}>
+                            <span className="status-dot" />
+                            <span>
+                                {lsConnected
+                                    ? `LS 已连接 (Port:${lsInfo?.port})`
+                                    : 'LS 未连接'}
+                            </span>
+                        </div>
+                        {account && (
+                            <div className="status-account">
+                                {account.email} · {account.tier}
+                            </div>
+                        )}
+                        <button
+                            className={`status-debug-btn ${debugMode ? 'active' : ''}`}
+                            onClick={toggleDebugMode}
+                            title="切换 Debug 模式显示隐藏步骤"
+                        >
+                            🐛 Debug {debugMode ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>

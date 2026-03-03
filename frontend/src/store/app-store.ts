@@ -173,7 +173,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
             }
 
             // 订阅实时更新（带 lastSeq 用于增量恢复）
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+             
             await wsClient.sendAndWait({
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
