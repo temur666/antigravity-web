@@ -494,6 +494,17 @@ body {
   cursor: default;
 }
 
+.paged-btn.active {
+  color: var(--color-accent);
+}
+
+.paged-divider {
+  width: 1px;
+  height: 16px;
+  background: var(--color-border-light);
+  margin: 0 2px;
+}
+
 .paged-indicator {
   font-size: 11px;
   font-weight: 600;
@@ -504,6 +515,11 @@ body {
   white-space: nowrap;
   min-width: 48px;
   text-align: center;
+}
+
+/* 双栏模式：step-wrapper 不限宽 */
+.paged-viewport[data-columns="2"] .step-wrapper {
+  max-width: none;
 }
 
 /* 有新内容提示 */

@@ -17,6 +17,8 @@ export function ChatPanel() {
     const conversationStatus = useAppStore(s => s.conversationStatus);
     const debugMode = useAppStore(s => s.debugMode);
     const viewMode = useAppStore(s => s.viewMode);
+    const pagedColumns = useAppStore(s => s.pagedColumns);
+    const togglePagedColumns = useAppStore(s => s.togglePagedColumns);
     const loading = useAppStore(s => s.loading);
     const error = useAppStore(s => s.error);
 
@@ -64,6 +66,7 @@ export function ChatPanel() {
     }, [currentPage, isPaged]);
 
     // ---- 设置列宽 & 重算 ----
+    const COLUMN_GAP = 48; // 双栏间距
     useEffect(() => {
         if (!isPaged) return;
 
@@ -73,10 +76,15 @@ export function ChatPanel() {
 
         const apply = () => {
             const w = viewport.clientWidth;
-            content.style.columnWidth = `${w}px`;
-            content.style.columnGap = '0px';
+            if (pagedColumns === 2) {
+                const colWidth = (w - COLUMN_GAP) / 2;
+                content.style.columnWidth = `${colWidth}px`;
+                content.style.columnGap = `${COLUMN_GAP}px`;
+            } else {
+                content.style.columnWidth = `${w}px`;
+                content.style.columnGap = '0px';
+            }
             content.style.height = '100%';
-            // 给浏览器一帧排版时间再算页数
             requestAnimationFrame(recalcPages);
         };
 
@@ -85,7 +93,7 @@ export function ChatPanel() {
         const ro = new ResizeObserver(apply);
         ro.observe(viewport);
         return () => ro.disconnect();
-    }, [isPaged, recalcPages]);
+    }, [isPaged, pagedColumns, recalcPages]);
 
     // ---- 内容变化时重算 ----
     useEffect(() => {
@@ -94,7 +102,7 @@ export function ChatPanel() {
         requestAnimationFrame(() => {
             requestAnimationFrame(recalcPages);
         });
-    }, [steps.length, isPaged, recalcPages, loading]);
+    }, [steps.length, isPaged, recalcPages, loading, pagedColumns]);
 
     // ---- 模式切换时重置 ----
     useEffect(() => {
@@ -306,7 +314,7 @@ export function ChatPanel() {
 
             {isPaged ? (
                 /* ====== 翻页模式 ====== */
-                <div className="paged-viewport" ref={viewportRef}>
+                <div className="paged-viewport" ref={viewportRef} data-columns={pagedColumns}>
                     <div className="paged-content" ref={contentRef}>
                         {stepsContent}
                     </div>
@@ -325,9 +333,11 @@ export function ChatPanel() {
                     currentPage={currentPage}
                     totalPages={totalPages}
                     hasNewContent={hasNewContent}
+                    columns={pagedColumns}
                     onPageLeft={pageLeft}
                     onPageRight={pageRight}
                     onJumpToEnd={jumpToEnd}
+                    onToggleColumns={togglePagedColumns}
                 />
             )}
 
