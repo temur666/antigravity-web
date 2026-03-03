@@ -11,12 +11,15 @@ import { Dashboard } from './components/Dashboard/Dashboard';
 import { StatusBar } from './components/StatusBar/StatusBar';
 import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { ModelSelector } from './components/Header/ModelSelector';
+import { Rows3, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/store';
 
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
+  const viewMode = useAppStore(s => s.viewMode);
+  const toggleViewMode = useAppStore(s => s.toggleViewMode);
 
   useEffect(() => {
     const handleResize = () => {
@@ -61,7 +64,13 @@ export default function App() {
             ☰
           </button>
           <ModelSelector position="header" />
-          <div style={{ width: 36 }}></div>
+          <button
+            className={`header-btn ${viewMode === 'paged' ? 'active' : ''}`}
+            onClick={toggleViewMode}
+            title={viewMode === 'scroll' ? '切换到翻页模式' : '切换到滚动模式'}
+          >
+            {viewMode === 'scroll' ? <Rows3 size={16} /> : <BookOpen size={16} />}
+          </button>
         </header>
 
         {/* 内容区 */}

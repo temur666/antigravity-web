@@ -61,6 +61,7 @@ export interface AppState {
 
     // UI 状态
     debugMode: boolean;
+    viewMode: 'scroll' | 'paged';
     loading: boolean;
     error: string | null;
 
@@ -73,6 +74,7 @@ export interface AppState {
     setConfig: (partial: Partial<CascadeConfig>) => Promise<void>;
     loadStatus: () => Promise<void>;
     toggleDebugMode: () => void;
+    toggleViewMode: () => void;
     setActiveConversation: (id: string | null) => void;
 }
 
@@ -96,6 +98,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         models: [],
         account: null,
         debugMode: false,
+        viewMode: 'scroll',
         loading: false,
         error: null,
 
@@ -247,6 +250,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
         toggleDebugMode: () => {
             set(state => ({ debugMode: !state.debugMode }));
+        },
+
+        toggleViewMode: () => {
+            set(state => ({ viewMode: state.viewMode === 'scroll' ? 'paged' : 'scroll' }));
         },
 
         setActiveConversation: (id: string | null) => {

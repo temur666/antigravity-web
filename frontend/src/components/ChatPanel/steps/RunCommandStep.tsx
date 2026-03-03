@@ -31,7 +31,7 @@ export function RunCommandStep({ step }: Props) {
                 <div className="terminal-card-header">
                     <div className="terminal-card-title">
                         <span className="terminal-icon">&gt;_</span>
-                        LOCAL SHELL
+                        {cwd || 'LOCAL SHELL'}
                     </div>
                     <div className="terminal-card-meta">
                         {rc.shouldAutoRun === true && (
@@ -47,7 +47,6 @@ export function RunCommandStep({ step }: Props) {
                                 exit: {exitCode}
                             </span>
                         )}
-                        {cwd && <span className="terminal-card-cwd" title={cwd}>CWD: {cwd}</span>}
                     </div>
                 </div>
                 <div className="terminal-card-body">
