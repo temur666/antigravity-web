@@ -189,10 +189,25 @@ body {
   padding: var(--spacing-lg) var(--spacing-md);
 }
 
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: inherit;
+}
+
+.sidebar-logo:hover .logo-text {
+  color: var(--color-accent);
+}
+
 .logo-text {
   font-weight: 700;
   font-size: 18px;
   letter-spacing: -0.5px;
+  transition: color 0.2s;
 }
 
 .logo-icon {

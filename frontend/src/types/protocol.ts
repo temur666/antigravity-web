@@ -284,6 +284,7 @@ export interface StepUsageInfo {
     ttftMs: number;           // 首 token 延迟 (ms)
     streamingMs: number;      // 流式持续时间 (ms)
     contextTokensUsed: number;
+    callIndex: number;        // 第几次模型调用 (1-based)
 }
 
 export interface ModelInfo {

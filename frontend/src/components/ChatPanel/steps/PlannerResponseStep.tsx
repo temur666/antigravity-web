@@ -36,17 +36,10 @@ export function PlannerResponseStep({ step, stepIndex }: Props) {
     const [showThinking, setShowThinking] = useState(false);
     const usage = useAppStore(s => s.stepUsageMap.get(stepIndex));
     const models = useAppStore(s => s.models);
-    const steps = useAppStore(s => s.steps);
     const pr = step.plannerResponse;
     if (!pr) return null;
 
     const isGenerating = step.status === 'CORTEX_STEP_STATUS_GENERATING';
-
-    // 计算轮次: 当前 stepIndex 之前有多少个 USER_INPUT
-    const turnNumber = steps
-        .slice(0, stepIndex)
-        .filter(s => s.type === 'CORTEX_STEP_TYPE_USER_INPUT')
-        .length;
 
     // 模型名映射: 用 store.models 查找 label，再缩短
     const resolveModelName = (rawModel: string): string => {
@@ -61,16 +54,12 @@ export function PlannerResponseStep({ step, stepIndex }: Props) {
                 {usage && !isGenerating && (
                     <span className="step-usage-inline">
                         <span className="usage-model">{resolveModelName(usage.model)}</span>
-                        <span className="usage-sep">·</span>
+                        <span className="usage-sep">&middot;</span>
                         <span className="usage-ttft">{formatDuration(usage.ttftMs)}</span>
-                        <span className="usage-sep">·</span>
+                        <span className="usage-sep">&middot;</span>
                         <span className="usage-tokens">{formatTokenCount(usage.outputTokens)} token</span>
-                        {turnNumber > 0 && (
-                            <>
-                                <span className="usage-sep">·</span>
-                                <span className="usage-turn">Turn {turnNumber}</span>
-                            </>
-                        )}
+                        <span className="usage-sep">&middot;</span>
+                        <span className="usage-turn">Call {usage.callIndex}</span>
                     </span>
                 )}
             </div>

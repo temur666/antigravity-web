@@ -13,13 +13,9 @@ export function MetadataPopover() {
     const ref = useRef<HTMLDivElement>(null);
     const metadata = useAppStore(s => s.metadata);
     const storeModels = useAppStore(s => s.models);
-    const steps = useAppStore(s => s.steps);
 
     const summary = buildConversationUsageSummary(metadata);
     const hasData = summary.totalCalls > 0;
-
-    // 轮次: USER_INPUT step 的数量
-    const turnCount = steps.filter(s => s.type === 'CORTEX_STEP_TYPE_USER_INPUT').length;
 
     // 模型名映射: 用 store.models 查找 label，再缩短
     const resolveModelName = (rawModel: string): string => {
@@ -57,10 +53,6 @@ export function MetadataPopover() {
                         <div className="metadata-empty">暂无数据</div>
                     ) : (
                         <div className="metadata-grid">
-                            <div className="metadata-item">
-                                <span className="metadata-label">轮次</span>
-                                <span className="metadata-value">{turnCount}</span>
-                            </div>
                             <div className="metadata-item">
                                 <span className="metadata-label">模型调用</span>
                                 <span className="metadata-value">{summary.totalCalls} 次</span>

@@ -17,12 +17,18 @@ export function Sidebar({ isOpen = true, isMobile = false, onClose }: SidebarPro
     const activeConversationId = useAppStore(s => s.activeConversationId);
     const loadConversations = useAppStore(s => s.loadConversations);
     const selectConversation = useAppStore(s => s.selectConversation);
+    const setActiveConversation = useAppStore(s => s.setActiveConversation);
     const newChat = useAppStore(s => s.newChat);
 
     // 首次加载对话列表
     useEffect(() => {
         loadConversations();
     }, [loadConversations]);
+
+    const handleGoHome = useCallback(() => {
+        setActiveConversation(null);
+        loadConversations();
+    }, [setActiveConversation, loadConversations]);
 
     const handleNewChat = useCallback(() => {
         newChat();
@@ -35,10 +41,10 @@ export function Sidebar({ isOpen = true, isMobile = false, onClose }: SidebarPro
     return (
         <aside className={`sidebar ${isOpen ? 'open' : 'closed'} ${isMobile ? 'mobile' : 'desktop'}`}>
             <div className="sidebar-header">
-                <div className="sidebar-logo">
+                <button className="sidebar-logo" onClick={handleGoHome} title="回到主页">
                     <span className="logo-icon">✦</span>
                     <span className="logo-text">Antigravity</span>
-                </div>
+                </button>
                 <button className="sidebar-btn" onClick={handleNewChat} title="新建对话">
                     ＋
                 </button>

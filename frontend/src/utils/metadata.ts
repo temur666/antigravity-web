@@ -71,9 +71,11 @@ export function buildStepUsageMap(metadata: GeneratorMetadata[]): Map<number, St
     const map = new Map<number, StepUsageInfo>();
     if (!metadata || metadata.length === 0) return map;
 
+    let callCount = 0;
     for (const gm of metadata) {
         if (!gm.stepIndices || !gm.chatModel?.usage) continue;
 
+        callCount++;
         const usage = gm.chatModel.usage;
         const info: StepUsageInfo = {
             model: usage.model || gm.chatModel.model || '',
@@ -83,6 +85,7 @@ export function buildStepUsageMap(metadata: GeneratorMetadata[]): Map<number, St
             ttftMs: parseDurationMs(gm.chatModel.timeToFirstToken),
             streamingMs: parseDurationMs(gm.chatModel.streamingDuration),
             contextTokensUsed: gm.chatModel.chatStartMetadata?.contextWindowMetadata?.estimatedTokensUsed ?? 0,
+            callIndex: callCount,
         };
 
         // 将同一条 metadata 关联到它产生的所有 step
