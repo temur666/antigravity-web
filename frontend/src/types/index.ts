@@ -23,6 +23,7 @@ export type {
     EventStepUpdated,
     EventStatusChanged,
     EventLsStatus,
+    EventMetadataUpdated,
     ConversationSummary,
     GeneratorMetadata,
     TokenUsage,

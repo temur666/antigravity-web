@@ -23,6 +23,7 @@ import type {
     EventStepUpdated,
     EventStatusChanged,
     EventLsStatus,
+    EventMetadataUpdated,
     ResConversations,
     ResTrajectory,
     ResNewChat,
@@ -348,6 +349,18 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 store.setState(prev => ({
                     conversationStatus: event.to,
                     lastSeq: event.seq || prev.lastSeq,
+                }));
+                break;
+            }
+
+            case 'event_metadata_updated': {
+                const event = msg as EventMetadataUpdated & { seq?: number };
+                if (event.cascadeId !== state.activeConversationId) break;
+                const meta = event.metadata as GeneratorMetadata[];
+                store.setState(prev => ({
+                    metadata: meta,
+                    stepUsageMap: buildStepUsageMap(meta),
+                    lastSeq: (event as { seq?: number }).seq || prev.lastSeq,
                 }));
                 break;
             }

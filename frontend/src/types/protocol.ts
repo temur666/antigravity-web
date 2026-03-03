@@ -179,7 +179,8 @@ export type ServerMessage =
     | EventStepAdded
     | EventStepUpdated
     | EventStatusChanged
-    | EventLsStatus;
+    | EventLsStatus
+    | EventMetadataUpdated;
 
 // ========== 事件类型 (服务端推送) ==========
 
@@ -209,6 +210,12 @@ export interface EventLsStatus {
     connected: boolean;
     port: number | null;
     pid: number | null;
+}
+
+export interface EventMetadataUpdated {
+    type: 'event_metadata_updated';
+    cascadeId: string;
+    metadata: GeneratorMetadata[];
 }
 
 // ========== 共享类型 ==========
