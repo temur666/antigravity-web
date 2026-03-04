@@ -40,5 +40,26 @@ module.exports = {
             merge_logs: true,
             time: true,
         },
+        {
+            name: 'ls-daemon',
+            script: './scripts/ls-daemon.sh',
+            args: 'start',
+            interpreter: '/bin/bash',
+            cwd: '/home/tiemuer/antigravity-web',
+            env: {
+                LS_PORT: 42100,
+                LS_CSRF_TOKEN: 'pm2-ls-daemon-csrf-token-fixed',
+            },
+            watch: false,
+            kill_timeout: 5000,
+            // LS 是长驻进程，不需要自动重启（除非 crash）
+            autorestart: true,
+            max_restarts: 3,
+            restart_delay: 5000,
+            error_file: './logs/ls-daemon-error.log',
+            out_file: './logs/ls-daemon-out.log',
+            merge_logs: true,
+            time: true,
+        },
     ],
 };
