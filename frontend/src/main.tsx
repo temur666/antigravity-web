@@ -23,21 +23,8 @@ setStoreInstance(store);
 // 3. 连接 WebSocket
 wsClient.connect();
 
-// 4. 连接 / 重连后加载状态
-let wasConnected = false;
-wsClient.onStateChange((state) => {
-  if (state === 'CONNECTED') {
-    const s = store.getState();
-    s.loadStatus();
-    s.loadConversations();
-
-    // 重连时恢复活跃对话的订阅
-    if (wasConnected && s.activeConversationId) {
-      s.selectConversation(s.activeConversationId);
-    }
-    wasConnected = true;
-  }
-});
+// 4. 重连恢复统一由 app-store 的 event_ls_status 事件处理
+//    （服务端在 WS 连接建立后立即推送 event_ls_status）
 
 // ========== 挂载 React ==========
 

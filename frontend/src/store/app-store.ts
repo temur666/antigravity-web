@@ -293,13 +293,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
     // ========== 事件监听 ==========
 
+    // 跟踪是否曾经收到过 LS 连接事件（区分首次 vs 重连）
+    let hasReceivedLsStatus = false;
+
     wsClient.onMessage((msg: ServerMessage) => {
         const state = store.getState();
 
         switch (msg.type) {
             case 'event_ls_status': {
                 const event = msg as EventLsStatus;
-                const wasConnected = state.lsConnected;
+                const wasLsConnected = state.lsConnected;
                 store.setState({
                     lsConnected: event.connected,
                     lsInfo: event.connected
@@ -307,14 +310,40 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         : null,
                 });
 
-                if (!wasConnected && event.connected) {
+                if (event.connected) {
                     const currentState = store.getState();
-                    currentState.loadConversations();
-                    currentState.loadStatus();
-                    if (currentState.activeConversationId) {
-                        currentState.selectConversation(currentState.activeConversationId);
+
+                    if (!wasLsConnected) {
+                        // 场景 A: LS 首次连接 或 LS 真正断开后重连
+                        // → 全量加载（对话列表 + 状态 + 活跃对话）
+                        currentState.loadConversations();
+                        currentState.loadStatus();
+                        if (currentState.activeConversationId) {
+                            currentState.selectConversation(currentState.activeConversationId);
+                        }
+                    } else if (hasReceivedLsStatus) {
+                        // 场景 B: WS 断开重连，但 LS 一直在线
+                        // → 轻量恢复：刷新列表 + 重新订阅（不重置当前对话内容）
+                        currentState.loadConversations();
+                        currentState.loadStatus();
+                        if (currentState.activeConversationId) {
+                            // 只重新订阅，带 lastSeq 做增量恢复
+                            wsClient.send({
+                                type: 'req_subscribe',
+                                reqId: wsClient.nextReqId(),
+                                cascadeId: currentState.activeConversationId,
+                                lastSeq: currentState.lastSeq,
+                            } as any);
+                        }
+                    } else {
+                        // 场景 C: 首次 WS 连接，LS 已在线
+                        // → 首次加载
+                        currentState.loadConversations();
+                        currentState.loadStatus();
                     }
                 }
+
+                hasReceivedLsStatus = true;
                 break;
             }
 

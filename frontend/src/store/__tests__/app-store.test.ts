@@ -82,6 +82,9 @@ describe('AppStore', () => {
 
     describe('LS 状态事件', () => {
         it('event_ls_status connected=true 更新 lsConnected', () => {
+            // 新逻辑: connected=true 会触发 loadConversations + loadStatus
+            mockClient.sendAndWait.mockResolvedValue({ type: 'res_error', code: 'MOCK' });
+
             mockClient._simulateMessage({
                 type: 'event_ls_status',
                 connected: true,
@@ -93,6 +96,8 @@ describe('AppStore', () => {
         });
 
         it('event_ls_status connected=false 重置 lsInfo', () => {
+            mockClient.sendAndWait.mockResolvedValue({ type: 'res_error', code: 'MOCK' });
+
             mockClient._simulateMessage({
                 type: 'event_ls_status',
                 connected: true,

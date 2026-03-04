@@ -66,11 +66,19 @@ export class WSClient {
     private _reconnectDelay: number = 1000;
     private _onOnline = () => this._handleOnline();
 
+    // 心跳保活
+    private _heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+    private _pongTimer: ReturnType<typeof setTimeout> | null = null;
+    private static readonly HEARTBEAT_INTERVAL = 25000; // 25s 发送一次 ping
+    private static readonly PONG_TIMEOUT = 10000;       // 10s 未收到 pong 视为断连
+    private _onVisibilityChange = () => this._handleVisibilityChange();
+
     constructor(factory?: WSFactory) {
         this.factory = factory ?? (() => new WebSocket(this.getWSUrl()));
-        // 监听网络恢复
+        // 监听网络恢复 + 页面可见性变化
         if (typeof window !== 'undefined') {
             window.addEventListener('online', this._onOnline);
+            document.addEventListener('visibilitychange', this._onVisibilityChange);
         }
     }
 
@@ -103,10 +111,12 @@ export class WSClient {
         ws.onopen = () => {
             this._reconnectDelay = this.reconnect.minDelay; // 重置退避
             this.setState(WSClientState.CONNECTED);
+            this._startHeartbeat();
         };
 
         ws.onclose = () => {
             this.ws = null;
+            this._stopHeartbeat();
             this.setState(WSClientState.DISCONNECTED);
             this.rejectAllPending('Connection closed');
             this._scheduleReconnect();
@@ -126,6 +136,7 @@ export class WSClient {
      */
     disconnect(): void {
         this._clearReconnect();
+        this._stopHeartbeat();
         if (this.ws) {
             this.ws.close();
             this.ws = null;
@@ -212,8 +223,10 @@ export class WSClient {
     destroy(): void {
         this.destroyed = true;
         this._clearReconnect();
+        this._stopHeartbeat();
         if (typeof window !== 'undefined') {
             window.removeEventListener('online', this._onOnline);
+            document.removeEventListener('visibilitychange', this._onVisibilityChange);
         }
         this.disconnect();
         this.messageHandlers.clear();
@@ -231,6 +244,12 @@ export class WSClient {
     }
 
     private handleRawMessage(raw: string): void {
+        // 心跳 pong 响应（纯文本，不是 JSON）
+        if (raw === 'pong') {
+            this._onPong();
+            return;
+        }
+
         let data: ServerMessage;
         try {
             data = JSON.parse(raw);
@@ -304,5 +323,56 @@ export class WSClient {
         this._clearReconnect();
         this._reconnectDelay = this.reconnect.minDelay;
         this.connect();
+    }
+
+    // ========== 心跳保活 ==========
+
+    private _startHeartbeat(): void {
+        this._stopHeartbeat();
+        this._heartbeatTimer = setInterval(() => {
+            if (this.ws && this._state === WSClientState.CONNECTED) {
+                this.ws.send('ping');
+                // 设置 pong 超时检测
+                this._pongTimer = setTimeout(() => {
+                    console.warn('[WSClient] 心跳超时，主动断开重连');
+                    this.ws?.close();
+                }, WSClient.PONG_TIMEOUT);
+            }
+        }, WSClient.HEARTBEAT_INTERVAL);
+    }
+
+    private _stopHeartbeat(): void {
+        if (this._heartbeatTimer) {
+            clearInterval(this._heartbeatTimer);
+            this._heartbeatTimer = null;
+        }
+        if (this._pongTimer) {
+            clearTimeout(this._pongTimer);
+            this._pongTimer = null;
+        }
+    }
+
+    private _onPong(): void {
+        if (this._pongTimer) {
+            clearTimeout(this._pongTimer);
+            this._pongTimer = null;
+        }
+    }
+
+    private _handleVisibilityChange(): void {
+        if (document.visibilityState !== 'visible') return;
+        // 页面切回前台，立即检查连接状态
+        if (this._state === WSClientState.DISCONNECTED && !this.destroyed) {
+            this._clearReconnect();
+            this._reconnectDelay = this.reconnect.minDelay;
+            this.connect();
+        } else if (this._state === WSClientState.CONNECTED && this.ws) {
+            // 立即发一次心跳，快速检测连接是否已死
+            this.ws.send('ping');
+            this._pongTimer = setTimeout(() => {
+                console.warn('[WSClient] 切回前台心跳超时，主动断开重连');
+                this.ws?.close();
+            }, WSClient.PONG_TIMEOUT);
+        }
     }
 }

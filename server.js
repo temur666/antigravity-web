@@ -146,7 +146,7 @@ async function handleMessage(clientWs, data) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
                 }
-                controller.subscribe(data.cascadeId, clientWs);
+                controller.subscribe(data.cascadeId, clientWs, data.lastSeq ?? null);
                 send(proto.makeResponse('res_subscribe', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;
             }
@@ -287,7 +287,15 @@ wss.on('connection', (clientWs) => {
 
     clientWs.on('message', async (raw) => {
         try {
-            const data = JSON.parse(raw.toString());
+            const str = raw.toString();
+
+            // 心跳: 前端发 ping，回复 pong（不走 JSON 路径）
+            if (str === 'ping') {
+                if (clientWs.readyState === WebSocket.OPEN) clientWs.send('pong');
+                return;
+            }
+
+            const data = JSON.parse(str);
             if (!data.type) {
                 clientWs.send(proto.makeError('INVALID_PARAMS', 'Missing type field'));
                 return;
