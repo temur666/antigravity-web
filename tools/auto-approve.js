@@ -14,7 +14,7 @@
  *   --verbose           详细日志
  */
 
-const https = require('https');
+const http = require('http');
 const { execSync } = require('child_process');
 const os = require('os');
 
@@ -61,7 +61,7 @@ function sleep(ms) {
 function grpcCall(port, csrf, method, body, timeoutMs = 5000) {
     return new Promise((resolve) => {
         const data = JSON.stringify(body || {});
-        const req = https.request({
+        const req = http.request({
             hostname: '127.0.0.1',
             port,
             path: `${SERVICE_PATH}/${method}`,
@@ -72,7 +72,6 @@ function grpcCall(port, csrf, method, body, timeoutMs = 5000) {
                 'x-codeium-csrf-token': csrf,
                 'connect-protocol-version': '1',
             },
-            rejectUnauthorized: false,
             timeout: timeoutMs,
         }, (res) => {
             let d = '';
@@ -112,9 +111,9 @@ function discoverWindows() {
         for (const proc of procs) {
             if (!proc.CommandLine) continue;
 
-            const csrfMatch = proc.CommandLine.match(/--csrf_token\s+([a-f0-9-]+)/);
-            const extPortMatch = proc.CommandLine.match(/--extension_server_port\s+(\d+)/);
-            const workspaceMatch = proc.CommandLine.match(/--workspace_id\s+(\S+)/);
+            const csrfMatch = proc.CommandLine.match(/-+csrf_token[\s=]([\w-]+)/);
+            const extPortMatch = proc.CommandLine.match(/-+extension_server_port[\s=](\d+)/);
+            const workspaceMatch = proc.CommandLine.match(/-+workspace_id[\s=](\S+)/);
 
             if (!csrfMatch) continue;
 
@@ -148,15 +147,15 @@ function discoverLinux() {
     try {
         const psOutput = execSync('ps aux', { encoding: 'utf-8', timeout: 5000 });
         const lsLines = psOutput.split('\n')
-            .filter(l => l.includes('language_server') && !l.includes('grep') && !l.includes('standalone'));
+            .filter(l => l.includes('language_server') && !l.includes('grep') && !l.includes('standalone=true') && !l.match(/\s--standalone\s/));
 
         for (const line of lsLines) {
             const pid = parseInt(line.trim().split(/\s+/)[1]);
-            const csrfMatch = line.match(/--csrf_token\s+([a-f0-9-]+)/);
+            const csrfMatch = line.match(/-+csrf_token[\s=]([\w-]+)/);
             if (!csrfMatch) continue;
 
-            const serverPortMatch = line.match(/--server_port\s+(\d+)/);
-            const workspaceMatch = line.match(/--workspace_id\s+(\S+)/);
+            const serverPortMatch = line.match(/-+server_port[\s=](\d+)/);
+            const workspaceMatch = line.match(/-+workspace_id[\s=](\S+)/);
 
             let port = serverPortMatch ? parseInt(serverPortMatch[1]) : null;
 

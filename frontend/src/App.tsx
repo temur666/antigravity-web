@@ -9,6 +9,9 @@ import { ChatPanel } from './components/ChatPanel/ChatPanel';
 import { Dashboard } from './components/Dashboard/Dashboard';
 import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { ModelSelector } from './components/Header/ModelSelector';
+import { BottomNav } from './components/BottomNav/BottomNav';
+import { NotesPage } from './components/NotesPage/NotesPage';
+import type { TabId } from './components/BottomNav/BottomNav';
 import { Rows3, BookOpen } from 'lucide-react';
 import { useAppStore } from '@/store';
 
@@ -20,6 +23,7 @@ const VELOCITY_THRESHOLD = 0.3; // px/ms，快速滑动直接吸附
 export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
+  const [activeTab, setActiveTab] = useState<TabId>('chat');
   const activeConversationId = useAppStore(s => s.activeConversationId);
   const viewMode = useAppStore(s => s.viewMode);
   const toggleViewMode = useAppStore(s => s.toggleViewMode);
@@ -161,6 +165,9 @@ export default function App() {
     };
   }, [isMobile, onTouchStart, onTouchMove, onTouchEnd]);
 
+  const showChatView = !isMobile || activeTab === 'chat';
+  const showNotesView = isMobile && activeTab === 'notes';
+
   return (
     <div className="app">
       {/* 遮罩层 — 移动端始终渲染，通过 opacity/pointer-events 控制 */}
@@ -171,33 +178,44 @@ export default function App() {
         />
       )}
 
-      {/* 侧边栏 */}
-      <Sidebar isOpen={showSidebar} isMobile={isMobile} onClose={() => setShowSidebar(false)} />
+      {/* 侧边栏 — 只在 Chat tab 时可用 */}
+      {showChatView && (
+        <Sidebar isOpen={showSidebar} isMobile={isMobile} onClose={() => setShowSidebar(false)} />
+      )}
 
       {/* 主区域 */}
-      <main className="main-area">
-        <header className="app-header">
-          <button
-            className={`header-btn ${showSidebar ? 'active' : ''}`}
-            onClick={() => setShowSidebar(!showSidebar)}
-            title="切换侧边栏"
-          >
-            ☰
-          </button>
-          <ModelSelector position="header" />
-          <button
-            className={`header-btn ${viewMode === 'paged' ? 'active' : ''}`}
-            onClick={toggleViewMode}
-            title={viewMode === 'scroll' ? '切换到翻页模式' : '切换到滚动模式'}
-          >
-            {viewMode === 'scroll' ? <Rows3 size={16} /> : <BookOpen size={16} />}
-          </button>
-        </header>
+      <main className={`main-area ${isMobile ? 'has-bottom-nav' : ''}`}>
+        {showChatView && (
+          <>
+            <header className="app-header">
+              <button
+                className={`header-btn ${showSidebar ? 'active' : ''}`}
+                onClick={() => setShowSidebar(!showSidebar)}
+                title="切换侧边栏"
+              >
+                ☰
+              </button>
+              <ModelSelector position="header" />
+              <button
+                className={`header-btn ${viewMode === 'paged' ? 'active' : ''}`}
+                onClick={toggleViewMode}
+                title={viewMode === 'scroll' ? '切换到翻页模式' : '切换到滚动模式'}
+              >
+                {viewMode === 'scroll' ? <Rows3 size={16} /> : <BookOpen size={16} />}
+              </button>
+            </header>
 
-        <div className="main-content">
-          {activeConversationId ? <ChatPanel /> : <Dashboard />}
-        </div>
+            <div className="main-content">
+              {activeConversationId ? <ChatPanel /> : <Dashboard />}
+            </div>
+          </>
+        )}
+
+        {showNotesView && <NotesPage />}
       </main>
+
+      {/* 移动端底部导航栏 */}
+      {isMobile && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />}
 
       <InstallPrompt />
     </div>
