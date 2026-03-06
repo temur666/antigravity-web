@@ -316,6 +316,7 @@ export function ChatPanel() {
                     <h2>Antigravity Chat</h2>
                     <p>选择左侧对话或创建新对话开始</p>
                 </div>
+                <div className="chat-panel-fade" />
                 <InputBox />
             </div>
         );
@@ -415,6 +416,7 @@ export function ChatPanel() {
                 />
             )}
 
+            <div className="chat-panel-fade" />
             <InputBox />
         </div>
     );

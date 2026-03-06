@@ -662,6 +662,17 @@ body {
   animation: fadeIn 1s ease-out;
 }
 
+.chat-panel-fade {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to top, var(--color-bg-base) 10%, transparent 100%);
+  pointer-events: none;
+  z-index: 10;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1633,15 +1644,14 @@ body {
 /* INPUT TRAY (Like bottom player controls) */
 .input-box {
   position: absolute;
-  bottom: 0;
+  bottom: 0px;
   left: 0;
   right: 0;
-  padding: 0;
-  background: var(--color-bg-base);
-  box-shadow: 0 -24px 24px var(--color-bg-base);
+  padding: 0 12px;
   pointer-events: auto;
   border-top: none;
   container-type: inline-size;
+  z-index: 20;
 }
 
 /* ===== Drag Grip Bar ===== */
@@ -1714,7 +1724,7 @@ body {
 
 .input-box-inner-row {
   margin: 0 auto 4px;
-  width: calc(100% - 24px);
+  width: 100%;
   max-width: 800px;
   display: flex;
   flex-direction: row;
