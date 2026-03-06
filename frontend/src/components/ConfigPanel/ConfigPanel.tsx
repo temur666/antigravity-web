@@ -3,6 +3,7 @@
  *
  * 暴露所有配置项，支持动态 model 列表
  */
+import "./ConfigPanel.css";
 import { useEffect, useCallback } from 'react';
 import { useAppStore } from '@/store';
 import { CONFIG_META } from '@/types';

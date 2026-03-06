@@ -1,0 +1,61 @@
+/* ===== Bottom Navigation (Mobile Only) ===== */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  height: calc(52px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--color-bg-base);
+  border-top: none;
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 52px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-label {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.bottom-nav-item.active {
+  color: var(--color-text-primary);
+}
+
+/* 键盘弹出时隐藏底部导航栏 */
+.bottom-nav-hidden {
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: transform 0.2s ease-out;
+}
+
+/* main-area 在有底部导航时需要留出空间 */
+.main-area.has-bottom-nav {
+  padding-bottom: calc(52px + env(safe-area-inset-bottom, 0px));
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .has-bottom-nav .chat-panel-messages {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+  }
+}

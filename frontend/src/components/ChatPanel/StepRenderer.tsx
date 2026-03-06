@@ -3,6 +3,7 @@
  *
  * 这是纯粹的 type → component 映射，无业务逻辑。
  */
+import './Steps.css';
 import type { Step } from '@/types';
 import { isHiddenStep, getStepShortType } from '@/types';
 import {

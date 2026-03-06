@@ -6,6 +6,7 @@
  * 华为/其他浏览器: 通用"添加到桌面"指引（兜底）
  * 已安装 / 用户关闭后不再显示（localStorage 记忆）
  */
+import "./InstallPrompt.css";
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 interface BeforeInstallPromptEvent extends Event {

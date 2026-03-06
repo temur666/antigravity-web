@@ -1,0 +1,821 @@
+/* STEPS STYLING */
+.step-wrapper {
+  animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform-origin: bottom center;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+/*
+ * 工具步骤统一基座：除 UserInput / PlannerResponse 外，
+ * 所有步骤宽度撑满父级。
+ * 使用 :not() 反选，未来新增工具类型自动继承、零维护。
+ */
+.step-wrapper:not([data-step-type="CORTEX_STEP_TYPE_USER_INPUT"]):not([data-step-type="CORTEX_STEP_TYPE_PLANNER_RESPONSE"])>.step {
+  width: 100%;
+}
+
+.step-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-left: 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ========== Inline Usage (PlannerResponse label) ========== */
+.step-usage-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.usage-model {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.usage-sep {
+  color: var(--color-text-muted);
+  opacity: 0.4;
+}
+
+.usage-ttft,
+.usage-tokens,
+.usage-turn {
+  color: var(--color-text-secondary);
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+
+/* User Message */
+.step-user-input {
+  align-items: flex-end;
+}
+
+.step-user-input .step-label {
+  margin-right: 2px;
+}
+
+.step-user-input .step-content {
+  background: var(--color-bg-elevated);
+  padding: 14px 20px;
+  border-radius: 20px 20px 4px 20px;
+  font-size: 15px;
+  max-width: 85%;
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  white-space: pre-wrap;
+}
+
+/* AI Message (Lyrics style) */
+.step-planner-response {
+  align-items: flex-start;
+}
+
+.ai-response {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #e4e4e7;
+}
+
+.ai-response p {
+  margin-bottom: 16px;
+}
+
+.ai-response p:last-child {
+  margin-bottom: 0;
+}
+
+.ai-response h1,
+.ai-response h2,
+.ai-response h3,
+.ai-response h4 {
+  color: var(--color-text-primary);
+  margin: 24px 0 12px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ai-response h1 {
+  font-size: 24px;
+}
+
+.ai-response h2 {
+  font-size: 20px;
+}
+
+.ai-response h3 {
+  font-size: 18px;
+}
+
+.ai-response a {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition-smooth);
+}
+
+.ai-response a:hover {
+  border-bottom-color: var(--color-accent);
+}
+
+.ai-response ul,
+.ai-response ol {
+  padding-left: 24px;
+  margin-bottom: 16px;
+}
+
+.ai-response li {
+  margin-bottom: 6px;
+}
+
+/* Code Blocks */
+.ai-response pre {
+  background: #000;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  overflow-x: auto;
+  margin: 16px 0;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.ai-response code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.ai-response p>code,
+.ai-response li>code {
+  background: var(--color-bg-elevated);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--color-accent);
+}
+
+.ai-response blockquote {
+  border-left: 3px solid var(--color-text-muted);
+  padding: 4px 16px;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+  margin: 16px 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.ai-response table {
+  border-collapse: collapse;
+  margin: 16px 0;
+  width: 100%;
+}
+
+.ai-response th,
+.ai-response td {
+  border: 1px solid var(--color-border);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.ai-response th {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Thinking Block */
+.thinking-block {
+  width: 100%;
+  margin-bottom: 16px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.thinking-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 16px;
+  background: none;
+  border: none;
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.thinking-toggle:hover {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--color-text-primary);
+}
+
+.thinking-content {
+  padding: 0 16px 16px;
+}
+
+.thinking-content pre {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  font-family: var(--font-sans);
+  border-left: 2px solid var(--color-border);
+  padding-left: 12px;
+  margin: 0;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* Tool Calls */
+.tool-call-block {
+  margin-top: 12px;
+  background: var(--color-bg-elevated);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+
+.tool-call-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.tool-call-header:hover {
+  background: rgba(45, 212, 191, 0.05);
+}
+
+.tool-call-name {
+  font-family: var(--font-mono);
+}
+
+.tool-call-args,
+.tool-call-result pre {
+  padding: 12px 14px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: #000;
+  border-top: 1px dashed var(--color-border);
+  margin: 0;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.tool-call-result-label {
+  font-size: 11px;
+  color: #a1a1aa;
+  padding: 8px 14px 4px;
+  background: #000;
+  border-top: 1px dashed var(--color-border);
+}
+
+/* Compact Steps (Like tags) */
+.step-compact {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  width: auto;
+  align-self: flex-start;
+}
+
+.step-compact:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.step-compact.system {
+  font-size: 12px;
+  background: transparent;
+  border-color: transparent;
+}
+
+/* 工具步骤内：compact 按钮撑满宽度 */
+.step-wrapper:not([data-step-type="CORTEX_STEP_TYPE_USER_INPUT"]):not([data-step-type="CORTEX_STEP_TYPE_PLANNER_RESPONSE"]) .step-compact {
+  display: flex;
+  width: 100%;
+  align-self: stretch;
+}
+
+/* ========== Tool Bar (GREP_SEARCH / FIND / VIEW_FILE_OUTLINE) ========== */
+.step-tool-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 14px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.step-tool-bar:hover {
+  background: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.tool-bar-icon {
+  flex-shrink: 0;
+  font-size: 14px;
+  opacity: 0.6;
+}
+
+.step-tool-bar:hover .tool-bar-icon {
+  opacity: 1;
+}
+
+.tool-bar-content {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-bar-action {
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.tool-bar-query {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-bar-path {
+  color: var(--color-text-muted);
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.tool-bar-meta {
+  flex-shrink: 0;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  margin-left: auto;
+}
+
+/* ========== Search Results Modal ========== */
+.search-results-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.search-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.search-meta code {
+  font-family: var(--font-mono);
+  color: var(--color-text-secondary);
+}
+
+.search-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.search-result-item {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+}
+
+.search-result-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.result-file {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  flex-shrink: 0;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-line {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.result-content {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  margin: 0;
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
+}
+
+.search-empty {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  padding: 24px 0;
+}
+
+/* ========== Code Item Modal ========== */
+.code-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-item {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.code-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--color-border);
+  font-size: 12px;
+}
+
+.code-item-name {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--color-accent);
+}
+
+.code-item-type {
+  color: var(--color-text-muted);
+  text-transform: lowercase;
+}
+
+.code-item-range {
+  margin-left: auto;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+.code-item-snippet {
+  margin: 0;
+  padding: 12px;
+  background: #000;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-text-secondary);
+  overflow-x: auto;
+}
+
+.code-item-snippet code {
+  font-family: inherit;
+}
+
+/* ========== Code Action Modal ========== */
+.code-action-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.code-action-desc {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--color-accent);
+}
+
+.code-action-diff {
+  margin: 0;
+  padding: 12px 16px;
+  background: #000;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+  overflow-x: auto;
+  max-height: 500px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.code-action-diff code {
+  font-family: inherit;
+}
+
+/* 工具步骤内：ViewFile pill 撑满宽度 */
+.step-wrapper:not([data-step-type="CORTEX_STEP_TYPE_USER_INPUT"]):not([data-step-type="CORTEX_STEP_TYPE_PLANNER_RESPONSE"]) .step-view-file-pill {
+  display: flex;
+  width: 100%;
+}
+
+/* 工具步骤内：终端卡片去除多余顶部 margin（已由父级 padding 控制） */
+.step-wrapper:not([data-step-type="CORTEX_STEP_TYPE_USER_INPUT"]):not([data-step-type="CORTEX_STEP_TYPE_PLANNER_RESPONSE"]) .terminal-card {
+  margin-top: 0;
+}
+
+.step-file-content,
+.step-diff,
+.step-output,
+.step-system-content,
+.step-command {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: #000;
+  padding: 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  margin-top: 8px;
+  overflow-x: auto;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.step-command {
+  color: var(--color-accent-orange);
+}
+
+/* Terminal Card UI for RunCommandStep */
+.terminal-card {
+  margin-top: 8px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.terminal-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.terminal-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 1;
+}
+
+.terminal-icon {
+  color: var(--color-accent);
+  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 13px;
+}
+
+.terminal-card-cwd {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  max-width: 50%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.terminal-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.terminal-badge {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.terminal-badge-auto {
+  background: rgba(45, 212, 191, 0.15);
+  color: var(--color-accent);
+  border: 1px solid rgba(45, 212, 191, 0.3);
+}
+
+.terminal-badge-wait {
+  background: rgba(251, 191, 36, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.25);
+}
+
+.terminal-card-body {
+  display: flex;
+  padding: 12px 16px;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.terminal-prompt {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-weight: 600;
+  user-select: none;
+}
+
+.terminal-command {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--color-accent-orange);
+  white-space: pre-wrap;
+  word-break: break-all;
+  overflow: visible;
+  box-shadow: none;
+}
+
+.terminal-output-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 16px;
+  background: none;
+  border: none;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.terminal-output-toggle:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.terminal-output {
+  padding: 12px 16px;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--color-text-secondary);
+  background: rgba(0, 0, 0, 0.3);
+  border-top: 1px dashed var(--color-border);
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.terminal-badge-ok {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.terminal-badge-fail {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-debug-btn:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-debug-btn.active {
+  color: var(--color-accent-orange);
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .step-user-input .step-content {
+    max-width: 95%;
+  }
+
+  .step-label {
+    font-size: 12px;
+  }
+
+  .ai-response pre {
+    -webkit-overflow-scrolling: touch;
+    padding: 16px;
+    max-width: 100%;
+  }
+
+  .step-file-content,
+  .step-diff,
+  .step-output,
+  .step-system-content,
+  .step-command {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tool-call-args,
+  .tool-call-result pre {
+    -webkit-overflow-scrolling: touch;
+  }
+}
