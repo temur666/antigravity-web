@@ -142,7 +142,10 @@ async function handleMessage(clientWs, data) {
                 }
                 const extras = {};
                 if (data.mentions) extras.mentions = data.mentions;
-                if (data.media) extras.media = data.media;
+                if (data.media) {
+                    extras.media = data.media;
+                    console.log(`[WS] Media received: ${data.media.length} items, sizes: ${data.media.map(m => (m.data?.length || 0) + ' (' + m.mimeType + ')').join(', ')}`);
+                }
                 // 有 media 但无 text 时，使用默认提示文字
                 const msgText = data.text || (data.media && data.media.length > 0 ? '请查看这张图片' : '');
                 if (!msgText) {
@@ -291,7 +294,15 @@ wss.on('connection', (clientWs) => {
 
     clientWs.on('message', async (raw) => {
         try {
-            const data = JSON.parse(raw.toString());
+            const str = raw.toString();
+
+            // 心跳: 前端发 ping，回复 pong（不走 JSON 路径）
+            if (str === 'ping') {
+                if (clientWs.readyState === WebSocket.OPEN) clientWs.send('pong');
+                return;
+            }
+
+            const data = JSON.parse(str);
             if (!data.type) {
                 clientWs.send(proto.makeError('INVALID_PARAMS', 'Missing type field'));
                 return;
