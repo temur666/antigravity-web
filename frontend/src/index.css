@@ -1639,8 +1639,9 @@ body {
   right: 0;
   padding: 0;
   background: var(--color-bg-base);
+  box-shadow: 0 -24px 24px var(--color-bg-base);
   pointer-events: auto;
-  border-top: 1px solid var(--color-border);
+  border-top: none;
   container-type: inline-size;
 }
 
@@ -1719,16 +1720,15 @@ body {
   flex-direction: row;
   align-items: flex-end; /* 底部对齐（因为 textarea 会向上长） */
   gap: 8px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: var(--radius-lg);
+  background: transparent;
+  border: none;
+  border-radius: 0;
   padding: 6px 12px;
-  transition: border-color 0.2s, background 0.2s;
+  transition: background 0.2s;
 }
 
 .input-box-inner-row:focus-within {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.15);
+  background: transparent;
 }
 
 .input-content-area {
@@ -2827,10 +2827,8 @@ body {
   justify-content: space-around;
   height: calc(52px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: rgba(18, 18, 20, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--color-bg-base);
+  border-top: none;
 }
 
 .bottom-nav-item {
