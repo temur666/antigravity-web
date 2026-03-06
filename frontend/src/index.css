@@ -139,6 +139,29 @@ body {
   z-index: 10;
 }
 
+/* Header Settings Popover */
+.header-config-anchor {
+  position: relative;
+}
+
+.header-config-popover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  z-index: 200;
+  width: 320px;
+}
+
+.header-config-popover .config-panel {
+  border-left: none;
+  width: 100%;
+}
+
 .header-title {
   font-weight: 600;
   font-size: 16px;

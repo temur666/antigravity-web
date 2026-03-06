@@ -12,8 +12,9 @@ import { ModelSelector } from './components/Header/ModelSelector';
 import { BottomNav } from './components/BottomNav/BottomNav';
 import { NotesPage } from './components/NotesPage/NotesPage';
 import type { TabId } from './components/BottomNav/BottomNav';
-import { Rows3, BookOpen } from 'lucide-react';
+import { Rows3, BookOpen, Settings } from 'lucide-react';
 import { useAppStore } from '@/store';
+import { ConfigPanel } from './components/ConfigPanel/ConfigPanel';
 
 const SIDEBAR_WIDTH = 300;      // 与 CSS .sidebar width 一致
 const EDGE_ZONE = 30;           // 左侧边缘触发区 (px)
@@ -24,6 +25,7 @@ export default function App() {
   const [showSidebar, setShowSidebar] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
   const [activeTab, setActiveTab] = useState<TabId>('chat');
+  const [showConfig, setShowConfig] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
   const viewMode = useAppStore(s => s.viewMode);
   const toggleViewMode = useAppStore(s => s.toggleViewMode);
@@ -203,6 +205,20 @@ export default function App() {
               >
                 {viewMode === 'scroll' ? <Rows3 size={16} /> : <BookOpen size={16} />}
               </button>
+              <div className="header-config-anchor">
+                <button
+                  className={`header-btn ${showConfig ? 'active' : ''}`}
+                  onClick={() => setShowConfig(!showConfig)}
+                  title="设置"
+                >
+                  <Settings size={16} />
+                </button>
+                {showConfig && (
+                  <div className="header-config-popover">
+                    <ConfigPanel />
+                  </div>
+                )}
+              </div>
             </header>
 
             <div className="main-content">
