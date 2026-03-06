@@ -8,15 +8,13 @@
  */
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Mic, ArrowRight, Plus, Paperclip, X } from 'lucide-react';
-import { ConfigPanel } from '../ConfigPanel/ConfigPanel';
-import { ModeSelector } from '../Header/ModeSelector';
+import { Mic, ArrowRight, Paperclip, X } from 'lucide-react';
+
 
 import { useDraggable } from '@/hooks/useDraggable';
 
 export function InputBox() {
     const [text, setText] = useState('');
-    const [showConfigOptions, setShowConfigOptions] = useState(false);
     const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -92,7 +90,9 @@ export function InputBox() {
     }, [canSend, text, attachments, sendMessage]);
 
     const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
+        // 移动端 Enter = 换行，桌面端 Enter = 发送（Shift+Enter = 换行）
+        const isMobile = window.innerWidth <= 768;
+        if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
             e.preventDefault();
             handleSend();
         }
@@ -281,31 +281,12 @@ export function InputBox() {
                     <div className="input-actions-left-bottom">
                         <button
                             className="input-circle-btn ghost"
-                            onClick={() => setShowConfigOptions(!showConfigOptions)}
-                            title="配置"
-                        >
-                            <Plus size={16} />
-                        </button>
-
-                        <button
-                            className="input-circle-btn ghost"
                             onClick={() => fileInputRef.current?.click()}
                             title="上传附件"
                             disabled={!activeConversationId || isUploading}
                         >
                             <Paperclip size={16} />
                         </button>
-
-                        <div className="input-selectors">
-                            <ModeSelector />
-
-                        </div>
-
-                        {showConfigOptions && (
-                            <div className="input-config-popover" data-testid="config-popover">
-                                <ConfigPanel />
-                            </div>
-                        )}
                     </div>
 
                     <div className="input-actions-right-bottom">
