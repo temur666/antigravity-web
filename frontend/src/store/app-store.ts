@@ -162,12 +162,15 @@ export function createAppStore(wsClient: WSClient): AppStore {
             });
             localStorage.setItem('activeConversationId', id);
 
-            // 拉取完整轨迹
+            // 拉取完整轨迹（超时 30s，大型对话可能需要较长时间）
             const trajectoryRes = await wsClient.sendAndWait({
                 type: 'req_trajectory',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
-            });
+            }, 30000);
+
+            // 竞态保护：如果用户在等待期间切换到了其他对话，丢弃本次结果
+            if (get().activeConversationId !== id) return;
 
             if (trajectoryRes.type === 'res_trajectory') {
                 const data = trajectoryRes as ResTrajectory & { seq?: number };
@@ -193,14 +196,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 return; // 不再订阅
             }
 
-            // 订阅实时更新（带 lastSeq 用于增量恢复）
+            // 再次检查竞态：订阅前确认仍是当前对话
+            if (get().activeConversationId !== id) return;
 
+            // 订阅实时更新（带 lastSeq 用于增量恢复，超时 15s）
             await wsClient.sendAndWait({
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
                 lastSeq: get().lastSeq,
-            } as any);
+            } as any, 15000);
         },
 
         newChat: async () => {
@@ -329,6 +334,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
     // 跟踪是否曾经收到过 LS 连接事件（区分首次 vs 重连）
     let hasReceivedLsStatus = false;
+    // 防重入锁：避免多次 event_ls_status 触发重复的 selectConversation
+    let isRestoringConversation = false;
 
     wsClient.onMessage((msg: ServerMessage) => {
         const state = store.getState();
@@ -352,11 +359,14 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         // → 全量加载（对话列表 + 状态 + 活跃对话）
                         currentState.loadConversations();
                         currentState.loadStatus();
-                        if (currentState.activeConversationId) {
-                            currentState.selectConversation(currentState.activeConversationId).catch(() => {
-                                localStorage.removeItem('activeConversationId');
-                                store.setState({ activeConversationId: null, steps: [], loading: false });
-                            });
+                        if (currentState.activeConversationId && !isRestoringConversation) {
+                            isRestoringConversation = true;
+                            currentState.selectConversation(currentState.activeConversationId)
+                                .catch(() => {
+                                    localStorage.removeItem('activeConversationId');
+                                    store.setState({ activeConversationId: null, steps: [], loading: false });
+                                })
+                                .finally(() => { isRestoringConversation = false; });
                         }
                     } else if (hasReceivedLsStatus) {
                         // 场景 B: WS 断开重连，但 LS 一直在线
@@ -377,11 +387,14 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         // → 首次加载 + 恢复持久化的活跃对话
                         currentState.loadConversations();
                         currentState.loadStatus();
-                        if (currentState.activeConversationId) {
-                            currentState.selectConversation(currentState.activeConversationId).catch(() => {
-                                localStorage.removeItem('activeConversationId');
-                                store.setState({ activeConversationId: null, steps: [], loading: false });
-                            });
+                        if (currentState.activeConversationId && !isRestoringConversation) {
+                            isRestoringConversation = true;
+                            currentState.selectConversation(currentState.activeConversationId)
+                                .catch(() => {
+                                    localStorage.removeItem('activeConversationId');
+                                    store.setState({ activeConversationId: null, steps: [], loading: false });
+                                })
+                                .finally(() => { isRestoringConversation = false; });
                         }
                     }
                 }
