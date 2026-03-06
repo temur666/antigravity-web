@@ -12,6 +12,7 @@ const http = require('http');
 const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const { Controller } = require('./lib/core/controller');
 const { grpcCall } = require('./lib/core/ls-discovery');
@@ -135,14 +136,20 @@ async function handleMessage(clientWs, data) {
             }
 
             case 'req_send_message': {
-                if (!data.cascadeId || !data.text) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId or text', reqId));
+                if (!data.cascadeId) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
                 }
                 const extras = {};
                 if (data.mentions) extras.mentions = data.mentions;
                 if (data.media) extras.media = data.media;
-                await controller.sendMessage(data.cascadeId, data.text, data.config, extras);
+                // 有 media 但无 text 时，使用默认提示文字
+                const msgText = data.text || (data.media && data.media.length > 0 ? '请查看这张图片' : '');
+                if (!msgText) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing text or media', reqId));
+                    break;
+                }
+                await controller.sendMessage(data.cascadeId, msgText, data.config, extras);
                 controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
                 send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;
@@ -235,6 +242,39 @@ app.get('/api/conversations', async (_req, res) => {
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+// ========== File Upload ==========
+const uploadDir = path.join('/tmp', 'antigravity_uploads');
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+    destination: function (_req, _file, cb) {
+        cb(null, uploadDir);
+    },
+    filename: function (_req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname) || '';
+        cb(null, 'upload-' + uniqueSuffix + ext);
+    }
+});
+const upload = multer({ storage: storage });
+
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }
+    let mimeType = req.file.mimetype;
+    if (mimeType === 'image/jpg') mimeType = 'image/jpeg';
+
+    res.json({
+        uri: `file://${req.file.path}`,
+        mimeType: mimeType,
+        originalName: req.file.originalname,
+        size: req.file.size
+    });
 });
 
 // WebSocket
