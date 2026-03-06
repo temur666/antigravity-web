@@ -82,7 +82,6 @@ export function InputBox() {
 
     const {
         isDragging,
-        isSnapped,
         isAnimatingSnap,
         isFloating,
         position,
@@ -216,12 +215,7 @@ export function InputBox() {
         }
     }, [text]);
 
-    // 吸附回底部后自动聚焦输入框
-    useEffect(() => {
-        if (isSnapped && inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, [isSnapped]);
+    // Remove auto-focus on snap back to bottom, user specifically requested not to trigger keyboard when changing routes
 
     // ── className 组合 ──
     const boxClassName = [

@@ -117,8 +117,7 @@ body {
   flex-direction: column;
   min-width: 0;
   position: relative;
-  /* subtle orange glow at the bottom center to mimic record player */
-  background: radial-gradient(circle at 50% 120%, rgba(251, 146, 60, 0.1) 0%, transparent 60%);
+  background: var(--color-bg-base);
 }
 
 .main-content {
@@ -1714,7 +1713,8 @@ body {
 }
 
 .input-box-inner-row {
-  margin: 0 auto 6px;
+  margin: 0 auto 4px;
+  width: calc(100% - 24px);
   max-width: 800px;
   display: flex;
   flex-direction: row;
