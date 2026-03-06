@@ -91,13 +91,23 @@ export type AppStore = StoreApi<AppState>;
 // ========== Store 工厂 ==========
 
 export function createAppStore(wsClient: WSClient): AppStore {
+    // ── 持久化恢复 ──
+    const persistedConvId = typeof sessionStorage !== 'undefined'
+        ? sessionStorage.getItem('activeConversationId') : null;
+    const persistedViewMode = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('viewMode') as 'scroll' | 'paged' | null : null;
+    const persistedDebug = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('debugMode') : null;
+    const persistedCols = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('pagedColumns') : null;
+
     const store = createStore<AppState>((set, get) => ({
-        // ---- 初始状态 ----
+        // ---- 初始状态 (从持久化恢复) ----
         lsConnected: false,
         lsInfo: null,
         conversations: [],
         conversationsTotal: 0,
-        activeConversationId: null,
+        activeConversationId: persistedConvId || null,
         steps: [],
         conversationStatus: 'IDLE',
         metadata: [],
@@ -106,9 +116,9 @@ export function createAppStore(wsClient: WSClient): AppStore {
         config: { ...DEFAULT_CONFIG },
         models: [],
         account: null,
-        debugMode: false,
-        viewMode: 'scroll',
-        pagedColumns: 1,
+        debugMode: persistedDebug === 'true',
+        viewMode: persistedViewMode || 'scroll',
+        pagedColumns: (persistedCols === '2' ? 2 : 1) as 1 | 2,
         loading: false,
         error: null,
 
@@ -150,6 +160,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 loading: true,
                 error: null,
             });
+            sessionStorage.setItem('activeConversationId', id);
 
             // 拉取完整轨迹
             const trajectoryRes = await wsClient.sendAndWait({
@@ -261,18 +272,32 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         toggleDebugMode: () => {
-            set(state => ({ debugMode: !state.debugMode }));
+            set(state => {
+                const next = !state.debugMode;
+                localStorage.setItem('debugMode', String(next));
+                return { debugMode: next };
+            });
         },
 
         toggleViewMode: () => {
-            set(state => ({ viewMode: state.viewMode === 'scroll' ? 'paged' : 'scroll' }));
+            set(state => {
+                const next = state.viewMode === 'scroll' ? 'paged' : 'scroll';
+                localStorage.setItem('viewMode', next);
+                return { viewMode: next };
+            });
         },
 
         togglePagedColumns: () => {
-            set(state => ({ pagedColumns: state.pagedColumns === 1 ? 2 : 1 }));
+            set(state => {
+                const next = state.pagedColumns === 1 ? 2 : 1;
+                localStorage.setItem('pagedColumns', String(next));
+                return { pagedColumns: next as 1 | 2 };
+            });
         },
 
         setActiveConversation: (id: string | null) => {
+            if (id) sessionStorage.setItem('activeConversationId', id);
+            else sessionStorage.removeItem('activeConversationId');
             set({
                 activeConversationId: id,
                 steps: [],
@@ -337,9 +362,12 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         }
                     } else {
                         // 场景 C: 首次 WS 连接，LS 已在线
-                        // → 首次加载
+                        // → 首次加载 + 恢复持久化的活跃对话
                         currentState.loadConversations();
                         currentState.loadStatus();
+                        if (currentState.activeConversationId) {
+                            currentState.selectConversation(currentState.activeConversationId);
+                        }
                     }
                 }
 

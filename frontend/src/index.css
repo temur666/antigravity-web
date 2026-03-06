@@ -2281,6 +2281,23 @@ body {
     font-size: 11px;
   }
 
+  /* --- 移动端触摸目标 --- */
+  .input-dropdown-trigger {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .sidebar-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .chat-item {
+    min-height: 44px;
+    padding: 12px;
+  }
+
   /* --- 代码块触摸优化 --- */
   .ai-response pre {
     -webkit-overflow-scrolling: touch;
