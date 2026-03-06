@@ -21,6 +21,7 @@ export function ChatPanel() {
     const togglePagedColumns = useAppStore(s => s.togglePagedColumns);
     const loading = useAppStore(s => s.loading);
     const error = useAppStore(s => s.error);
+    const setActiveConversation = useAppStore(s => s.setActiveConversation);
 
     // 滚动模式的 refs
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -324,7 +325,18 @@ export function ChatPanel() {
     const stepsContent = (
         <>
             {loading && <div className="chat-loading">加载中...</div>}
-            {error && <div className="chat-error">{error}</div>}
+            {error && (
+                <div className="chat-error">
+                    {error}
+                    <button
+                        className="header-btn"
+                        style={{ marginLeft: 8 }}
+                        onClick={() => setActiveConversation(null)}
+                    >
+                        返回首页
+                    </button>
+                </div>
+            )}
 
             {steps.map((step, index) => (
                 <StepRenderer

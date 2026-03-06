@@ -181,7 +181,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     loading: false,
                 });
             } else {
-                set({ loading: false, error: '加载对话失败' });
+                // 加载失败 → 清除死 ID，防止刷新后反复卡死
+                localStorage.removeItem('activeConversationId');
+                set({
+                    loading: false,
+                    error: '加载对话失败',
+                    activeConversationId: null,
+                    steps: [],
+                    conversationStatus: 'IDLE',
+                });
+                return; // 不再订阅
             }
 
             // 订阅实时更新（带 lastSeq 用于增量恢复）
@@ -344,7 +353,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId) {
-                            currentState.selectConversation(currentState.activeConversationId);
+                            currentState.selectConversation(currentState.activeConversationId).catch(() => {
+                                localStorage.removeItem('activeConversationId');
+                                store.setState({ activeConversationId: null, steps: [], loading: false });
+                            });
                         }
                     } else if (hasReceivedLsStatus) {
                         // 场景 B: WS 断开重连，但 LS 一直在线
@@ -366,7 +378,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId) {
-                            currentState.selectConversation(currentState.activeConversationId);
+                            currentState.selectConversation(currentState.activeConversationId).catch(() => {
+                                localStorage.removeItem('activeConversationId');
+                                store.setState({ activeConversationId: null, steps: [], loading: false });
+                            });
                         }
                     }
                 }
