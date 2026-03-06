@@ -6,10 +6,9 @@
  * 底部功能栏在宽度不足时自动切换为双行布局（CSS Container Query）。
  * 松手在底部 120px 内或双击 grip bar 可吸附回底部。
  */
-import './InputBox.css';
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Mic, ArrowRight, Square, Paperclip, X } from 'lucide-react';
+import { Mic, ArrowRight, Paperclip, X } from 'lucide-react';
 
 
 import { useDraggable } from '@/hooks/useDraggable';
@@ -83,7 +82,6 @@ export function InputBox() {
 
     const sendMessage = useAppStore(s => s.sendMessage);
     const conversationStatus = useAppStore(s => s.conversationStatus);
-    const cancelConversation = useAppStore(s => s.cancelConversation);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -243,48 +241,6 @@ export function InputBox() {
         }
     }, [text]);
 
-    // ── 移动端：键盘弹出时，通过 visualViewport 推动输入框上移 ──
-    useEffect(() => {
-        const vv = window.visualViewport;
-        if (!vv) return;
-
-        let fullHeight = window.innerHeight;
-        const THRESHOLD = 150;
-
-        const update = () => {
-            const el = containerRef.current;
-            if (!el) return;
-
-            const diff = fullHeight - vv.height;
-            if (diff > THRESHOLD) {
-                // 键盘弹出：计算视觉视口底部与布局视口底部的偏移
-                const offsetBottom = window.innerHeight - (vv.offsetTop + vv.height);
-                el.style.transform = `translateY(-${offsetBottom}px)`;
-                el.style.paddingBottom = '0'; // 键盘弹出时移除 safe-area padding
-            } else {
-                el.style.transform = '';
-                el.style.paddingBottom = ''; // 恢复 CSS 默认值
-            }
-        };
-
-        const onWindowResize = () => {
-            // 键盘未弹出时更新全高度基准（处理屏幕旋转等场景）
-            if (vv.height >= window.innerHeight - 50) {
-                fullHeight = window.innerHeight;
-            }
-        };
-
-        vv.addEventListener('resize', update);
-        vv.addEventListener('scroll', update);
-        window.addEventListener('resize', onWindowResize);
-
-        return () => {
-            vv.removeEventListener('resize', update);
-            vv.removeEventListener('scroll', update);
-            window.removeEventListener('resize', onWindowResize);
-        };
-    }, [containerRef]);
-
     // Remove auto-focus on snap back to bottom, user specifically requested not to trigger keyboard when changing routes
 
     // ── className 组合 ──
@@ -401,30 +357,20 @@ export function InputBox() {
                     />
                 </div>
 
-                {/* 右侧区域：麦克风、发送/终止按钮 */}
+                {/* 右侧区域：例如麦克风、发送按钮 */}
                 <div className="input-actions-right">
                     <button className="input-circle-btn ghost btn-mic" title="语音">
                         <Mic size={16} />
                     </button>
 
-                    {isRunning ? (
-                        <button
-                            className="btn-send-stop"
-                            onClick={() => cancelConversation()}
-                            title="终止"
-                        >
-                            <Square size={20} strokeWidth={2.5} />
-                        </button>
-                    ) : (
-                        <button
-                            className="btn-send-stop"
-                            onClick={handleSend}
-                            disabled={!canSend}
-                            title="发送"
-                        >
-                            <ArrowRight size={20} strokeWidth={2.5} />
-                        </button>
-                    )}
+                    <button
+                        className={`input-circle-btn solid btn-send ${canSend ? 'active' : ''}`}
+                        onClick={handleSend}
+                        disabled={!canSend}
+                        title="发送"
+                    >
+                        <ArrowRight size={16} />
+                    </button>
                 </div>
             </div>
         </div>

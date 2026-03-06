@@ -5,7 +5,6 @@
  * 展示引擎连接状态、进行中任务、最近完成任务。
  * 数据源：store.conversations (已有)
  */
-import "./Dashboard.css";
 import { useAppStore } from '@/store';
 import { formatRelativeTime, truncate } from '@/utils/format';
 import type { ConversationSummary } from '@/types';

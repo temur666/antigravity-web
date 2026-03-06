@@ -4,7 +4,6 @@
  * 从 store.models 动态获取可用模型列表
  * position='header' 时向下弹出，position='input' 时向上弹出（默认）
  */
-import "./Header.css";
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store';
 import { ChevronUp, ChevronDown } from 'lucide-react';

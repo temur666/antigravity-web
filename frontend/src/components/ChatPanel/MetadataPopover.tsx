@@ -4,7 +4,6 @@
  * 显示最新一轮 LLM 调用的 token 数据 + 连接状态。
  * 由 ChatPanel header 中的按钮触发。
  */
-import './MetadataPopover.css';
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { useAppStore } from '@/store';
 import { formatTokenCount, formatDuration, shortenModelLabel } from '@/utils/metadata';
@@ -32,9 +31,16 @@ export function MetadataPopover() {
     const account = useAppStore(s => s.account);
     const debugMode = useAppStore(s => s.debugMode);
     const toggleDebugMode = useAppStore(s => s.toggleDebugMode);
-    const activeConversationId = useAppStore(s => s.activeConversationId);
-    const conversationStatus = useAppStore(s => s.conversationStatus);
 
+    // 最新一轮 LLM 调用的数据
+    const latestCall = useMemo(() => {
+        if (!metadata || metadata.length === 0) return null;
+        // 从后往前找到第一个有 chatModel.usage 的条目
+        for (let i = metadata.length - 1; i >= 0; i--) {
+            if (metadata[i].chatModel?.usage) return metadata[i];
+        }
+        return null;
+    }, [metadata]);
 
     const totalCalls = useMemo(() => {
         if (!metadata) return 0;
@@ -59,31 +65,15 @@ export function MetadataPopover() {
         return () => document.removeEventListener('mousedown', handler);
     }, [open]);
 
-    // 累加所有轮次的 token（每轮都包含完整对话历史，token 是累积的）
-    const cumulativeStats = useMemo(() => {
-        if (!metadata || metadata.length === 0) return null;
-        let inputTokens = 0;
-        let outputTokens = 0;
-        let cacheReadTokens = 0;
-        let lastModel = '';
-        let lastTtftMs = 0;
-        let lastStreamingMs = 0;
-        let lastContextTokensUsed = 0;
-
-        for (const gm of metadata) {
-            const usage = gm.chatModel?.usage;
-            if (!usage) continue;
-            inputTokens += safeInt(usage.inputTokens);
-            outputTokens += safeInt(usage.outputTokens);
-            cacheReadTokens += safeInt(usage.cacheReadTokens);
-            lastModel = usage.model || gm.chatModel?.model || lastModel;
-            lastTtftMs = parseDurationMs(gm.chatModel?.timeToFirstToken) || lastTtftMs;
-            lastStreamingMs = parseDurationMs(gm.chatModel?.streamingDuration) || lastStreamingMs;
-            lastContextTokensUsed = gm.chatModel?.chatStartMetadata?.contextWindowMetadata?.estimatedTokensUsed ?? lastContextTokensUsed;
-        }
-
-        return { inputTokens, outputTokens, cacheReadTokens, model: lastModel, ttftMs: lastTtftMs, streamingMs: lastStreamingMs, contextTokensUsed: lastContextTokensUsed };
-    }, [metadata]);
+    // 提取最新调用数据
+    const usage = latestCall?.chatModel?.usage;
+    const inputTokens = safeInt(usage?.inputTokens);
+    const outputTokens = safeInt(usage?.outputTokens);
+    const cacheReadTokens = safeInt(usage?.cacheReadTokens);
+    const model = usage?.model || latestCall?.chatModel?.model || '';
+    const ttftMs = parseDurationMs(latestCall?.chatModel?.timeToFirstToken);
+    const streamingMs = parseDurationMs(latestCall?.chatModel?.streamingDuration);
+    const contextTokensUsed = latestCall?.chatModel?.chatStartMetadata?.contextWindowMetadata?.estimatedTokensUsed ?? 0;
 
     return (
         <div className="metadata-popover-anchor" ref={ref}>
@@ -97,59 +87,43 @@ export function MetadataPopover() {
 
             {open && (
                 <div className="metadata-popover">
-                    {activeConversationId && (
-                        <>
-                            <div className="metadata-grid">
-                                <div className="metadata-item metadata-item-full">
-                                    <span className="metadata-label">对话 ID</span>
-                                    <span className="metadata-value" style={{ fontSize: 11 }}>{activeConversationId}</span>
-                                </div>
-                                <div className="metadata-item">
-                                    <span className="metadata-label">状态</span>
-                                    <span className="metadata-value">{conversationStatus}</span>
-                                </div>
-                            </div>
-                            <div className="metadata-divider" />
-                        </>
-                    )}
+                    <div className="metadata-popover-title">最新一轮调用</div>
 
-                    <div className="metadata-popover-title">对话统计</div>
-
-                    {!cumulativeStats ? (
+                    {!latestCall ? (
                         <div className="metadata-empty">暂无数据</div>
                     ) : (
                         <div className="metadata-grid">
                             <div className="metadata-item metadata-item-full">
                                 <span className="metadata-label">模型</span>
                                 <span className="metadata-value metadata-models">
-                                    {resolveModelName(cumulativeStats.model)}
+                                    {resolveModelName(model)}
                                 </span>
                             </div>
                             <div className="metadata-item">
                                 <span className="metadata-label">Input</span>
-                                <span className="metadata-value">{formatTokenCount(cumulativeStats.inputTokens)}</span>
+                                <span className="metadata-value">{formatTokenCount(inputTokens)}</span>
                             </div>
                             <div className="metadata-item">
                                 <span className="metadata-label">Output</span>
-                                <span className="metadata-value">{formatTokenCount(cumulativeStats.outputTokens)}</span>
+                                <span className="metadata-value">{formatTokenCount(outputTokens)}</span>
                             </div>
                             <div className="metadata-item">
                                 <span className="metadata-label">Cache Read</span>
-                                <span className="metadata-value">{formatTokenCount(cumulativeStats.cacheReadTokens)}</span>
+                                <span className="metadata-value">{formatTokenCount(cacheReadTokens)}</span>
                             </div>
-                            {cumulativeStats.contextTokensUsed > 0 && (
+                            {contextTokensUsed > 0 && (
                                 <div className="metadata-item">
                                     <span className="metadata-label">Context</span>
-                                    <span className="metadata-value">{formatTokenCount(cumulativeStats.contextTokensUsed)}</span>
+                                    <span className="metadata-value">{formatTokenCount(contextTokensUsed)}</span>
                                 </div>
                             )}
                             <div className="metadata-item">
-                                <span className="metadata-label">TTFT (最新)</span>
-                                <span className="metadata-value">{formatDuration(cumulativeStats.ttftMs)}</span>
+                                <span className="metadata-label">TTFT</span>
+                                <span className="metadata-value">{formatDuration(ttftMs)}</span>
                             </div>
                             <div className="metadata-item">
-                                <span className="metadata-label">Stream (最新)</span>
-                                <span className="metadata-value">{formatDuration(cumulativeStats.streamingMs)}</span>
+                                <span className="metadata-label">Stream</span>
+                                <span className="metadata-value">{formatDuration(streamingMs)}</span>
                             </div>
                             <div className="metadata-item">
                                 <span className="metadata-label">总调用</span>

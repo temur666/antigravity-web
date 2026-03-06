@@ -5,7 +5,6 @@
  *   - scroll: 传统直排滚动
  *   - paged:  微信读书式左右翻页（CSS multi-column + JS 计算）
  */
-import './ChatPanel.css';
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '@/store';
 import { StepRenderer } from './StepRenderer';
@@ -305,6 +304,9 @@ export function ChatPanel() {
         };
     }, [isPaged, pageLeft, pageRight]);
 
+    const cancelConversation = useAppStore(s => s.cancelConversation);
+    const isRunning = conversationStatus === 'RUNNING';
+
     // ---- 空对话 ----
     if (!activeConversationId) {
         return (
@@ -356,7 +358,21 @@ export function ChatPanel() {
 
     return (
         <div className="chat-panel">
-            <div className="chat-panel-header" />
+            <div className="chat-panel-header">
+                <span className="conversation-id">{activeConversationId.slice(0, 8)}...</span>
+                <span className={`conversation-status status-${conversationStatus.toLowerCase()}`}>
+                    {conversationStatus}
+                </span>
+                {isRunning && (
+                    <button
+                        className="header-btn cancel-btn"
+                        onClick={cancelConversation}
+                        title="终止对话"
+                    >
+                        ■
+                    </button>
+                )}
+            </div>
 
             {isPaged ? (
                 /* ====== 翻页模式 ====== */

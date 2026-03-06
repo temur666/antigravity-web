@@ -7,7 +7,6 @@
  *   - 再次点击可取消高亮
  *   - 内容自动保存到 localStorage（防抖 500ms）
  */
-import "./NotesPage.css";
 import { useRef, useEffect, useCallback } from 'react';
 import { Highlighter } from 'lucide-react';
 

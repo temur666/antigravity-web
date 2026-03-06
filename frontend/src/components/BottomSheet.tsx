@@ -1,4 +1,3 @@
-import "./BottomSheet.css";
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 
