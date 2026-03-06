@@ -193,6 +193,16 @@ async function handleMessage(clientWs, data) {
                 break;
             }
 
+            case 'req_cancel': {
+                if (!data.cascadeId) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
+                    break;
+                }
+                await controller.cancelCascade(data.cascadeId);
+                send(proto.makeResponse('res_cancel', { ok: true, cascadeId: data.cascadeId }, reqId));
+                break;
+            }
+
             default:
                 send(proto.makeError('UNKNOWN_TYPE', `Unknown message type: ${type}`, reqId));
         }
