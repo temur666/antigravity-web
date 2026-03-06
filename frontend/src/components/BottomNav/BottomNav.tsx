@@ -22,6 +22,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 aria-label="Chat"
             >
                 <MessageCircle size={22} />
+                <span className="bottom-nav-label">chat</span>
             </button>
             <button
                 className={`bottom-nav-item ${activeTab === 'notes' ? 'active' : ''}`}
@@ -29,6 +30,7 @@ export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
                 aria-label="Notes"
             >
                 <StickyNote size={22} />
+                <span className="bottom-nav-label">notes</span>
             </button>
         </nav>
     );

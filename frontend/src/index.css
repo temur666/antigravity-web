@@ -2,13 +2,13 @@
 
 :root {
   /* Colors inspired by music app */
-  --color-bg-base: #0a0a0c;
+  --color-bg-base: #292828;
   /* Very dark background like player/lyrics */
-  --color-bg-surface: #121216;
+  --color-bg-surface: #302f2f;
   /* Slightly lighter surface for sidebar */
-  --color-bg-elevated: #1a1a20;
+  --color-bg-elevated: #3d3d3d;
   /* Cards, bubbles, and inputs */
-  --color-bg-glass: rgba(18, 18, 22, 0.7);
+  --color-bg-glass: rgba(61, 61, 61, 0.7);
   /* Glassmorphism effect */
 
   --color-text-primary: #ffffff;
@@ -1714,21 +1714,21 @@ body {
 }
 
 .input-box-inner-row {
-  margin: 12px auto;
+  margin: 0 auto 6px;
   max-width: 800px;
   display: flex;
   flex-direction: row;
   align-items: flex-end; /* 底部对齐（因为 textarea 会向上长） */
   gap: 8px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.08);
   border: none;
-  border-radius: 0;
-  padding: 6px 12px;
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
   transition: background 0.2s;
 }
 
 .input-box-inner-row:focus-within {
-  background: transparent;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .input-content-area {
@@ -2834,8 +2834,10 @@ body {
 .bottom-nav-item {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   height: 52px;
   padding: 0;
   background: none;
@@ -2843,6 +2845,13 @@ body {
   color: var(--color-text-muted);
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav-label {
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 500;
+  text-transform: capitalize;
 }
 
 .bottom-nav-item.active {
