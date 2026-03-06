@@ -19,8 +19,6 @@ export function InputBox() {
     const [showConfigOptions, setShowConfigOptions] = useState(false);
     const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
-    const [isFocused, setIsFocused] = useState(false);
-    const blurTimeoutRef = useRef<ReturnType<typeof setTimeout>>(null);
     const [isDragOver, setIsDragOver] = useState(false);
 
     const sendMessage = useAppStore(s => s.sendMessage);
@@ -107,21 +105,6 @@ export function InputBox() {
         }
     }, []);
 
-    // ── Focus / Blur（移动端折叠态控制）──
-    const handleFocus = useCallback(() => {
-        if (blurTimeoutRef.current) {
-            clearTimeout(blurTimeoutRef.current);
-            blurTimeoutRef.current = null;
-        }
-        setIsFocused(true);
-    }, []);
-
-    const handleBlur = useCallback(() => {
-        // 延迟收起，避免点击工具栏按钮时 blur 导致工具栏消失
-        blurTimeoutRef.current = setTimeout(() => {
-            setIsFocused(false);
-        }, 150);
-    }, []);
 
     // ── File Handling ──
     const handleFiles = useCallback((files: FileList | File[]) => {
@@ -196,9 +179,6 @@ export function InputBox() {
         }
     }, [isSnapped]);
 
-    // ── 折叠态判断（移动端使用）──
-    const isCollapsed = !isFocused && text.length === 0 && attachments.length === 0 && !showConfigOptions;
-
     // ── className 组合 ──
     const boxClassName = [
         'input-box',
@@ -206,7 +186,6 @@ export function InputBox() {
         isDragging && 'input-box-dragging',
         isAnimatingSnap && 'input-box-animating',
         isDragOver && 'input-box-drag-over',
-        isCollapsed && 'input-box-collapsed',
     ].filter(Boolean).join(' ');
 
     // ── 浮动定位（仅脱离吸附时生效） ──
@@ -277,37 +256,25 @@ export function InputBox() {
                     </div>
                 )}
 
-                {/* 文本输入区 + 内联发送按钮（移动端折叠态） */}
-                <div className="input-textarea-row">
-                    <textarea
-                        ref={inputRef}
-                        className="input-textarea-vertical"
-                        value={text}
-                        onInput={handleInput}
-                        onChange={e => setText(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        onPaste={handlePaste}
-                        onFocus={handleFocus}
-                        onBlur={handleBlur}
-                        placeholder={
-                            !activeConversationId
-                                ? '请先选择或创建对话'
-                                : isRunning
-                                    ? 'AI 正在回复...'
-                                    : 'Ask anything...'
-                        }
-                        disabled={!activeConversationId || isUploading}
-                        rows={1}
-                    />
-                    <button
-                        className={`input-inline-send input-circle-btn solid ${canSend ? 'active' : ''}`}
-                        onClick={handleSend}
-                        disabled={!canSend}
-                        title="发送"
-                    >
-                        <ArrowRight size={16} />
-                    </button>
-                </div>
+                {/* 文本输入区 */}
+                <textarea
+                    ref={inputRef}
+                    className="input-textarea-vertical"
+                    value={text}
+                    onInput={handleInput}
+                    onChange={e => setText(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
+                    placeholder={
+                        !activeConversationId
+                            ? '请先选择或创建对话'
+                            : isRunning
+                                ? 'AI 正在回复...'
+                                : 'Ask anything...'
+                    }
+                    disabled={!activeConversationId || isUploading}
+                    rows={1}
+                />
 
                 {/* 底部功能区（窄宽度时自动切换双行） */}
                 <div className="input-bottom-bar">
