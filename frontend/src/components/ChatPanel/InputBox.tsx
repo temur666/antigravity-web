@@ -44,28 +44,26 @@ export function InputBox() {
         if (!canSend) return;
 
         setIsUploading(true);
-        const mediaDetails: { uri: string, mimeType: string }[] = [];
+        const mediaDetails: { data: string, mimeType: string }[] = [];
 
         try {
-            // Upload all attachments
+            // Read all attachments as base64 (no server upload needed)
             for (const att of attachments) {
-                const formData = new FormData();
-                formData.append('file', att.file);
-
-                const res = await fetch('/api/upload', {
-                    method: 'POST',
-                    body: formData
+                const base64 = await new Promise<string>((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        // result is "data:image/png;base64,xxxx" -- extract the base64 part
+                        const dataUrl = reader.result as string;
+                        const base64Data = dataUrl.split(',')[1] || '';
+                        resolve(base64Data);
+                    };
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsDataURL(att.file);
                 });
 
-                if (!res.ok) {
-                    const errBody = await res.text().catch(() => res.statusText);
-                    throw new Error(`Upload failed (${res.status}): ${errBody}`);
-                }
-
-                const data = await res.json();
                 mediaDetails.push({
-                    uri: data.uri,
-                    mimeType: data.mimeType
+                    data: base64,
+                    mimeType: att.file.type || 'image/png'
                 });
             }
 

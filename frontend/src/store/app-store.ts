@@ -75,7 +75,7 @@ export interface AppState {
     loadConversations: (limit?: number, search?: string) => Promise<void>;
     selectConversation: (id: string) => Promise<void>;
     newChat: () => Promise<string | null>;
-    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => Promise<void>;
+    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }> }) => Promise<void>;
     loadConfig: () => Promise<void>;
     setConfig: (partial: Partial<CascadeConfig>) => Promise<void>;
     loadStatus: () => Promise<void>;
@@ -209,7 +209,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
             return null;
         },
 
-        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; uri: string; thumbnail?: string }> }) => {
+        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }> }) => {
             const cascadeId = get().activeConversationId;
             if (!cascadeId) return;
 

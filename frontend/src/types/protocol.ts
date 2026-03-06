@@ -42,7 +42,7 @@ export interface ReqSendMessage {
     text: string;
     config?: Partial<CascadeConfig>;
     mentions?: Array<{ file: { absoluteUri: string } }>;
-    media?: Array<{ mimeType: string; uri: string; thumbnail?: string }>;
+    media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }>;
 }
 
 export interface ReqSubscribe {
