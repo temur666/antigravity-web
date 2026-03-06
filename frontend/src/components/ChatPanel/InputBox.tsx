@@ -216,9 +216,9 @@ export function InputBox() {
                 <div className="input-box-grip-bar" />
             </div>
 
-            {/* 输入框主体（始终渲染，宽度不同时自动切换布局） */}
+            {/* 输入框主体：变为左右水平布局（单行） */}
             <div
-                className="input-box-inner-vertical"
+                className="input-box-inner-row"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
@@ -229,80 +229,83 @@ export function InputBox() {
                     ref={fileInputRef}
                     accept="image/*"
                     multiple
-                    style={{ display: 'none' }}
+                    style={{ position: 'absolute', width: 0, height: 0, opacity: 0, overflow: 'hidden', pointerEvents: 'none' }}
                     onChange={e => {
                         if (e.target.files && e.target.files.length > 0) {
                             handleFiles(e.target.files);
                         }
-                        // Reset to allow selecting the same file again
                         if (fileInputRef.current) fileInputRef.current.value = '';
                     }}
                 />
 
-                {/* 附件缩略图预览区 */}
-                {attachments.length > 0 && (
-                    <div className="input-attachments-preview">
-                        {attachments.map((att, idx) => (
-                            <div key={Math.random() /* temporary key */} className="input-attachment-item">
-                                <img src={att.previewUrl} alt="attachment" />
-                                <button
-                                    className="input-attachment-remove"
-                                    onClick={() => handleRemoveAttachment(idx)}
-                                >
-                                    <X size={12} />
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {/* 左侧区域：例如附件 */}
+                <div className="input-actions-left">
+                    <button
+                        className="input-circle-btn ghost btn-attach"
+                        onClick={() => {
+                            console.log('[InputBox] Paperclip clicked, fileInputRef:', fileInputRef.current);
+                            fileInputRef.current?.click();
+                        }}
+                        title="上传附件"
+                        disabled={isUploading}
+                    >
+                        <Paperclip size={16} />
+                    </button>
+                </div>
 
-                {/* 文本输入区 */}
-                <textarea
-                    ref={inputRef}
-                    className="input-textarea-vertical"
-                    value={text}
-                    onInput={handleInput}
-                    onChange={e => setText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onPaste={handlePaste}
-                    placeholder={
-                        !activeConversationId
-                            ? '请先选择或创建对话'
-                            : isRunning
-                                ? 'AI 正在回复...'
-                                : 'Ask anything...'
-                    }
-                    disabled={!activeConversationId || isUploading}
-                    rows={1}
-                />
+                {/* 中间区域：附件预览 + 文本输入框 */}
+                <div className="input-content-area">
+                    {/* 附件缩略图预览区 */}
+                    {attachments.length > 0 && (
+                        <div className="input-attachments-preview">
+                            {attachments.map((att, idx) => (
+                                <div key={Math.random()} className="input-attachment-item">
+                                    <img src={att.previewUrl} alt="attachment" />
+                                    <button
+                                        className="input-attachment-remove"
+                                        onClick={() => handleRemoveAttachment(idx)}
+                                    >
+                                        <X size={12} />
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
-                {/* 底部功能区（窄宽度时自动切换双行） */}
-                <div className="input-bottom-bar">
-                    <div className="input-actions-left-bottom">
-                        <button
-                            className="input-circle-btn ghost btn-attach"
-                            onClick={() => fileInputRef.current?.click()}
-                            title="上传附件"
-                            disabled={!activeConversationId || isUploading}
-                        >
-                            <Paperclip size={16} />
-                        </button>
-                    </div>
+                    <textarea
+                        ref={inputRef}
+                        className="input-textarea-row"
+                        value={text}
+                        onInput={handleInput}
+                        onChange={e => setText(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onPaste={handlePaste}
+                        placeholder={
+                            !activeConversationId
+                                ? '请先选择或创建对话'
+                                : isRunning
+                                    ? 'AI 正在回复...'
+                                    : 'Ask anything...'
+                        }
+                        disabled={!activeConversationId || isUploading}
+                        rows={1}
+                    />
+                </div>
 
-                    <div className="input-actions-right-bottom">
-                        <button className="input-circle-btn ghost btn-mic" title="语音">
-                            <Mic size={16} />
-                        </button>
+                {/* 右侧区域：例如麦克风、发送按钮 */}
+                <div className="input-actions-right">
+                    <button className="input-circle-btn ghost btn-mic" title="语音">
+                        <Mic size={16} />
+                    </button>
 
-                        <button
-                            className={`input-circle-btn solid btn-send ${canSend ? 'active' : ''}`}
-                            onClick={handleSend}
-                            disabled={!canSend}
-                            title="发送"
-                        >
-                            <ArrowRight size={16} />
-                        </button>
-                    </div>
+                    <button
+                        className={`input-circle-btn solid btn-send ${canSend ? 'active' : ''}`}
+                        onClick={handleSend}
+                        disabled={!canSend}
+                        title="发送"
+                    >
+                        <ArrowRight size={16} />
+                    </button>
                 </div>
             </div>
         </div>

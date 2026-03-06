@@ -12,9 +12,11 @@ import { ModelSelector } from './components/Header/ModelSelector';
 import { BottomNav } from './components/BottomNav/BottomNav';
 import { NotesPage } from './components/NotesPage/NotesPage';
 import type { TabId } from './components/BottomNav/BottomNav';
-import { Rows3, BookOpen, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useAppStore } from '@/store';
 import { ConfigPanel } from './components/ConfigPanel/ConfigPanel';
+import { MetadataPopover } from './components/ChatPanel/MetadataPopover';
+import { BottomSheet } from './components/BottomSheet';
 
 const SIDEBAR_WIDTH = 300;      // 与 CSS .sidebar width 一致
 const EDGE_ZONE = 30;           // 左侧边缘触发区 (px)
@@ -27,8 +29,6 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('chat');
   const [showConfig, setShowConfig] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
-  const viewMode = useAppStore(s => s.viewMode);
-  const toggleViewMode = useAppStore(s => s.toggleViewMode);
 
   useEffect(() => {
     const handleResize = () => {
@@ -190,34 +190,37 @@ export default function App() {
         {showChatView && (
           <>
             <header className="app-header">
-              <button
-                className={`header-btn ${showSidebar ? 'active' : ''}`}
-                onClick={() => setShowSidebar(!showSidebar)}
-                title="切换侧边栏"
-              >
-                ☰
-              </button>
-              <ModelSelector position="header" />
-              <button
-                className={`header-btn ${viewMode === 'paged' ? 'active' : ''}`}
-                onClick={toggleViewMode}
-                title={viewMode === 'scroll' ? '切换到翻页模式' : '切换到滚动模式'}
-              >
-                {viewMode === 'scroll' ? <Rows3 size={16} /> : <BookOpen size={16} />}
-              </button>
-              <div className="header-config-anchor">
+              <div className="app-header-left">
                 <button
-                  className={`header-btn ${showConfig ? 'active' : ''}`}
-                  onClick={() => setShowConfig(!showConfig)}
-                  title="设置"
+                  className={`header-btn ${showSidebar ? 'active' : ''}`}
+                  onClick={() => setShowSidebar(!showSidebar)}
+                  title="切换侧边栏"
                 >
-                  <Settings size={16} />
+                  ☰
                 </button>
-                {showConfig && (
-                  <div className="header-config-popover">
-                    <ConfigPanel />
-                  </div>
-                )}
+                <ModelSelector position="header" />
+              </div>
+              <div className="app-header-right">
+                <MetadataPopover />
+                <div className="header-config-anchor">
+                  <button
+                    className={`header-btn ${showConfig ? 'active' : ''}`}
+                    onClick={() => setShowConfig(!showConfig)}
+                    title="设置"
+                  >
+                    <Settings size={16} />
+                  </button>
+                  {showConfig && !isMobile && (
+                    <div className="header-config-popover">
+                      <ConfigPanel />
+                    </div>
+                  )}
+                  {isMobile && (
+                    <BottomSheet isOpen={showConfig} onClose={() => setShowConfig(false)}>
+                       <ConfigPanel />
+                    </BottomSheet>
+                  )}
+                </div>
               </div>
             </header>
 

@@ -13,6 +13,8 @@ export function ConfigPanel() {
     const models = useAppStore(s => s.models);
     const setConfig = useAppStore(s => s.setConfig);
     const loadConfig = useAppStore(s => s.loadConfig);
+    const viewMode = useAppStore(s => s.viewMode);
+    const toggleViewMode = useAppStore(s => s.toggleViewMode);
 
     useEffect(() => {
         loadConfig();
@@ -74,6 +76,20 @@ export function ConfigPanel() {
                     </div>
                 );
             })}
+
+            {/* 本地 UI 配置 (Store 状态) ================== */}
+            <div className="config-item">
+                <div className="config-item-header">
+                    <label className="config-item-label">翻页模式</label>
+                    <div className="config-item-desc">ON = 左右翻页阅读 / OFF = 上下滚动</div>
+                </div>
+                <button
+                    className={`config-toggle ${viewMode === 'paged' ? 'on' : 'off'}`}
+                    onClick={toggleViewMode}
+                >
+                    {viewMode === 'paged' ? 'ON' : 'OFF'}
+                </button>
+            </div>
         </div>
     );
 }

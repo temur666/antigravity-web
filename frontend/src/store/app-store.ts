@@ -92,8 +92,8 @@ export type AppStore = StoreApi<AppState>;
 
 export function createAppStore(wsClient: WSClient): AppStore {
     // ── 持久化恢复 ──
-    const persistedConvId = typeof sessionStorage !== 'undefined'
-        ? sessionStorage.getItem('activeConversationId') : null;
+    const persistedConvId = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('activeConversationId') : null;
     const persistedViewMode = typeof localStorage !== 'undefined'
         ? localStorage.getItem('viewMode') as 'scroll' | 'paged' | null : null;
     const persistedDebug = typeof localStorage !== 'undefined'
@@ -160,7 +160,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 loading: true,
                 error: null,
             });
-            sessionStorage.setItem('activeConversationId', id);
+            localStorage.setItem('activeConversationId', id);
 
             // 拉取完整轨迹
             const trajectoryRes = await wsClient.sendAndWait({
@@ -296,8 +296,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         setActiveConversation: (id: string | null) => {
-            if (id) sessionStorage.setItem('activeConversationId', id);
-            else sessionStorage.removeItem('activeConversationId');
+            if (id) localStorage.setItem('activeConversationId', id);
+            else localStorage.removeItem('activeConversationId');
             set({
                 activeConversationId: id,
                 steps: [],

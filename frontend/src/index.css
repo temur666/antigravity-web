@@ -139,6 +139,20 @@ body {
   z-index: 10;
 }
 
+/* Header Left Group */
+.app-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Header Right Group */
+.app-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* space between model selector, metadata, and settings */
+}
+
 /* Header Settings Popover */
 .header-config-anchor {
   position: relative;
@@ -1668,7 +1682,7 @@ body {
   overflow: hidden;
 }
 
-.input-box-floating .input-box-inner-vertical {
+.input-box-floating .input-box-inner-row {
   margin: 0;
   max-width: none;
   border: none;
@@ -1691,45 +1705,40 @@ body {
   transition: left 250ms ease-out, top 250ms ease-out;
 }
 
-/* ===== Narrow Width: Two-Row Bottom Bar ===== */
+/* ===== Narrow Width: Adaptive Hide (Instead of two rows) ===== */
 @container (max-width: 400px) {
-  .input-bottom-bar {
-    flex-wrap: wrap;
-  }
-
-  .input-actions-right-bottom {
-    order: 1;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .input-actions-left-bottom {
-    order: 2;
-    width: 100%;
+  .btn-mic {
+    display: none !important;
   }
 }
 
-.input-box-inner-vertical {
+.input-box-inner-row {
   margin: 12px auto;
   max-width: 800px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  align-items: flex-end; /* 底部对齐（因为 textarea 会向上长） */
+  gap: 8px;
   background: rgba(255, 255, 255, 0.03);
-  /* 更暗，且带有微弱环境光的通透感 */
   border: 1px solid rgba(255, 255, 255, 0.08);
-  /* 极弱的描边 */
-  border-radius: var(--radius-md);
-  padding: 12px 14px;
+  border-radius: var(--radius-lg);
+  padding: 6px 12px;
   transition: border-color 0.2s, background 0.2s;
 }
 
-.input-box-inner-vertical:focus-within {
-  background: rgba(255, 255, 255, 0.05);
+.input-box-inner-row:focus-within {
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.15);
-  /* 聚焦时稍微亮起 */
 }
 
-.input-textarea-vertical {
+.input-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 防止 textarea 撑开溢出 */
+}
+
+.input-textarea-row {
   width: 100%;
   background: none;
   border: none;
@@ -1741,15 +1750,17 @@ body {
   outline: none;
   padding: 0;
   max-height: 200px;
-  min-height: 40px;
-  margin-bottom: 8px;
+  min-height: 24px;   /* 一行的高度 */
+  overflow-y: auto;
+  margin-top: 5px;    /* 视觉居中偏移调整 */
+  margin-bottom: 5px; /* 视觉居中偏移调整 */
 }
 
-.input-textarea-vertical::placeholder {
+.input-textarea-row::placeholder {
   color: var(--color-text-muted);
 }
 
-.input-textarea-vertical:disabled {
+.input-textarea-row:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -1812,30 +1823,20 @@ body {
   box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2) !important;
 }
 
-.input-bottom-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.input-actions-left-bottom {
+.input-actions-left {
   display: flex;
   align-items: center;
   gap: 8px;
-  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 0px; 
 }
 
-.input-selectors {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.input-actions-right-bottom {
+.input-actions-right {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 0px;
 }
 
 /* Circle Button (Plus, Mic, Send) */
@@ -2301,9 +2302,7 @@ body {
   /* --- 代码块触摸优化 --- */
   .ai-response pre {
     -webkit-overflow-scrolling: touch;
-    /* 增大触摸区域 */
     padding: 16px;
-    /* 视觉提示：可以滑动 */
     max-width: 100%;
   }
 
@@ -2318,66 +2317,6 @@ body {
   .tool-call-args,
   .tool-call-result pre {
     -webkit-overflow-scrolling: touch;
-  }
-
-  /* --- 下拉菜单改为底部弹出风格 --- */
-  .input-dropdown-menu {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    min-width: unset;
-    width: 100%;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding: var(--spacing-md);
-    padding-bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom, 0px));
-    max-height: 60vh;
-    overflow-y: auto;
-    z-index: 1000;
-    animation: sheetUp 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-  }
-
-  .input-dropdown-menu.model-menu {
-    min-width: unset;
-    max-height: 70vh;
-  }
-
-  .input-config-popover {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    width: 100%;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    animation: sheetUp 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
-    z-index: 1000;
-  }
-
-  @keyframes sheetUp {
-    from {
-      opacity: 0;
-      transform: translateY(100%);
-    }
-
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* --- Dropdown Menu 遮罩层（为底部 Sheet 添加背景） --- */
-  .input-dropdown-menu::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: -1;
   }
 
   /* --- 侧边栏安全区域 --- */
@@ -2992,4 +2931,71 @@ body {
     min-width: 44px;
     min-height: 44px;
   }
+}
+
+/* ===== Bottom Sheet (Mobile Only) ===== */
+.bottom-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 1000;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease-out;
+}
+
+.bottom-sheet-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--color-bg-surface);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  /* subtle inset border top */
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 -8px 32px rgba(0, 0, 0, 0.6);
+  z-index: 1001;
+  transform: translateY(100%);
+  display: flex;
+  flex-direction: column;
+  max-height: 85vh; /* Maximum height to prevent covering entire screen */
+  /* hardware acceleration */
+  will-change: transform;
+}
+
+.bottom-sheet.open {
+  transform: translateY(0);
+}
+
+.bottom-sheet-drag-handle {
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: grab;
+  touch-action: none; 
+}
+
+.bottom-sheet-drag-handle::after {
+  content: '';
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.bottom-sheet-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 var(--spacing-md);
+  padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
+  -webkit-overflow-scrolling: touch;
 }

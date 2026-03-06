@@ -10,7 +10,6 @@ import { useAppStore } from '@/store';
 import { StepRenderer } from './StepRenderer';
 import { InputBox } from './InputBox';
 import { PagedOverlay } from './PagedOverlay';
-import { MetadataPopover } from './MetadataPopover';
 
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
@@ -304,6 +303,9 @@ export function ChatPanel() {
         };
     }, [isPaged, pageLeft, pageRight]);
 
+    const cancelConversation = useAppStore(s => s.cancelConversation);
+    const isRunning = conversationStatus === 'RUNNING';
+
     // ---- 空对话 ----
     if (!activeConversationId) {
         return (
@@ -341,9 +343,6 @@ export function ChatPanel() {
         </>
     );
 
-    const cancelConversation = useAppStore(s => s.cancelConversation);
-    const isRunning = conversationStatus === 'RUNNING';
-
     return (
         <div className="chat-panel">
             <div className="chat-panel-header">
@@ -360,7 +359,6 @@ export function ChatPanel() {
                         ■
                     </button>
                 )}
-                <MetadataPopover />
             </div>
 
             {isPaged ? (

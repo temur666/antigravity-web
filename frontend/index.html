@@ -1,30 +1,61 @@
 <!doctype html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
 
-    <!-- Viewport: 支持 iOS 安全区域 (viewport-fit=cover)，禁止用户缩放防止误触 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+<head>
+  <meta charset="UTF-8" />
 
-    <!-- PWA: 主题色 & 应用清单 -->
-    <meta name="theme-color" content="#0a0a0c" />
-    <link rel="manifest" href="/manifest.json" />
+  <!-- Viewport: 支持 iOS 安全区域 (viewport-fit=cover)，禁止用户缩放防止误触 -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 
-    <!-- iOS Safari: 添加到主屏幕后的全屏模式 -->
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Antigravity Chat" />
-    <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <!-- PWA: 主题色 & 应用清单 -->
+  <meta name="theme-color" content="#0a0a0c" />
+  <link rel="manifest" href="/manifest.json" />
 
-    <!-- SEO -->
-    <meta name="description" content="Antigravity Chat - AI-powered chat interface" />
-    <title>Antigravity Chat</title>
+  <!-- iOS Safari: 添加到主屏幕后的全屏模式 -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Antigravity Chat" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+  <!-- SEO -->
+  <meta name="description" content="Antigravity Chat - AI-powered chat interface" />
+  <title>Antigravity Chat</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+</head>
+
+<body>
+  <div id="root">
+    <!-- Inline Shell: 在 React 加载前显示，消除白屏 -->
+    <div id="app-shell" style="
+        position:fixed;inset:0;
+        background:#0a0a0c;
+        display:flex;align-items:center;justify-content:center;
+        font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+        color:rgba(255,255,255,0.4);font-size:14px;
+      ">
+      <div style="text-align:center">
+        <div style="
+            width:32px;height:32px;margin:0 auto 12px;
+            border:2px solid rgba(255,255,255,0.1);
+            border-top-color:rgba(255,255,255,0.4);
+            border-radius:50%;
+            animation:spin 0.8s linear infinite;
+          "></div>
+        Loading...
+      </div>
+    </div>
+    <style>
+      @keyframes spin {
+        to {
+          transform: rotate(360deg)
+        }
+      }
+    </style>
+  </div>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
 </html>

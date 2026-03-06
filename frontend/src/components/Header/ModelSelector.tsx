@@ -8,6 +8,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { shortenModelLabel } from '@/utils/metadata';
+import { BottomSheet } from '../BottomSheet';
 
 interface ModelSelectorProps {
     position?: 'header' | 'input';
@@ -19,9 +20,17 @@ export function ModelSelector({ position = 'input' }: ModelSelectorProps) {
     const models = useAppStore(s => s.models);
     const setConfig = useAppStore(s => s.setConfig);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [isMobile, setIsMobile] = useState(false);
 
     const isHeader = position === 'header';
     const Chevron = isHeader ? ChevronDown : ChevronUp;
+
+    useEffect(() => {
+        const handleResize = () => setIsMobile(window.innerWidth <= 768);
+        handleResize();
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const handleClickOutside = (e: MouseEvent) => {
@@ -45,8 +54,39 @@ export function ModelSelector({ position = 'input' }: ModelSelectorProps) {
     const menuClassName = [
         'input-dropdown-menu',
         'model-menu',
-        isHeader && 'header-dropdown-menu',
+        !isMobile && isHeader && 'header-dropdown-menu',
     ].filter(Boolean).join(' ');
+
+    const renderMenuContent = () => (
+        <>
+            <div className="dropdown-menu-title">Model</div>
+
+            {models.length > 0 ? (
+                models.map(m => (
+                    <button
+                        key={m.model}
+                        className={`dropdown-option ${m.model === currentModel ? 'active' : ''}`}
+                        onClick={() => handleSelect(m.model)}
+                    >
+                        <div className="dropdown-option-name">
+                            {m.label}
+                            {m.tag && <span className="model-tag">{m.tag}</span>}
+                        </div>
+                        {m.quota !== undefined && m.quota < 1 && (
+                            <div className="model-quota">
+                                <div
+                                    className="model-quota-bar"
+                                    style={{ width: `${Math.round(m.quota * 100)}%` }}
+                                />
+                            </div>
+                        )}
+                    </button>
+                ))
+            ) : (
+                <div className="dropdown-empty">LS 未连接，无法获取模型列表</div>
+            )}
+        </>
+    );
 
     return (
         <div className={`input-dropdown ${isHeader ? 'header-model-selector' : ''}`} ref={dropdownRef}>
@@ -59,35 +99,16 @@ export function ModelSelector({ position = 'input' }: ModelSelectorProps) {
                 <span>{displayName}</span>
             </button>
 
-            {open && (
+            {open && !isMobile && (
                 <div className={menuClassName}>
-                    <div className="dropdown-menu-title">Model</div>
-
-                    {models.length > 0 ? (
-                        models.map(m => (
-                            <button
-                                key={m.model}
-                                className={`dropdown-option ${m.model === currentModel ? 'active' : ''}`}
-                                onClick={() => handleSelect(m.model)}
-                            >
-                                <div className="dropdown-option-name">
-                                    {m.label}
-                                    {m.tag && <span className="model-tag">{m.tag}</span>}
-                                </div>
-                                {m.quota !== undefined && m.quota < 1 && (
-                                    <div className="model-quota">
-                                        <div
-                                            className="model-quota-bar"
-                                            style={{ width: `${Math.round(m.quota * 100)}%` }}
-                                        />
-                                    </div>
-                                )}
-                            </button>
-                        ))
-                    ) : (
-                        <div className="dropdown-empty">LS 未连接，无法获取模型列表</div>
-                    )}
+                    {renderMenuContent()}
                 </div>
+            )}
+
+            {isMobile && (
+                <BottomSheet isOpen={open} onClose={() => setOpen(false)}>
+                    {renderMenuContent()}
+                </BottomSheet>
             )}
         </div>
     );
