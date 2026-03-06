@@ -98,19 +98,28 @@ start() {
     # 确保 discovery 目录存在
     mkdir -p "$DISCOVERY_DIR"
 
-    echo "Starting LS Daemon..."
-    echo "  Binary:  $LS_BIN"
-    echo "  Port:    $LS_PORT"
-    echo "  CSRF:    $CSRF_TOKEN"
-    echo "  Log:     $LOG_FILE"
+    # Extension Server 配置
+    EXT_PORT="${EXT_PORT:-42200}"
+    EXT_CSRF="${EXT_CSRF_TOKEN:-ext-server-csrf-token}"
+    METADATA_BIN="$(dirname "$0")/ls-metadata.bin"
 
-    # 启动
-    exec "$LS_BIN" \
+    echo "Starting LS Daemon..."
+    echo "  Binary:    $LS_BIN"
+    echo "  Port:      $LS_PORT"
+    echo "  CSRF:      $CSRF_TOKEN"
+    echo "  ExtServer: 127.0.0.1:$EXT_PORT"
+    echo "  Metadata:  $METADATA_BIN"
+    echo "  Log:       $LOG_FILE"
+
+    # standalone=true (本地 OAuth) + ext-server (工具回调)
+    cat "$METADATA_BIN" | exec "$LS_BIN" \
         -persistent_mode=true \
         -csrf_token="$CSRF_TOKEN" \
         -server_port="$LS_PORT" \
         -random_port=false \
         -standalone=true \
+        -extension_server_port="$EXT_PORT" \
+        -extension_server_csrf_token="$EXT_CSRF" \
         -workspace_id=file_home_tiemuer \
         -cloud_code_endpoint="$CLOUD_ENDPOINT" \
         -app_data_dir=antigravity \

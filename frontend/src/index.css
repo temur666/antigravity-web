@@ -1789,6 +1789,15 @@ body {
   box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2) !important;
 }
 
+/* ===== Textarea Row (wrapper for textarea + inline send) ===== */
+.input-textarea-row {
+  display: contents; /* Desktop: transparent wrapper, no layout impact */
+}
+
+.input-inline-send {
+  display: none; /* Hidden on desktop, shown in mobile collapsed mode */
+}
+
 .input-bottom-bar {
   display: flex;
   align-items: center;
@@ -2194,9 +2203,15 @@ body {
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
+  /* --- 隐藏拖拽手柄 --- */
+  .input-box-grip {
+    display: none;
+  }
+
   .input-box-inner-vertical {
-    margin: 8px var(--spacing-sm);
+    margin: 6px 12px;
     max-width: none;
+    padding: 8px 12px;
   }
 
   /* --- 触摸目标最小 44px --- */
@@ -2322,14 +2337,45 @@ body {
     padding-top: env(safe-area-inset-top, 0px);
   }
 
-  /* --- 拖拽手柄在移动端更大 --- */
-  .input-box-grip {
-    padding: 8px 0 4px;
+  /* --- 折叠态：窄条 pill bar --- */
+  .input-box-collapsed .input-box-inner-vertical {
+    flex-direction: row;
+    align-items: center;
+    padding: 4px 4px 4px 14px;
+    border-radius: 24px;
+    margin: 6px 12px;
   }
 
-  .input-box-grip-bar {
-    width: 40px;
-    height: 5px;
+  .input-box-collapsed .input-textarea-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .input-box-collapsed .input-textarea-vertical {
+    min-height: 20px;
+    margin-bottom: 0;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .input-box-collapsed .input-inline-send {
+    display: flex;
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  .input-box-collapsed .input-bottom-bar {
+    display: none;
+  }
+
+  .input-box-collapsed .input-attachments-preview {
+    display: none;
   }
 }
 

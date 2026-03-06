@@ -21,6 +21,18 @@ const { execSync, spawn } = require('child_process');
 const PORT = Number(process.env.EXT_PORT || 42200);
 const CSRF_TOKEN = process.env.EXT_CSRF_TOKEN || 'ext-server-csrf-token';
 const IDE_VERSION = '1.19.6';
+const OAUTH_TOKEN_FILE = path.join(process.env.HOME || '/home/tiemuer', '.gemini', 'jetski-standalone-oauth-token');
+
+// ========== OAuth Token ==========
+function readOAuthToken() {
+    try {
+        const raw = fs.readFileSync(OAUTH_TOKEN_FILE, 'utf-8');
+        return JSON.parse(raw);
+    } catch (e) {
+        console.error('[ExtServer] Failed to read OAuth token:', e.message);
+        return null;
+    }
+}
 
 // ========== 终端进程池 ==========
 const terminals = new Map(); // id -> { proc, output, cwd }
@@ -287,10 +299,53 @@ const handlers = {
     },
 
     /**
-     * 统一状态同步订阅
+     * 统一状态同步订阅 (流式)
+     * LS 通过此接口订阅 OAuth token 等状态。
+     * 返回 '__stream__' 标记让 HTTP handler 进入流式模式。
      */
-    SubscribeToUnifiedStateSyncTopic(req) {
-        return {};
+    SubscribeToUnifiedStateSyncTopic(req, res) {
+        const topic = req.topicId || req.topic || 'unknown';
+        console.log(`[ExtServer] SubscribeToUnifiedStateSyncTopic: topic=${topic}`);
+
+        if (topic === 'uss-oauth') {
+            // 推送 OAuth token
+            const token = readOAuthToken();
+            if (token) {
+                const update = {
+                    topicId: 'uss-oauth',
+                    data: JSON.stringify({
+                        access_token: token.access_token,
+                        token_type: token.token_type || 'Bearer',
+                        refresh_token: token.refresh_token,
+                        expiry: token.expiry,
+                    }),
+                };
+                console.log('[ExtServer] Pushing OAuth token to LS');
+                res.write(JSON.stringify(update) + '\n');
+            }
+            // 保持连接打开，定期刷新 token
+            const interval = setInterval(() => {
+                const freshToken = readOAuthToken();
+                if (freshToken) {
+                    const update = {
+                        topicId: 'uss-oauth',
+                        data: JSON.stringify({
+                            access_token: freshToken.access_token,
+                            token_type: freshToken.token_type || 'Bearer',
+                            refresh_token: freshToken.refresh_token,
+                            expiry: freshToken.expiry,
+                        }),
+                    };
+                    try { res.write(JSON.stringify(update) + '\n'); } catch { clearInterval(interval); }
+                }
+            }, 30000); // 每 30s 刷新
+            res.on('close', () => clearInterval(interval));
+            return '__stream__';
+        }
+
+        // 其他 topic: 保持连接打开但不推送数据
+        console.log(`[ExtServer] Keeping stream open for topic: ${topic}`);
+        return '__stream__';
     },
 
     /**
@@ -455,15 +510,22 @@ const server = http.createServer((req, res) => {
         const handler = handlers[method];
         if (handler) {
             try {
-                const result = handler(parsed);
+                // 流式方法：传入 res 让 handler 自己控制响应
                 res.writeHead(200, {
                     'Content-Type': 'application/json',
                     'connect-protocol-version': '1',
                 });
+                const result = handler(parsed, res);
+                if (result === '__stream__') {
+                    // 流式响应，handler 自己管理 res 生命周期
+                    return;
+                }
                 res.end(JSON.stringify(result));
             } catch (e) {
                 console.error(`[ExtServer] ERROR ${method}:`, e.message);
-                res.writeHead(500, { 'Content-Type': 'application/json' });
+                if (!res.headersSent) {
+                    res.writeHead(500, { 'Content-Type': 'application/json' });
+                }
                 res.end(JSON.stringify({ error: e.message }));
             }
         } else {
