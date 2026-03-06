@@ -8,7 +8,7 @@ module.exports = {
                 PORT: 3210,
                 NODE_ENV: 'production',
             },
-            watch: ['main.js', 'lib/', 'server.js'],
+            watch: ['main.js', 'lib/'],
             ignore_watch: ['frontend', 'node_modules', 'logs', 'public', 'docs', 'tests', 'tools', '.git'],
             watch_delay: 1000,
             max_memory_restart: '300M',

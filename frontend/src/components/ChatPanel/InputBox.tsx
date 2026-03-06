@@ -13,6 +13,61 @@ import { Mic, ArrowRight, Paperclip, X } from 'lucide-react';
 
 import { useDraggable } from '@/hooks/useDraggable';
 
+const MAX_BASE64_SIZE = 800_000; // ~600KB raw
+const MAX_DIMENSION = 1024;
+
+/**
+ * Compress image using Canvas: resize to maxDim and encode as JPEG.
+ * Small images pass through without compression.
+ */
+async function compressImage(
+    file: File, maxDim = MAX_DIMENSION, quality = 0.8
+): Promise<{ data: string; mimeType: string }> {
+    // Read as data URL first
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = () => reject(new Error('Failed to read file'));
+        reader.readAsDataURL(file);
+    });
+
+    const rawBase64 = dataUrl.split(',')[1] || '';
+
+    // If small enough, use as-is
+    if (rawBase64.length <= MAX_BASE64_SIZE) {
+        return { data: rawBase64, mimeType: file.type || 'image/png' };
+    }
+
+    // Load into Image for resizing
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = () => reject(new Error('Failed to load image'));
+        el.src = dataUrl;
+    });
+
+    // Calculate target dimensions
+    let w = img.width, h = img.height;
+    if (w > maxDim || h > maxDim) {
+        const scale = maxDim / Math.max(w, h);
+        w = Math.round(w * scale);
+        h = Math.round(h * scale);
+    }
+
+    // Draw to canvas and export as JPEG
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d')!;
+    ctx.drawImage(img, 0, 0, w, h);
+    const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
+    const compressedBase64 = compressedDataUrl.split(',')[1] || '';
+
+    console.log(`[compressImage] ${file.name}: ${rawBase64.length} -> ${compressedBase64.length} chars (${w}x${h})`);
+
+    return { data: compressedBase64, mimeType: 'image/jpeg' };
+}
+
 export function InputBox() {
     const [text, setText] = useState('');
     const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
@@ -47,24 +102,10 @@ export function InputBox() {
         const mediaDetails: { data: string, mimeType: string }[] = [];
 
         try {
-            // Read all attachments as base64 (no server upload needed)
+            // Read and compress all attachments
             for (const att of attachments) {
-                const base64 = await new Promise<string>((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        // result is "data:image/png;base64,xxxx" -- extract the base64 part
-                        const dataUrl = reader.result as string;
-                        const base64Data = dataUrl.split(',')[1] || '';
-                        resolve(base64Data);
-                    };
-                    reader.onerror = () => reject(new Error('Failed to read file'));
-                    reader.readAsDataURL(att.file);
-                });
-
-                mediaDetails.push({
-                    data: base64,
-                    mimeType: att.file.type || 'image/png'
-                });
+                const compressed = await compressImage(att.file, 1024, 0.8);
+                mediaDetails.push(compressed);
             }
 
             // If only images without text, use a default prompt
