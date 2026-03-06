@@ -7,6 +7,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAppStore } from '@/store';
 import { ChevronUp, ChevronDown } from 'lucide-react';
+import { shortenModelLabel } from '@/utils/metadata';
 
 interface ModelSelectorProps {
     position?: 'header' | 'input';
@@ -33,7 +34,8 @@ export function ModelSelector({ position = 'input' }: ModelSelectorProps) {
     }, []);
 
     const currentModelInfo = models.find(m => m.model === currentModel);
-    const displayName = currentModelInfo?.label || currentModel;
+    const fullName = currentModelInfo?.label || currentModel;
+    const displayName = isHeader ? shortenModelLabel(fullName) : fullName;
 
     const handleSelect = (model: string) => {
         setConfig({ model });

@@ -280,7 +280,7 @@ export function InputBox() {
                 <div className="input-bottom-bar">
                     <div className="input-actions-left-bottom">
                         <button
-                            className="input-circle-btn ghost"
+                            className="input-circle-btn ghost btn-attach"
                             onClick={() => fileInputRef.current?.click()}
                             title="上传附件"
                             disabled={!activeConversationId || isUploading}
@@ -290,12 +290,12 @@ export function InputBox() {
                     </div>
 
                     <div className="input-actions-right-bottom">
-                        <button className="input-circle-btn ghost" title="语音">
+                        <button className="input-circle-btn ghost btn-mic" title="语音">
                             <Mic size={16} />
                         </button>
 
                         <button
-                            className={`input-circle-btn solid ${canSend ? 'active' : ''}`}
+                            className={`input-circle-btn solid btn-send ${canSend ? 'active' : ''}`}
                             onClick={handleSend}
                             disabled={!canSend}
                             title="发送"
