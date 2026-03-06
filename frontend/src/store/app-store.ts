@@ -71,6 +71,9 @@ export interface AppState {
     loading: boolean;
     error: string | null;
 
+    // 输入草稿缓存 (conversationId -> draft text)
+    draftMap: Record<string, string>;
+
     // Actions
     loadConversations: (limit?: number, search?: string) => Promise<void>;
     selectConversation: (id: string) => Promise<void>;
@@ -84,6 +87,7 @@ export interface AppState {
     togglePagedColumns: () => void;
     setActiveConversation: (id: string | null) => void;
     cancelConversation: () => Promise<void>;
+    setDraft: (conversationId: string, text: string) => void;
 }
 
 export type AppStore = StoreApi<AppState>;
@@ -121,6 +125,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         pagedColumns: (persistedCols === '2' ? 2 : 1) as 1 | 2,
         loading: false,
         error: null,
+        draftMap: {},
 
         // ---- Actions ----
 
@@ -326,6 +331,18 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 type: 'req_cancel',
                 reqId: wsClient.nextReqId(),
                 cascadeId,
+            });
+        },
+
+        setDraft: (conversationId: string, text: string) => {
+            set(prev => {
+                const next = { ...prev.draftMap };
+                if (text) {
+                    next[conversationId] = text;
+                } else {
+                    delete next[conversationId];
+                }
+                return { draftMap: next };
             });
         },
     }));

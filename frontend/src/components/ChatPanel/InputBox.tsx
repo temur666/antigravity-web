@@ -69,16 +69,40 @@ async function compressImage(
 }
 
 export function InputBox() {
-    const [text, setText] = useState('');
+    const activeConversationId = useAppStore(s => s.activeConversationId);
+    const draftMap = useAppStore(s => s.draftMap);
+    const setDraft = useAppStore(s => s.setDraft);
+
+    // 从 store 读取当前对话的草稿作为初始值
+    const currentDraft = activeConversationId ? (draftMap[activeConversationId] || '') : '';
+    const [text, setText] = useState(currentDraft);
     const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
 
     const sendMessage = useAppStore(s => s.sendMessage);
     const conversationStatus = useAppStore(s => s.conversationStatus);
-    const activeConversationId = useAppStore(s => s.activeConversationId);
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    // 切换对话时，从 store 恢复草稿
+    useEffect(() => {
+        const draft = activeConversationId ? (draftMap[activeConversationId] || '') : '';
+        setText(draft);
+        if (inputRef.current) {
+            inputRef.current.style.height = 'auto';
+            if (draft) {
+                // 延迟一帧确保 DOM 更新后再计算高度
+                requestAnimationFrame(() => {
+                    if (inputRef.current) {
+                        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+                    }
+                });
+            }
+        }
+    // 只在 activeConversationId 变化时触发，不依赖 draftMap
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeConversationId]);
 
     const {
         isDragging,
@@ -115,6 +139,8 @@ export function InputBox() {
 
             setText('');
             setAttachments([]);
+            // 发送成功后清除草稿
+            if (activeConversationId) setDraft(activeConversationId, '');
             if (inputRef.current) {
                 inputRef.current.style.height = 'auto';
             }
@@ -312,7 +338,11 @@ export function InputBox() {
                         className="input-textarea-row"
                         value={text}
                         onInput={handleInput}
-                        onChange={e => setText(e.target.value)}
+                        onChange={e => {
+                            const val = e.target.value;
+                            setText(val);
+                            if (activeConversationId) setDraft(activeConversationId, val);
+                        }}
                         onKeyDown={handleKeyDown}
                         onPaste={handlePaste}
                         placeholder={

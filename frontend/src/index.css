@@ -2217,6 +2217,7 @@ body {
 
   /* --- 输入框安全区域 --- */
   .input-box {
+    bottom: 12px;
     padding-bottom: env(safe-area-inset-bottom, 0px);
   }
 
@@ -2858,6 +2859,13 @@ body {
 
 .bottom-nav-item.active {
   color: var(--color-text-primary);
+}
+
+/* 键盘弹出时隐藏底部导航栏 */
+.bottom-nav-hidden {
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: transform 0.2s ease-out;
 }
 
 /* main-area 在有底部导航时需要留出空间 */
