@@ -197,8 +197,24 @@ const app = express();
 const serverHttp = http.createServer(app);
 const wss = new WebSocket.Server({ server: serverHttp });
 
-// 静态文件
-app.use(express.static(distPath));
+// Hashed assets (Vite content hash): 1 年不可变缓存
+app.use('/assets', express.static(path.join(distPath, 'assets'), {
+    maxAge: '1y',
+    immutable: true,
+}));
+
+// 其他静态文件: HTML/SW 不缓存（总是验证），其他 1 小时
+app.use(express.static(distPath, {
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, filePath) => {
+        if (filePath.endsWith('.html') || filePath.endsWith('sw.js')) {
+            res.setHeader('Cache-Control', 'no-cache');
+        } else {
+            res.setHeader('Cache-Control', 'public, max-age=3600');
+        }
+    },
+}));
 
 // SPA fallback: 所有非 API 路径返回 index.html
 app.get('*', (req, res, next) => {
