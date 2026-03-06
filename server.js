@@ -128,14 +128,20 @@ async function handleMessage(clientWs, data) {
             }
 
             case 'req_send_message': {
-                if (!data.cascadeId || !data.text) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId or text', reqId));
+                if (!data.cascadeId) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
                 }
                 const extras = {};
                 if (data.mentions) extras.mentions = data.mentions;
                 if (data.media) extras.media = data.media;
-                await controller.sendMessage(data.cascadeId, data.text, data.config, extras);
+                // 有 media 但无 text 时，使用默认提示文字
+                const msgText = data.text || (data.media && data.media.length > 0 ? '请查看这张图片' : '');
+                if (!msgText) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing text or media', reqId));
+                    break;
+                }
+                await controller.sendMessage(data.cascadeId, msgText, data.config, extras);
                 controller.subscribe(data.cascadeId, clientWs);
                 send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));
                 break;

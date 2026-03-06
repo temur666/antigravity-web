@@ -58,7 +58,8 @@ export function InputBox() {
                 });
 
                 if (!res.ok) {
-                    throw new Error(`Upload failed: ${res.statusText}`);
+                    const errBody = await res.text().catch(() => res.statusText);
+                    throw new Error(`Upload failed (${res.status}): ${errBody}`);
                 }
 
                 const data = await res.json();
@@ -68,7 +69,12 @@ export function InputBox() {
                 });
             }
 
-            const msg = text.trim();
+            // If only images without text, use a default prompt
+            let msg = text.trim();
+            if (!msg && mediaDetails.length > 0) {
+                msg = '请查看这张图片';
+            }
+
             setText('');
             setAttachments([]);
             if (inputRef.current) {
@@ -82,7 +88,6 @@ export function InputBox() {
             attachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
         } catch (err) {
             console.error('Failed to send message:', err);
-            // Ideally we'd show a toast here, but we'll minimally reset state for now
         } finally {
             setIsUploading(false);
             inputRef.current?.focus();
@@ -229,7 +234,7 @@ export function InputBox() {
                     ref={fileInputRef}
                     accept="image/*"
                     multiple
-                    style={{ position: 'absolute', width: 0, height: 0, opacity: 0, overflow: 'hidden', pointerEvents: 'none' }}
+                    style={{ display: 'none' }}
                     onChange={e => {
                         if (e.target.files && e.target.files.length > 0) {
                             handleFiles(e.target.files);
@@ -242,12 +247,9 @@ export function InputBox() {
                 <div className="input-actions-left">
                     <button
                         className="input-circle-btn ghost btn-attach"
-                        onClick={() => {
-                            console.log('[InputBox] Paperclip clicked, fileInputRef:', fileInputRef.current);
-                            fileInputRef.current?.click();
-                        }}
+                        onClick={() => fileInputRef.current?.click()}
                         title="上传附件"
-                        disabled={isUploading}
+                        disabled={!activeConversationId || isUploading}
                     >
                         <Paperclip size={16} />
                     </button>
