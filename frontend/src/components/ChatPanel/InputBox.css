@@ -1,0 +1,390 @@
+/* INPUT TRAY (Like bottom player controls) */
+.input-box {
+  position: absolute;
+  bottom: -14px;
+  left: 0;
+  right: 0;
+  padding: 0 12px;
+  pointer-events: auto;
+  border-top: none;
+  container-type: inline-size;
+  z-index: 20;
+}
+
+/* ===== Drag Grip Bar ===== */
+.input-box-grip {
+  display: none; /* User explicitly requested removing the extra line and maximum bottom tightness */
+}
+
+.input-box-grip:active {
+  cursor: grabbing;
+}
+
+.input-box-grip-bar {
+  display: none;
+}
+
+.input-box-grip:hover .input-box-grip-bar {
+  background: rgba(255, 255, 255, 0.25);
+  width: 40px;
+}
+
+/* ===== Floating Panel State ===== */
+.input-box-floating {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-surface);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.input-box-floating .input-box-inner-row {
+  margin: 0;
+  max-width: none;
+  border: none;
+  background: none;
+  border-radius: 0;
+}
+
+/* ===== Dragging State ===== */
+.input-box-dragging {
+  cursor: grabbing;
+  opacity: 0.9;
+}
+
+.input-box-dragging .input-box-grip {
+  cursor: grabbing;
+}
+
+/* ===== Snap-back Animation ===== */
+.input-box-animating {
+  transition: left 250ms ease-out, top 250ms ease-out;
+}
+
+/* ===== Narrow Width: Adaptive Hide (Instead of two rows) ===== */
+@container (max-width: 400px) {
+  .btn-mic {
+    display: none !important;
+  }
+}
+
+.input-box-inner-row {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end; /* 底部对齐（因为 textarea 会向上长） */
+  gap: 8px;
+  background: var(--color-bg-elevated);
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 8px 12px;
+  transition: background 0.2s;
+}
+
+.input-box-inner-row:focus-within {
+  background: #4a4a4a;
+}
+
+.input-content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* 防止 textarea 撑开溢出 */
+}
+
+.input-textarea-row {
+  width: 100%;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  padding: 0;
+  max-height: 200px;
+  min-height: 24px;   /* 一行的高度 */
+  overflow-y: auto;
+  margin-top: 5px;    /* 视觉居中偏移调整 */
+  margin-bottom: 5px; /* 视觉居中偏移调整 */
+}
+
+.input-textarea-row::placeholder {
+  color: var(--color-text-muted);
+}
+
+.input-textarea-row:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* 附件缩略图预览区 */
+.input-attachments-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 8px;
+}
+
+.input-attachment-item {
+  position: relative;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-base);
+}
+
+.input-attachment-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.input-attachment-remove {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.2s, transform 0.2s;
+}
+
+.input-attachment-remove:hover {
+  background: rgba(239, 68, 68, 0.9);
+  transform: scale(1.1);
+}
+
+.input-box {
+  transition: transform cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.input-box-drag-over {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.2) !important;
+}
+
+.input-actions-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 0px; 
+}
+
+.input-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-bottom: 0px;
+}
+
+/* Circle Button (Plus, Mic, Send) */
+.input-circle-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  color: var(--color-text-secondary);
+}
+
+.input-circle-btn.ghost {
+  background: transparent;
+}
+
+.input-circle-btn.ghost:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+}
+
+.input-circle-btn.solid {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.input-circle-btn.solid.active {
+  background: #3b82f6;
+  /* Modern vivid blue */
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.input-circle-btn.solid:hover:not(:disabled) {
+  transform: scale(1.05);
+}
+
+.input-circle-btn:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* 发送/终止按钮 — 白色无圆背景 */
+.btn-send-stop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  padding: 6px;
+  flex-shrink: 0;
+}
+
+.btn-send-stop:disabled {
+  opacity: 0.2;
+  cursor: not-allowed;
+}
+
+/* Dropdowns in Input Box */
+.input-dropdown {
+  position: relative;
+}
+
+.input-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px 6px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.input-dropdown-trigger:hover {
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dropdown-chevron-up {
+  transition: transform 0.15s;
+  flex-shrink: 0;
+}
+
+.dropdown-chevron-up.open {
+  transform: rotate(180deg);
+}
+
+.input-dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 12px);
+
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dropdownUp {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.input-config-popover {
+  position: absolute;
+  bottom: calc(100% + 12px);
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .input-box {
+    bottom: 12px;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  .input-box-grip {
+    display: none;
+  }
+
+  .input-box-inner-vertical {
+    margin: 6px 12px;
+    max-width: none;
+    padding: 4px 4px 4px 14px;
+    flex-direction: row;
+    align-items: flex-end;
+    border-radius: 24px;
+  }
+
+  .input-textarea-vertical {
+    font-size: 16px;
+    min-height: 20px;
+    margin-bottom: 0;
+    max-height: 120px;
+    order: 1;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .input-bottom-bar,
+  .input-actions-left-bottom,
+  .input-actions-right-bottom {
+    display: contents;
+  }
+
+  .btn-attach {
+    order: 0;
+  }
+
+  .btn-mic {
+    display: none;
+  }
+
+  .btn-send {
+    order: 2;
+  }
+
+  .input-attachments-preview {
+    order: -1;
+    width: 100%;
+  }
+
+  .input-circle-btn {
+    min-width: 36px;
+    min-height: 36px;
+  }
+
+  .input-dropdown-trigger {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-box-inner {
+    padding-left: var(--spacing-md);
+    padding-right: var(--spacing-md);
+  }
+}

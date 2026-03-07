@@ -1,6 +1,7 @@
 /**
  * Sidebar — 对话列表侧边栏
  */
+import './Sidebar.css';
 import { useEffect, useCallback } from 'react';
 import { useAppStore } from '@/store';
 import { formatRelativeTime, formatBytes, truncate } from '@/utils/format';

@@ -1,0 +1,110 @@
+/* ========== Metadata Popover ========== */
+.metadata-popover-anchor {
+  position: relative;
+}
+
+.metadata-btn {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  width: 32px;
+  height: 32px;
+}
+
+.metadata-popover {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  width: 280px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+}
+
+.metadata-popover-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.metadata-empty {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+  padding: 16px 0;
+}
+
+.metadata-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.metadata-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metadata-item-full {
+  grid-column: 1 / -1;
+}
+
+.metadata-label {
+  font-size: 10px;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.metadata-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  font-family: var(--font-mono);
+}
+
+.metadata-models {
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--color-accent);
+  word-break: break-all;
+}
+
+.metadata-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 16px 0;
+}
+
+.metadata-status-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.metadata-status-section .status-indicator {
+  font-size: 11px;
+}
+
+.metadata-status-section .status-account {
+  font-size: 11px;
+  color: var(--color-text-secondary);
+}
+
+.metadata-status-section .status-debug-btn {
+  font-size: 10px;
+  padding: 4px 8px;
+  width: fit-content;
+}
+

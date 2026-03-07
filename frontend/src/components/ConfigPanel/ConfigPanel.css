@@ -1,0 +1,117 @@
+/* CONFIG PANEL */
+.config-panel {
+  width: 320px;
+  background: var(--color-bg-surface);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+}
+
+.config-panel-title {
+  padding: var(--spacing-lg) var(--spacing-md);
+  font-size: 16px;
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.config-item {
+  padding: var(--spacing-md);
+  border-bottom: 1px dashed var(--color-border);
+}
+
+.config-item-header {
+  margin-bottom: 12px;
+}
+
+.config-item-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 4px;
+  display: block;
+}
+
+.config-item-desc {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.config-toggle {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-base);
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.config-toggle.on {
+  background: rgba(45, 212, 191, 0.1);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.config-select {
+  width: 100%;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-base);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+  cursor: pointer;
+}
+
+.config-select:focus {
+  border-color: var(--color-accent);
+}
+
+/* STATUS BAR ELEMENTS */
+.status-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.status-indicator.connected .status-dot {
+  background: var(--color-accent);
+  box-shadow: 0 0 8px var(--color-accent);
+}
+
+.status-indicator.disconnected .status-dot {
+  background: #ef4444;
+}
+
+.status-account {
+  font-family: var(--font-mono);
+}
+
+.status-debug-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.status-debug-btn:hover {
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.status-debug-btn.active {
+  color: var(--color-accent-orange);
+}
