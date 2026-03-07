@@ -9,6 +9,23 @@
   border-top: none;
   container-type: inline-size;
   z-index: 20;
+  transition: transform var(--spring-duration-out) var(--spring-exit),
+              opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+/* 阅读模式：InputBox 向下滑出 */
+[data-reading-mode] .input-box {
+  transform: translateY(120%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--spring-duration-in) var(--spring-bounce),
+              opacity var(--spring-duration-in) ease;
+}
+
+/* 阅读模式：隐藏底部渐变遮罩 */
+[data-reading-mode] .chat-panel-fade {
+  opacity: 0;
+  transition: opacity var(--spring-duration-out) var(--spring-exit);
 }
 
 /* ===== Drag Grip Bar ===== */

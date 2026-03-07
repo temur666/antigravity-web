@@ -8,9 +8,12 @@
 import './ChatPanel.css';
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '@/store';
+import { useKeyboard } from '@/hooks/useKeyboard';
 import { StepRenderer } from './StepRenderer';
 import { InputBox } from './InputBox';
 import { PagedOverlay } from './PagedOverlay';
+import { StickyBubble } from './StickyBubble';
+import { TurnNav } from './TurnNav';
 
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
@@ -23,6 +26,10 @@ export function ChatPanel() {
     const loading = useAppStore(s => s.loading);
     const error = useAppStore(s => s.error);
     const setActiveConversation = useAppStore(s => s.setActiveConversation);
+    const readingMode = useAppStore(s => s.readingMode);
+    const toggleReadingMode = useAppStore(s => s.toggleReadingMode);
+    const isKeyboardVisible = useKeyboard();
+    const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
 
     // 滚动模式的 refs
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -132,6 +139,37 @@ export function ChatPanel() {
             }
         }
     }, [isPaged, recalcPages]);
+
+    // ---- 切换对话时退出阅读模式 ----
+    useEffect(() => {
+        if (readingMode) toggleReadingMode();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [activeConversationId]);
+
+    // ---- 键盘弹出时退出阅读模式 ----
+    useEffect(() => {
+        if (isKeyboardVisible && readingMode) toggleReadingMode();
+    }, [isKeyboardVisible, readingMode, toggleReadingMode]);
+
+    // ---- 监听窗口尺寸变化 ----
+    useEffect(() => {
+        const onResize = () => setIsMobile(window.innerWidth <= 768);
+        window.addEventListener('resize', onResize);
+        return () => window.removeEventListener('resize', onResize);
+    }, []);
+
+    // ---- 点击空白区域切换阅读模式 ----
+    const handleContentClick = useCallback((e: React.MouseEvent) => {
+        const target = e.target as HTMLElement;
+        // 排除可交互元素
+        const interactive = target.closest(
+            'a, button, pre, code, input, textarea, select, ' +
+            '[role="button"], .step-label, .step-file-header, ' +
+            '.step-toggle, img, video, summary'
+        );
+        if (interactive) return;
+        toggleReadingMode();
+    }, [toggleReadingMode]);
 
     // ---- 滚动模式：监听滚动位置 ----
     useEffect(() => {
@@ -367,7 +405,7 @@ export function ChatPanel() {
                 </div>
             ) : (
                 /* ====== 滚动模式 ====== */
-                <div className="chat-panel-messages" ref={contentRef}>
+                <div className="chat-panel-messages" ref={contentRef} onClick={handleContentClick}>
                     {stepsContent}
                     <div ref={bottomRef} />
                 </div>
@@ -402,6 +440,23 @@ export function ChatPanel() {
 
             <div className="chat-panel-fade" />
             <InputBox />
+
+            {/* 阅读模式组件（仅 scroll 模式可用） */}
+            {!isPaged && (
+                <>
+                    <StickyBubble
+                        steps={steps}
+                        scrollContainer={contentRef.current}
+                        visible={readingMode}
+                    />
+                    <TurnNav
+                        steps={steps}
+                        scrollContainer={contentRef.current}
+                        visible={readingMode}
+                        isMobile={isMobile}
+                    />
+                </>
+            )}
         </div>
     );
 }

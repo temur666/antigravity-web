@@ -12,6 +12,17 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--color-bg-base);
   border-top: none;
+  transition: transform var(--spring-duration-out) var(--spring-exit),
+              opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+/* 阅读模式：BottomNav 向下滑出 */
+[data-reading-mode] .bottom-nav {
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--spring-duration-in) var(--spring-bounce),
+              opacity var(--spring-duration-in) ease;
 }
 
 .bottom-nav-item {

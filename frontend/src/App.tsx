@@ -14,6 +14,8 @@ import { NotesPage } from './components/NotesPage/NotesPage';
 import type { TabId } from './components/BottomNav/BottomNav';
 import { Settings } from 'lucide-react';
 import { useAppStore } from '@/store';
+import { useKeyboard } from '@/hooks/useKeyboard';
+import { syncThemeToArk } from '@/utils/arkBridge';
 import { ConfigPanel } from './components/ConfigPanel/ConfigPanel';
 import { MetadataPopover } from './components/ChatPanel/MetadataPopover';
 import { BottomSheet } from './components/BottomSheet';
@@ -29,6 +31,11 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('chat');
   const [showConfig, setShowConfig] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
+  const readingMode = useAppStore(s => s.readingMode);
+  const isKeyboardVisible = useKeyboard();
+
+  // 同步主题色给 ArkWebView 原生层（非 ArkWebView 环境静默跳过）
+  useEffect(() => { syncThemeToArk(); }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -171,7 +178,7 @@ export default function App() {
   const showNotesView = isMobile && activeTab === 'notes';
 
   return (
-    <div className="app">
+    <div className="app" data-reading-mode={readingMode || undefined}>
       {/* 遮罩层 — 移动端始终渲染，通过 opacity/pointer-events 控制 */}
       {isMobile && (
         <div
@@ -186,7 +193,7 @@ export default function App() {
       )}
 
       {/* 主区域 */}
-      <main className={`main-area ${isMobile ? 'has-bottom-nav' : ''}`}>
+      <main className={`main-area ${isMobile && !isKeyboardVisible ? 'has-bottom-nav' : ''}`}>
         {showChatView && (
           <>
             <header className="app-header">
@@ -234,7 +241,7 @@ export default function App() {
       </main>
 
       {/* 移动端底部导航栏 */}
-      {isMobile && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />}
+      {isMobile && <BottomNav activeTab={activeTab} onTabChange={setActiveTab} hidden={isKeyboardVisible} />}
 
       <InstallPrompt />
     </div>

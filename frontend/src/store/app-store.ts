@@ -68,6 +68,7 @@ export interface AppState {
     debugMode: boolean;
     viewMode: 'scroll' | 'paged';
     pagedColumns: 1 | 2;
+    readingMode: boolean;
     loading: boolean;
     error: string | null;
 
@@ -88,6 +89,7 @@ export interface AppState {
     setActiveConversation: (id: string | null) => void;
     cancelConversation: () => Promise<void>;
     setDraft: (conversationId: string, text: string) => void;
+    toggleReadingMode: () => void;
 }
 
 export type AppStore = StoreApi<AppState>;
@@ -123,6 +125,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         debugMode: persistedDebug === 'true',
         viewMode: persistedViewMode || 'scroll',
         pagedColumns: (persistedCols === '2' ? 2 : 1) as 1 | 2,
+        readingMode: false,
         loading: false,
         error: null,
         draftMap: {},
@@ -209,7 +212,6 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
-                lastSeq: get().lastSeq,
             } as any, 15000);
         },
 
@@ -344,6 +346,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 }
                 return { draftMap: next };
             });
+        },
+
+        toggleReadingMode: () => {
+            set(state => ({ readingMode: !state.readingMode }));
         },
     }));
 

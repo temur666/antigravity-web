@@ -7,6 +7,17 @@
   height: 60px;
   background: transparent;
   z-index: 10;
+  transition: transform var(--spring-duration-out) var(--spring-exit),
+              opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+/* 阅读模式：Header 向上滑出 */
+[data-reading-mode] .app-header {
+  transform: translateY(-100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform var(--spring-duration-in) var(--spring-bounce),
+              opacity var(--spring-duration-in) ease;
 }
 
 /* Header Left Group */

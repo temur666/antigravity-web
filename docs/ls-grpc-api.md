@@ -21,7 +21,7 @@
 | `GetCascadeTrajectoryGeneratorMetadata` | 获取生成器元数据 | |
 | `GetAllCascadeTrajectories` | 获取所有对话摘要（标题等） | ✅ |
 | `DeleteCascadeTrajectory` | 删除对话轨迹 | ✅ |
-| `CopyTrajectory` | 复制对话 | |
+| `CopyTrajectory` | 复制对话（克隆完整轨迹，返回新 cascadeId） | ✅ |
 | `LoadTrajectory` | 加载轨迹到内存 | ✅ |
 | `ConvertTrajectoryToMarkdown` | 导出对话为 Markdown | |
 | `CreateTrajectoryShare` | 创建对话分享链接 | |
@@ -386,6 +386,19 @@ flags=0x02: end-of-stream (trailer)
   }
 }
 ```
+
+### CopyTrajectory
+
+```json
+// 请求: { "cascadeId": "源对话ID" }
+// 响应:
+{
+  "newCascadeId": "03d2ac80-f67b-44d4-bf0c-20cd414802c4"
+}
+```
+
+> 全量克隆：复制后的新对话包含原对话的所有 steps、标题、元数据，状态为 IDLE。
+> 两个对话完全独立，后续操作互不影响。
 
 ### Heartbeat
 

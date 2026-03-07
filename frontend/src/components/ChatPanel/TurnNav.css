@@ -1,0 +1,247 @@
+/* ===== Turn Navigation (阅读模式右侧导航) ===== */
+
+/* --- 桌面端：圆点导航条 --- */
+.turn-nav-dots {
+  position: fixed;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 200;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+.turn-nav-dots.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transition: opacity var(--spring-duration-in) ease;
+}
+
+.turn-nav-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  transition: transform 200ms ease,
+              background 200ms ease;
+}
+
+/* stagger 弹入动画 */
+.turn-nav-dot.entering {
+  animation: dotBounceIn var(--spring-duration-in) var(--spring-bounce) both;
+}
+
+@keyframes dotBounceIn {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.turn-nav-dot:hover {
+  background: var(--color-text-secondary);
+  transform: scale(1.4);
+}
+
+.turn-nav-dot.active {
+  background: var(--color-accent);
+  transform: scale(1.5);
+  box-shadow: 0 0 8px var(--color-accent-glow);
+}
+
+/* Tooltip */
+.turn-nav-dot .turn-nav-tooltip {
+  position: absolute;
+  right: calc(100% + 12px);
+  top: 50%;
+  transform: translateY(-50%);
+  max-width: 200px;
+  padding: 6px 10px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 150ms ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.turn-nav-dot:hover .turn-nav-tooltip {
+  opacity: 1;
+}
+
+/* --- 移动端：浮动按钮 --- */
+.turn-nav-mobile-btn {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 200;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+
+  opacity: 0;
+  pointer-events: none;
+  transform: scale(0.8);
+  transition: transform var(--spring-duration-out) var(--spring-exit),
+              opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+.turn-nav-mobile-btn.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: scale(1);
+  transition: transform var(--spring-duration-in) var(--spring-bounce),
+              opacity var(--spring-duration-in) ease;
+}
+
+.turn-nav-mobile-btn:active {
+  transform: scale(0.92);
+}
+
+/* --- Modal 列表 --- */
+.turn-list-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.turn-list-modal-backdrop.visible {
+  opacity: 1;
+}
+
+.turn-list-modal {
+  position: fixed;
+  right: 16px;
+  top: 56px;
+  width: min(320px, calc(100vw - 32px));
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  z-index: 1001;
+  padding: 8px;
+
+  transform: translateX(100%);
+  opacity: 0;
+  transition: transform var(--spring-duration-out) var(--spring-exit),
+              opacity var(--spring-duration-out) var(--spring-exit);
+}
+
+.turn-list-modal.visible {
+  transform: translateX(0);
+  opacity: 1;
+  transition: transform var(--spring-duration-in) var(--spring-bounce),
+              opacity var(--spring-duration-in) ease;
+}
+
+.turn-list-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  padding: 8px 12px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.turn-list-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 120ms ease;
+
+  /* 文字截断 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.turn-list-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.turn-list-item.active {
+  background: rgba(45, 212, 191, 0.08);
+  color: var(--color-accent);
+}
+
+.turn-list-item-index {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.turn-list-item.active .turn-list-item-index {
+  background: var(--color-accent);
+  color: #000;
+}
+
+.turn-list-item-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .turn-nav-dots {
+    display: none;
+  }
+
+  .turn-list-modal {
+    right: 8px;
+    top: 52px;
+    width: calc(100vw - 16px);
+  }
+}
