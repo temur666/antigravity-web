@@ -1,15 +1,16 @@
 /**
- * SystemStep — 系统消息 (4种隐藏类型的通用组件)
+ * SystemStep — 系统消息 (多种隐藏类型的通用组件)
  *
  * 覆盖:
  *   - EPHEMERAL_MESSAGE
  *   - CONVERSATION_HISTORY
  *   - KNOWLEDGE_ARTIFACTS
  *   - TASK_BOUNDARY
+ *   - CODE_ACKNOWLEDGEMENT
  */
-import { useState } from 'react';
 import type { Step } from '@/types';
 import { getStepShortType } from '@/types';
+import { CompactLayout } from './layouts/CompactLayout';
 
 interface Props {
     step: Step;
@@ -23,11 +24,9 @@ const STEP_ICONS: Record<string, string> = {
 };
 
 export function SystemStep({ step }: Props) {
-    const [expanded, setExpanded] = useState(false);
     const shortType = getStepShortType(step.type);
     const icon = STEP_ICONS[shortType] ?? '⚙️';
 
-    // 从不同 payload 提取 content
     const content =
         step.ephemeralMessage?.content ??
         step.conversationHistory?.content ??
@@ -36,17 +35,15 @@ export function SystemStep({ step }: Props) {
         null;
 
     return (
-        <div className="step step-system">
-            <button className="step-compact system" onClick={() => setExpanded(!expanded)}>
-                <span>{expanded ? '▼' : '▶'}</span>
-                <span>{icon} {shortType.replace(/_/g, ' ').toLowerCase()}</span>
-            </button>
-            {expanded && content && (
-                <pre className="step-system-content">{content}</pre>
-            )}
-            {expanded && !content && (
-                <div className="step-system-content empty">（无内容）</div>
-            )}
-        </div>
+        <CompactLayout
+            label={<>{icon} {shortType.replace(/_/g, ' ').toLowerCase()}</>}
+            className="step-system"
+            compactClassName="system"
+        >
+            {content
+                ? <pre className="step-system-content">{content}</pre>
+                : <div className="step-system-content empty">（无内容）</div>
+            }
+        </CompactLayout>
     );
 }
