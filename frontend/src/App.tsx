@@ -11,6 +11,7 @@ import { InstallPrompt } from './components/InstallPrompt/InstallPrompt';
 import { ModelSelector } from './components/Header/ModelSelector';
 import { BottomNav } from './components/BottomNav/BottomNav';
 import { NotesPage } from './components/NotesPage/NotesPage';
+import { FileBrowser } from './components/FileBrowser/FileBrowser';
 import type { TabId } from './components/BottomNav/BottomNav';
 import { Settings } from 'lucide-react';
 import { useAppStore } from '@/store';
@@ -176,6 +177,7 @@ export default function App() {
 
   const showChatView = !isMobile || activeTab === 'chat';
   const showNotesView = isMobile && activeTab === 'notes';
+  const showFilesView = isMobile && activeTab === 'files';
 
   return (
     <div className="app" data-reading-mode={readingMode || undefined}>
@@ -238,6 +240,7 @@ export default function App() {
         )}
 
         {showNotesView && <NotesPage />}
+        {showFilesView && <FileBrowser />}
       </main>
 
       {/* 移动端底部导航栏 */}

@@ -305,6 +305,65 @@ app.get('/api/file', async (req, res) => {
     }
 });
 
+app.get('/api/fs/list', async (req, res) => {
+    const relPath = req.query.path || '';
+    if (typeof relPath !== 'string') {
+        return res.status(400).json({ error: 'Invalid path parameter' });
+    }
+
+    const absPath = path.resolve(FILE_ROOT, relPath);
+    try {
+        const realAbs = fs.realpathSync(absPath);
+        const realRoot = fs.realpathSync(FILE_ROOT);
+        if (!realAbs.startsWith(realRoot + path.sep) && realAbs !== realRoot) {
+            return res.status(403).json({ error: 'Access denied: path outside project root' });
+        }
+
+        const stat = fs.statSync(realAbs);
+        if (!stat.isDirectory()) {
+            return res.status(400).json({ error: 'Not a directory' });
+        }
+
+        const entries = fs.readdirSync(realAbs, { withFileTypes: true });
+        
+        // 分离文件夹和文件，并排序
+        const dirs = [];
+        const files = [];
+
+        for (const entry of entries) {
+            if (entry.name.startsWith('.')) continue; // 忽略隐藏文件
+            if (entry.name === 'node_modules') continue;
+
+            const item = {
+                name: entry.name,
+                path: path.relative(realRoot, path.join(realAbs, entry.name)),
+                isDir: entry.isDirectory()
+            };
+
+            if (item.isDir) {
+                dirs.push(item);
+            } else {
+                files.push(item);
+            }
+        }
+
+        // 排序规则: a-z
+        const sortFn = (a, b) => a.name.localeCompare(b.name);
+        dirs.sort(sortFn);
+        files.sort(sortFn);
+
+        res.json({
+            path: path.relative(realRoot, realAbs) || '.',
+            items: [...dirs, ...files]
+        });
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            return res.status(404).json({ error: 'Directory not found' });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 // ========== File Upload ==========
 const uploadDir = path.join('/tmp', 'antigravity_uploads');
 if (!fs.existsSync(uploadDir)) {

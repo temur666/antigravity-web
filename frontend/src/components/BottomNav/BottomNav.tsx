@@ -5,9 +5,9 @@
  * 键盘弹出时自动隐藏，收回后恢复
  */
 import "./BottomNav.css";
-import { MessageCircle, StickyNote } from 'lucide-react';
+import { MessageCircle, StickyNote, FolderOpen } from 'lucide-react';
 
-export type TabId = 'chat' | 'notes';
+export type TabId = 'chat' | 'notes' | 'files';
 
 interface BottomNavProps {
     activeTab: TabId;
@@ -33,6 +33,14 @@ export function BottomNav({ activeTab, onTabChange, hidden }: BottomNavProps) {
             >
                 <StickyNote size={22} />
                 <span className="bottom-nav-label">notes</span>
+            </button>
+            <button
+                className={`bottom-nav-item ${activeTab === 'files' ? 'active' : ''}`}
+                onClick={() => onTabChange('files')}
+                aria-label="Files"
+            >
+                <FolderOpen size={22} />
+                <span className="bottom-nav-label">files</span>
             </button>
         </nav>
     );
