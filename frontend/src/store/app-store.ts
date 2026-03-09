@@ -37,6 +37,7 @@ import type {
 import { DEFAULT_CONFIG } from '@/types';
 import type { WSClient } from './ws-client';
 import { buildStepUsageMap } from '@/utils/metadata';
+import { getConversationIdFromUrl, pushConversationUrl } from '@/utils/url';
 
 // ========== State 类型 ==========
 
@@ -97,9 +98,11 @@ export type AppStore = StoreApi<AppState>;
 // ========== Store 工厂 ==========
 
 export function createAppStore(wsClient: WSClient): AppStore {
-    // ── 持久化恢复 ──
-    const persistedConvId = typeof localStorage !== 'undefined'
-        ? localStorage.getItem('activeConversationId') : null;
+    // ── 持久化恢复（URL 优先 > localStorage fallback） ──
+    const urlConvId = getConversationIdFromUrl();
+    const persistedConvId = urlConvId
+        || (typeof localStorage !== 'undefined'
+            ? localStorage.getItem('activeConversationId') : null);
     const persistedViewMode = typeof localStorage !== 'undefined'
         ? localStorage.getItem('viewMode') as 'scroll' | 'paged' | null : null;
     const persistedDebug = typeof localStorage !== 'undefined'
@@ -169,6 +172,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 error: null,
             });
             localStorage.setItem('activeConversationId', id);
+            pushConversationUrl(id);
 
             // 拉取完整轨迹（超时 30s，大型对话可能需要较长时间）
             const trajectoryRes = await wsClient.sendAndWait({
@@ -319,6 +323,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         setActiveConversation: (id: string | null) => {
             if (id) localStorage.setItem('activeConversationId', id);
             else localStorage.removeItem('activeConversationId');
+            pushConversationUrl(id);
             set({
                 activeConversationId: id,
                 steps: [],

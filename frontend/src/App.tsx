@@ -17,6 +17,7 @@ import { Settings } from 'lucide-react';
 import { useAppStore } from '@/store';
 import { useKeyboard } from '@/hooks/useKeyboard';
 import { syncThemeToArk } from '@/utils/arkBridge';
+import { getConversationIdFromUrl } from '@/utils/url';
 import { ConfigPanel } from './components/ConfigPanel/ConfigPanel';
 import { MetadataPopover } from './components/ChatPanel/MetadataPopover';
 import { BottomSheet } from './components/BottomSheet';
@@ -32,6 +33,8 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<TabId>('chat');
   const [showConfig, setShowConfig] = useState(false);
   const activeConversationId = useAppStore(s => s.activeConversationId);
+  const selectConversation = useAppStore(s => s.selectConversation);
+  const setActiveConversation = useAppStore(s => s.setActiveConversation);
   const readingMode = useAppStore(s => s.readingMode);
   const isKeyboardVisible = useKeyboard();
 
@@ -52,6 +55,20 @@ export default function App() {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+  // ── 浏览器前进/后退 → 同步 URL 中的对话 ID ──
+  useEffect(() => {
+    const onPopState = () => {
+      const urlId = getConversationIdFromUrl();
+      if (urlId && urlId !== activeConversationId) {
+        selectConversation(urlId);
+      } else if (!urlId && activeConversationId) {
+        setActiveConversation(null);
+      }
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [activeConversationId, selectConversation, setActiveConversation]);
 
   // ── 移动端触摸跟手拖拽侧边栏 ──
   const sidebarOpenRef = useRef(showSidebar);
