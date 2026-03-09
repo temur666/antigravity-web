@@ -129,6 +129,8 @@ export interface ErrorMessagePayload {
 
 export interface CheckpointPayload {
     userIntent?: string;
+    sessionSummary?: string;
+    codeChangeSummary?: string;
     [key: string]: unknown;
 }
 
