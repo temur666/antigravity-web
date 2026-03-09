@@ -163,12 +163,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 });
             }
 
+            // A: 重载同一对话时保留现有 steps（无闪烁）
+            //    切换到不同对话时才清空
+            const isSameConv = oldId === id && get().steps.length > 0;
+
             set({
                 activeConversationId: id,
-                steps: [],
+                ...(isSameConv ? {} : { steps: [] }),
                 conversationStatus: 'IDLE',
                 lastSeq: 0,
-                loading: true,
+                loading: !isSameConv,
                 error: null,
             });
             localStorage.setItem('activeConversationId', id);
@@ -384,17 +388,26 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
                     if (!wasLsConnected) {
                         // 场景 A: LS 首次连接 或 LS 真正断开后重连
-                        // → 全量加载（对话列表 + 状态 + 活跃对话）
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId && !isRestoringConversation) {
-                            isRestoringConversation = true;
-                            currentState.selectConversation(currentState.activeConversationId)
-                                .catch(() => {
-                                    localStorage.removeItem('activeConversationId');
-                                    store.setState({ activeConversationId: null, steps: [], loading: false });
-                                })
-                                .finally(() => { isRestoringConversation = false; });
+                            // C: 已有 steps 数据 → 跳过全量拉取，只重订阅
+                            if (currentState.steps.length > 0) {
+                                wsClient.send({
+                                    type: 'req_subscribe',
+                                    reqId: wsClient.nextReqId(),
+                                    cascadeId: currentState.activeConversationId,
+                                    lastSeq: currentState.lastSeq,
+                                });
+                            } else {
+                                isRestoringConversation = true;
+                                currentState.selectConversation(currentState.activeConversationId)
+                                    .catch(() => {
+                                        localStorage.removeItem('activeConversationId');
+                                        store.setState({ activeConversationId: null, steps: [], loading: false });
+                                    })
+                                    .finally(() => { isRestoringConversation = false; });
+                            }
                         }
                     } else if (hasReceivedLsStatus) {
                         // 场景 B: WS 断开重连，但 LS 一直在线
@@ -412,17 +425,26 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         }
                     } else {
                         // 场景 C: 首次 WS 连接，LS 已在线
-                        // → 首次加载 + 恢复持久化的活跃对话
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId && !isRestoringConversation) {
-                            isRestoringConversation = true;
-                            currentState.selectConversation(currentState.activeConversationId)
-                                .catch(() => {
-                                    localStorage.removeItem('activeConversationId');
-                                    store.setState({ activeConversationId: null, steps: [], loading: false });
-                                })
-                                .finally(() => { isRestoringConversation = false; });
+                            // C: 已有 steps 数据 → 跳过全量拉取，只重订阅
+                            if (currentState.steps.length > 0) {
+                                wsClient.send({
+                                    type: 'req_subscribe',
+                                    reqId: wsClient.nextReqId(),
+                                    cascadeId: currentState.activeConversationId,
+                                    lastSeq: currentState.lastSeq,
+                                });
+                            } else {
+                                isRestoringConversation = true;
+                                currentState.selectConversation(currentState.activeConversationId)
+                                    .catch(() => {
+                                        localStorage.removeItem('activeConversationId');
+                                        store.setState({ activeConversationId: null, steps: [], loading: false });
+                                    })
+                                    .finally(() => { isRestoringConversation = false; });
+                            }
                         }
                     }
                 }

@@ -330,10 +330,8 @@
 .input-dropdown-menu {
   position: absolute;
   bottom: calc(100% + 12px);
-
-    opacity: 1;
-    transform: translateY(0);
-  }
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes dropdownUp {
@@ -351,6 +349,7 @@
 .input-config-popover {
   position: absolute;
   bottom: calc(100% + 12px);
+}
 
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
