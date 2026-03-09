@@ -129,6 +129,9 @@ export interface ErrorMessagePayload {
         modelErrorMessage?: string;
         shortError?: string;
         fullError?: string;
+        errorCode?: number;
+        details?: string;
+        rpcErrorDetails?: string[];
         [key: string]: unknown;
     };
     [key: string]: unknown;

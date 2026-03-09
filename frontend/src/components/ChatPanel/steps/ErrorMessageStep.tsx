@@ -10,11 +10,10 @@ export function ErrorMessageStep({ step }: Props) {
     const em = step.errorMessage;
     if (!em) return null;
 
-    // API 原始结构: errorMessage.error.{ userErrorMessage, shortError, fullError }
     const err = em.error;
-    const shortLabel = err?.shortError || em.message || 'Error';
-    const userMsg = err?.userErrorMessage;
-    const fullErr = err?.fullError;
+
+    // 折叠标题: 优先用 shortError 做摘要
+    const summary = err?.shortError || em.message || 'Unknown error';
 
     return (
         <div className={`thinking-block variant-error ${expanded ? 'expanded' : ''}`}>
@@ -23,16 +22,21 @@ export function ErrorMessageStep({ step }: Props) {
                 onClick={() => setExpanded(!expanded)}
             >
                 <span className="thinking-chevron">{expanded ? '▼' : '▶'}</span>
-                <span>Error</span>
+                <span>Error: {summary}</span>
             </button>
             {expanded && (
                 <div className="thinking-content">
-                    {userMsg && <pre>{userMsg}</pre>}
-                    <pre>{shortLabel}</pre>
-                    {fullErr && <pre>{fullErr}</pre>}
+                    {err ? (
+                        <>
+                            {err.userErrorMessage && <pre>{err.userErrorMessage}</pre>}
+                            {err.modelErrorMessage && <pre>{err.modelErrorMessage}</pre>}
+                            {err.fullError && <pre>{err.fullError}</pre>}
+                        </>
+                    ) : (
+                        <pre>{em.message ?? 'Unknown error'}</pre>
+                    )}
                 </div>
             )}
         </div>
     );
 }
-
