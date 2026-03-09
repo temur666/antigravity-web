@@ -9,8 +9,8 @@
 import './InputBox.css';
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Mic, ArrowRight, Square, Paperclip, X } from 'lucide-react';
-
+import { Mic, ArrowRight, Square, Paperclip, X, MessagesSquare } from 'lucide-react';
+import { truncate } from '@/utils/format';
 
 import { useDraggable } from '@/hooks/useDraggable';
 
@@ -84,6 +84,11 @@ export function InputBox() {
     const sendMessage = useAppStore(s => s.sendMessage);
     const conversationStatus = useAppStore(s => s.conversationStatus);
     const cancelConversation = useAppStore(s => s.cancelConversation);
+    const conversations = useAppStore(s => s.conversations);
+    const selectConversation = useAppStore(s => s.selectConversation);
+    const [showTags, setShowTags] = useState(false);
+    const recentConversations = conversations.slice(0, 5);
+    const hasText = text.trim().length > 0;
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -324,13 +329,47 @@ export function InputBox() {
                 <div className="input-box-grip-bar" />
             </div>
 
-            {/* 输入框主体：变为左右水平布局（单行） */}
-            <div
-                className="input-box-inner-row"
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-            >
+            {/* 对话标签栏 */}
+            <div className={`conversation-tags-row${showTags ? ' open' : ''}`}>
+                {recentConversations.map((conv, idx) => {
+                    const isActiveConv = conv.id === activeConversationId;
+                    const running = isActiveConv
+                        ? conversationStatus === 'RUNNING'
+                        : conv.status === 'RUNNING';
+                    const title = conv.title
+                        ? truncate(conv.title, 12)
+                        : conv.id.slice(0, 8);
+                    return (
+                        <button
+                            key={conv.id}
+                            className={`conv-tag${isActiveConv ? ' conv-tag-active' : ''}${running ? ' conv-tag-running' : ''}`}
+                            onClick={() => selectConversation(conv.id)}
+                            style={{ animationDelay: `${idx * 50}ms` }}
+                        >
+                            {running && <span className="conv-tag-dot" />}
+                            <span className="conv-tag-label">{title}</span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            {/* 切换按钮 + 输入框主体 */}
+            <div className="input-row-wrapper">
+                <button
+                    className={`conv-tags-toggle${hasText ? ' conv-tags-toggle-hidden' : ''}`}
+                    onClick={() => setShowTags(prev => !prev)}
+                    title="最近对话"
+                >
+                    <MessagesSquare size={16} />
+                </button>
+
+                {/* 输入框主体 */}
+                <div
+                    className="input-box-inner-row"
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                >
                 {/* 隐藏的文件输入 */}
                 <input
                     type="file"
@@ -425,6 +464,7 @@ export function InputBox() {
                             <ArrowRight size={20} strokeWidth={2.5} />
                         </button>
                     )}
+                </div>
                 </div>
             </div>
         </div>
