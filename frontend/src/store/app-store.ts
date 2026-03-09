@@ -39,6 +39,18 @@ import type { WSClient } from './ws-client';
 import { buildStepUsageMap } from '@/utils/metadata';
 import { getConversationIdFromUrl, pushConversationUrl } from '@/utils/url';
 
+// ========== 对话缓存（内存级，不参与渲染） ==========
+
+interface ConversationSnapshot {
+    steps: Step[];
+    metadata: GeneratorMetadata[];
+    stepUsageMap: Map<number, StepUsageInfo>;
+    status: string;
+    lastSeq: number;
+}
+
+const conversationCache = new Map<string, ConversationSnapshot>();
+
 // ========== State 类型 ==========
 
 export interface AppState {
@@ -153,9 +165,27 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         selectConversation: async (id: string) => {
-            // 如果有旧订阅，取消
+            // 如果有旧订阅，取消，并缓存旧对话数据
             const oldId = get().activeConversationId;
             if (oldId && oldId !== id) {
+                // 将旧对话的实时状态同步回 conversations 列表
+                const oldStatus = get().conversationStatus;
+                set(prev => ({
+                    conversations: prev.conversations.map(c =>
+                        c.id === oldId ? { ...c, status: oldStatus } : c
+                    ),
+                }));
+                // 缓存当前对话数据
+                const prev = get();
+                if (prev.steps.length > 0) {
+                    conversationCache.set(oldId, {
+                        steps: prev.steps,
+                        metadata: prev.metadata,
+                        stepUsageMap: prev.stepUsageMap,
+                        status: prev.conversationStatus,
+                        lastSeq: prev.lastSeq,
+                    });
+                }
                 wsClient.send({
                     type: 'req_unsubscribe',
                     reqId: wsClient.nextReqId(),
@@ -163,8 +193,32 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 });
             }
 
-            // A: 重载同一对话时保留现有 steps（无闪烁）
-            //    切换到不同对话时才清空
+            // 检查缓存：命中则秒开
+            const cached = conversationCache.get(id);
+            if (cached) {
+                set({
+                    activeConversationId: id,
+                    steps: cached.steps,
+                    conversationStatus: cached.status,
+                    metadata: cached.metadata,
+                    stepUsageMap: cached.stepUsageMap,
+                    lastSeq: cached.lastSeq,
+                    loading: false,
+                    error: null,
+                });
+                localStorage.setItem('activeConversationId', id);
+                pushConversationUrl(id);
+
+                // 后台重订阅增量更新
+                await wsClient.sendAndWait({
+                    type: 'req_subscribe',
+                    reqId: wsClient.nextReqId(),
+                    cascadeId: id,
+                }, 15000);
+                return;
+            }
+
+            // 无缓存：重载同一对话时保留现有 steps（A 方案）
             const isSameConv = oldId === id && get().steps.length > 0;
 
             set({
@@ -178,29 +232,37 @@ export function createAppStore(wsClient: WSClient): AppStore {
             localStorage.setItem('activeConversationId', id);
             pushConversationUrl(id);
 
-            // 拉取完整轨迹（超时 30s，大型对话可能需要较长时间）
+            // 拉取完整轨迹（超时 30s）
             const trajectoryRes = await wsClient.sendAndWait({
                 type: 'req_trajectory',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
             }, 30000);
 
-            // 竞态保护：如果用户在等待期间切换到了其他对话，丢弃本次结果
+            // 竞态保护
             if (get().activeConversationId !== id) return;
 
             if (trajectoryRes.type === 'res_trajectory') {
                 const data = trajectoryRes as ResTrajectory & { seq?: number };
                 const meta = (data.metadata || []) as GeneratorMetadata[];
+                const usageMap = buildStepUsageMap(meta);
                 set({
                     steps: data.steps,
                     conversationStatus: data.status.replace('CASCADE_RUN_STATUS_', ''),
                     metadata: meta,
-                    stepUsageMap: buildStepUsageMap(meta),
+                    stepUsageMap: usageMap,
                     lastSeq: data.seq || 0,
                     loading: false,
                 });
+                // 写入缓存
+                conversationCache.set(id, {
+                    steps: data.steps,
+                    metadata: meta,
+                    stepUsageMap: usageMap,
+                    status: data.status.replace('CASCADE_RUN_STATUS_', ''),
+                    lastSeq: data.seq || 0,
+                });
             } else {
-                // 加载失败 → 清除死 ID，防止刷新后反复卡死
                 localStorage.removeItem('activeConversationId');
                 set({
                     loading: false,
@@ -209,13 +271,11 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     steps: [],
                     conversationStatus: 'IDLE',
                 });
-                return; // 不再订阅
+                return;
             }
 
-            // 再次检查竞态：订阅前确认仍是当前对话
             if (get().activeConversationId !== id) return;
 
-            // 订阅实时更新（带 lastSeq 用于增量恢复，超时 15s）
             await wsClient.sendAndWait({
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
@@ -242,7 +302,12 @@ export function createAppStore(wsClient: WSClient): AppStore {
             const cascadeId = get().activeConversationId;
             if (!cascadeId) return;
 
-            set({ conversationStatus: 'RUNNING' });
+            set(prev => ({
+                conversationStatus: 'RUNNING',
+                conversations: prev.conversations.map(c =>
+                    c.id === cascadeId ? { ...c, status: 'RUNNING' } : c
+                ),
+            }));
 
             await wsClient.sendAndWait({
                 type: 'req_send_message',
@@ -325,6 +390,17 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         setActiveConversation: (id: string | null) => {
+            // 切走时缓存当前对话
+            const prev = get();
+            if (prev.activeConversationId && prev.steps.length > 0 && prev.activeConversationId !== id) {
+                conversationCache.set(prev.activeConversationId, {
+                    steps: prev.steps,
+                    metadata: prev.metadata,
+                    stepUsageMap: prev.stepUsageMap,
+                    status: prev.conversationStatus,
+                    lastSeq: prev.lastSeq,
+                });
+            }
             if (id) localStorage.setItem('activeConversationId', id);
             else localStorage.removeItem('activeConversationId');
             pushConversationUrl(id);
