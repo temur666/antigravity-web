@@ -50,6 +50,7 @@ export type {
     EphemeralMessagePayload,
     ConversationHistoryPayload,
     KnowledgeArtifactsPayload,
+    KnowledgeItem,
     TaskBoundaryPayload,
     SearchWebPayload,
     GrepSearchPayload,

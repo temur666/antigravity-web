@@ -37,7 +37,8 @@ export type StepType =
     | 'CORTEX_STEP_TYPE_TASK_BOUNDARY'
     | 'CORTEX_STEP_TYPE_SEARCH_WEB'
     | 'CORTEX_STEP_TYPE_GREP_SEARCH'
-    | 'CORTEX_STEP_TYPE_FIND';
+    | 'CORTEX_STEP_TYPE_FIND'
+    | 'CORTEX_STEP_TYPE_KNOWLEDGE_GENERATION';
 
 // ========== 隐藏的 Step 类型 ==========
 
@@ -47,6 +48,7 @@ export const HIDDEN_STEP_TYPES: StepType[] = [
     'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS',
     'CORTEX_STEP_TYPE_TASK_BOUNDARY',
     'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT',
+    'CORTEX_STEP_TYPE_KNOWLEDGE_GENERATION',
 ];
 
 // ========== Step Payload 类型 ==========
@@ -154,8 +156,17 @@ export interface ConversationHistoryPayload {
     [key: string]: unknown;
 }
 
+export interface KnowledgeItem {
+    title: string;
+    lastAccessed?: string;
+    summary: string;
+    basePath?: string;
+    artifactPaths: string[];
+}
+
 export interface KnowledgeArtifactsPayload {
     content?: string;
+    items?: KnowledgeItem[];
     [key: string]: unknown;
 }
 

@@ -39,6 +39,13 @@ renderer.link = function ({ href, text }: { href: string; text: string }) {
     return `<a href="${escapeHtml(href || '')}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 };
 
+// 自定义表格渲染：外层包裹 wrapper 支持横向滚动
+const defaultRenderer = new marked.Renderer();
+renderer.table = function (token: Parameters<typeof defaultRenderer.table>[0]) {
+    const html = defaultRenderer.table.call(this, token);
+    return `<div class="table-wrapper">${html}</div>`;
+};
+
 marked.use({ renderer });
 
 /**

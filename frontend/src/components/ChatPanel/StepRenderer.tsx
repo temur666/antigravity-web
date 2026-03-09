@@ -86,6 +86,7 @@ function renderStep(step: Step, index: number) {
         case 'CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE':
         case 'CORTEX_STEP_TYPE_CONVERSATION_HISTORY':
         case 'CORTEX_STEP_TYPE_TASK_BOUNDARY':
+        case 'CORTEX_STEP_TYPE_KNOWLEDGE_GENERATION':
             return <SystemStep step={step} />;
         default:
             return (

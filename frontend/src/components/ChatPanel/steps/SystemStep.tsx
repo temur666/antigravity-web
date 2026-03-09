@@ -20,6 +20,7 @@ const STEP_ICONS: Record<string, string> = {
     EPHEMERAL_MESSAGE: '💬',
     CONVERSATION_HISTORY: '📚',
     TASK_BOUNDARY: '🔲',
+    KNOWLEDGE_GENERATION: '🧠',
 };
 
 export function SystemStep({ step }: Props) {
