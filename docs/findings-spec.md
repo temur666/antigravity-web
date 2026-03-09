@@ -6,15 +6,19 @@
 
 ## 文件约定
 
-- **路径**: `docs/findings/YYMMDD-HHMM-TopicName.md`
-- **附件**: `docs/findings/assets/` (统一存放截图、数据文件等)
-- **命名**: 日期时间 + 主题英文短名, 如 `260308-1700-GrpcFieldMapping.md`
+- **路径**: `docs/findings/YYMMDD-topic-name.md`
+- **附件**: `docs/findings/assets/`
+- **命名规则**:
+  - 日期 `YYMMDD` + kebab-case 主题名
+  - 主题名 2-4 个英文词, 全小写, 短横线分隔
+  - 示例: `260301-code-action-approval.md`, `260308-stream-payload.md`
+- **禁用表格**: 所有结构化信息用列表表达, 不使用 markdown 表格
 
 ---
 
 ## 文档结构
 
-一份 Findings 文档由以下五层组成, 从具体到综合、从原始到精炼:
+一份 Findings 文档由以下五层组成:
 
 ```
 事实 (Facts)           ← 原子发现, 可独立验证
@@ -36,17 +40,16 @@
 ---
 title: [主题名称]
 date: YYYY-MM-DD
+updated: YYYY-MM-DD
 tags: [ai-dev | reverse-engineering | research | general]
 status: [draft | confirmed | archived]
 ---
 ```
 
-| 字段 | 说明 |
-|------|------|
-| `title` | 简短主题名 |
-| `date` | 文档创建日期 |
-| `tags` | 分类标签, 可多选 |
-| `status` | `draft` 初稿 / `confirmed` 已验证 / `archived` 归档 |
+- `date` — 创建日期, 固定不变
+- `updated` — 最后修改日期, 随时更新
+- `tags` — 分类标签, 可多选
+- `status` — `draft` 初稿 / `confirmed` 已验证 / `archived` 归档
 
 ---
 
@@ -57,8 +60,9 @@ status: [draft | confirmed | archived]
 ### 规则
 
 - 编号: `F-xx` (从 01 递增)
-- 标记: ✓ 正面发现 / ✗ 负面发现 (某条路行不通的**原因**, 如果它揭示了目标的属性)
+- 标记: ✓ 正面发现 / ✗ 负面发现
 - 引用: 用 `→ [E-xx]` 指向支撑证据
+- 事实必须是**关于目标的**, 不是关于你的方法的
 
 ### 格式
 
@@ -70,11 +74,12 @@ status: [draft | confirmed | archived]
 - **F-03** ✓ 目标 app 启用了 certificate pinning → `[E-04]`
 ```
 
-### 注意
+### 正面 vs 负面事实
 
-- 事实必须是**关于目标的**, 不是关于你的方法的
-- "mitmproxy 抓不到包" 不是事实; "目标启用了 cert pinning" 才是事实
-- 纯方法层面的失败 (如 filter 写错) 记在探索过程, 不提升为事实
+- ✓ "field_3 是 timestamp" — 正面发现
+- ✗ "目标 app 启用了 cert pinning" — 负面发现 (揭示了目标的属性)
+- "mitmproxy 抓不到包" — 这不是事实, 是探索过程
+- 死胡同本身记在探索过程; 如果死胡同**揭示了目标的属性**, 把那个属性提升为事实
 
 ---
 
@@ -92,10 +97,10 @@ status: [draft | confirmed | archived]
 需使用 Frida hook 在运行时截获明文数据。
 ```
 
-### 注意
+### 规则
 
-- 结论必须引用事实编号, 说明依据
-- 结论回答 "所以呢" / "下一步怎么办"
+- 必须引用事实编号, 说明依据
+- 回答 "所以呢" / "下一步怎么办"
 - 如果事实之间存在矛盾, 在结论中明确指出
 
 ---
@@ -107,9 +112,9 @@ status: [draft | confirmed | archived]
 ### 规则
 
 - 编号: `E-xx` (从 01 递增)
-- 类型: `code` | `log` | `screenshot` | `config` | `doc-reference` | `script-result`
+- 类型: `code` / `log` / `screenshot` / `config` / `doc-reference` / `script-result`
 - 必须包含来源
-- 包含 `reproduction` 字段时, 证据可被独立复现
+- `script-result` 类型必须包含复现方法
 
 ### 格式
 
@@ -166,7 +171,7 @@ field_7 始终乱码, 怀疑嵌套 message:
 改用 Frida hook, 成功拿到明文数据:
 ```
 
-### 注意
+### 规则
 
 - 自由叙述, 不需要固定子结构
 - 重点记录**转折点**和**方向变化**
@@ -190,14 +195,6 @@ field_7 始终乱码, 怀疑嵌套 message:
 > **USER**: field_7 解出来全是乱码, 会不会是嵌套的?
 > **AI**: 确实有可能。varint 解码后前几个字节符合 length-delimited
 > 类型的特征, 我用递归解析试一下。
-
-### 片段 2: 确认 cert pinning
-- **对话 ID**: `...`
-- **上下文**: 尝试 mitmproxy 抓包失败后的分析
-
-> **USER**: 为什么一个包都抓不到?
-> **AI**: 看日志是 SSL handshake 阶段就断了, 目标 app 大概率用了
-> certificate pinning, 需要 Frida 绕过。
 ```
 
 ---
@@ -207,7 +204,8 @@ field_7 始终乱码, 怀疑嵌套 message:
 ```markdown
 ---
 title: gRPC Stream 字段映射
-date: 2026-03-08
+date: 2026-03-01
+updated: 2026-03-08
 tags: [reverse-engineering]
 status: confirmed
 ---
