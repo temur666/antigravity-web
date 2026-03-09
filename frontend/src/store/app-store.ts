@@ -491,11 +491,23 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             case 'event_status_changed': {
                 const event = msg as EventStatusChanged & { seq?: number };
-                if (event.cascadeId !== state.activeConversationId) break;
-                store.setState(prev => ({
-                    conversationStatus: event.to,
-                    lastSeq: event.seq || prev.lastSeq,
-                }));
+                store.setState(prev => {
+                    // 同步更新 conversations 列表中对应对话的 status
+                    const newConversations = prev.conversations.map(c =>
+                        c.id === event.cascadeId
+                            ? { ...c, status: event.to }
+                            : c
+                    );
+                    // 仅当是活跃对话时，更新 conversationStatus 和 lastSeq
+                    if (event.cascadeId === prev.activeConversationId) {
+                        return {
+                            conversations: newConversations,
+                            conversationStatus: event.to,
+                            lastSeq: event.seq || prev.lastSeq,
+                        };
+                    }
+                    return { conversations: newConversations };
+                });
                 break;
             }
 
