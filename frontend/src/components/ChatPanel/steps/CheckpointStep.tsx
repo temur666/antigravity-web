@@ -22,7 +22,7 @@ export function CheckpointStep({ step }: Props) {
                 onClick={() => setExpanded(!expanded)}
             >
                 <span className="thinking-chevron">{expanded ? '▼' : '▶'}</span>
-                <span>检查点</span>
+                <span>Checkpoint</span>
             </button>
             {expanded && hasContent && (
                 <div className="thinking-content">

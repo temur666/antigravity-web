@@ -124,6 +124,13 @@ export interface NotifyUserPayload {
 export interface ErrorMessagePayload {
     message?: string;
     code?: string;
+    error?: {
+        userErrorMessage?: string;
+        modelErrorMessage?: string;
+        shortError?: string;
+        fullError?: string;
+        [key: string]: unknown;
+    };
     [key: string]: unknown;
 }
 

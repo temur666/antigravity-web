@@ -10,7 +10,11 @@ export function ErrorMessageStep({ step }: Props) {
     const em = step.errorMessage;
     if (!em) return null;
 
-    const title = em.code ? `[${em.code}] 错误` : '错误';
+    // API 原始结构: errorMessage.error.{ userErrorMessage, shortError, fullError }
+    const err = em.error;
+    const shortLabel = err?.shortError || em.message || 'Error';
+    const userMsg = err?.userErrorMessage;
+    const fullErr = err?.fullError;
 
     return (
         <div className={`thinking-block variant-error ${expanded ? 'expanded' : ''}`}>
@@ -19,11 +23,13 @@ export function ErrorMessageStep({ step }: Props) {
                 onClick={() => setExpanded(!expanded)}
             >
                 <span className="thinking-chevron">{expanded ? '▼' : '▶'}</span>
-                <span>{title}</span>
+                <span>Error</span>
             </button>
             {expanded && (
                 <div className="thinking-content">
-                    <pre>{em.message ?? '未知错误'}</pre>
+                    {userMsg && <pre>{userMsg}</pre>}
+                    <pre>{shortLabel}</pre>
+                    {fullErr && <pre>{fullErr}</pre>}
                 </div>
             )}
         </div>
