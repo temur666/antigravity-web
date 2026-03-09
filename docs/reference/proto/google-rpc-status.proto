@@ -1,0 +1,10 @@
+// Proto file: google/rpc/status.proto
+// Package: google.rpc
+syntax = "proto3";
+package google.rpc;
+
+message Status {
+  int32 code = 1;
+  string message = 2;
+  repeated google.protobuf.Any details = 3;
+}
