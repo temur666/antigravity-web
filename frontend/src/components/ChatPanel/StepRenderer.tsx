@@ -23,6 +23,7 @@ import {
     ViewFileOutlineStep,
     ViewCodeItemStep,
     SystemStep,
+    KnowledgeArtifactsStep,
 } from './steps';
 
 interface Props {
@@ -66,6 +67,8 @@ function renderStep(step: Step, index: number) {
             return <ErrorMessageStep step={step} />;
         case 'CORTEX_STEP_TYPE_CHECKPOINT':
             return <CheckpointStep step={step} />;
+        case 'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS':
+            return <KnowledgeArtifactsStep step={step} />;
         case 'CORTEX_STEP_TYPE_SEARCH_WEB':
             return <SearchWebStep step={step} />;
         case 'CORTEX_STEP_TYPE_GREP_SEARCH':
@@ -79,10 +82,9 @@ function renderStep(step: Step, index: number) {
         // CODE_ACKNOWLEDGEMENT 通常隐藏，但 debug 模式下走系统步骤渲染
         case 'CORTEX_STEP_TYPE_CODE_ACKNOWLEDGEMENT':
             return <SystemStep step={step} />;
-        // 4 种系统消息 -> 通用 SystemStep
+        // 3 种系统消息 -> 通用 SystemStep
         case 'CORTEX_STEP_TYPE_EPHEMERAL_MESSAGE':
         case 'CORTEX_STEP_TYPE_CONVERSATION_HISTORY':
-        case 'CORTEX_STEP_TYPE_KNOWLEDGE_ARTIFACTS':
         case 'CORTEX_STEP_TYPE_TASK_BOUNDARY':
             return <SystemStep step={step} />;
         default:

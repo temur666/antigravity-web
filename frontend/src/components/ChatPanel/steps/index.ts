@@ -17,3 +17,4 @@ export { FindStep } from './FindStep';
 export { ViewFileOutlineStep } from './ViewFileOutlineStep';
 export { ViewCodeItemStep } from './ViewCodeItemStep';
 export { SystemStep } from './SystemStep';
+export { KnowledgeArtifactsStep } from './KnowledgeArtifactsStep';

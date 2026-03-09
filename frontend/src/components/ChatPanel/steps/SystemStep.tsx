@@ -19,7 +19,6 @@ interface Props {
 const STEP_ICONS: Record<string, string> = {
     EPHEMERAL_MESSAGE: '💬',
     CONVERSATION_HISTORY: '📚',
-    KNOWLEDGE_ARTIFACTS: '🧠',
     TASK_BOUNDARY: '🔲',
 };
 
@@ -30,7 +29,6 @@ export function SystemStep({ step }: Props) {
     const content =
         step.ephemeralMessage?.content ??
         step.conversationHistory?.content ??
-        step.knowledgeArtifacts?.content ??
         step.taskBoundary?.content ??
         null;
 
