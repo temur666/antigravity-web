@@ -16,36 +16,40 @@ updated: 2026-03-09
 
 ## 1. 对话管理 (Cascade)
 
-### 核心生命周期
+### 核心生命周期 (Headless E2E 全部验证完毕 ✅)
+
+*详细的请求/响应参数抓包及 E2E 测试脚本记录请参阅: [260309-probe-cascade-lifecycle.md](../findings/260309-probe-cascade-lifecycle.md)*
 
 - `StartCascade` — 创建新对话, 返回 cascadeId ✅
-- `SendUserCascadeMessage` — 发送用户消息 (流式) ✅
+- `SendUserCascadeMessage` — 发送用户消息 (流式), 支持最小参数和完整参数 ✅
 - `GetCascadeTrajectory` — 获取完整对话轨迹 (steps + status) ✅
-- `GetCascadeTrajectorySteps` — 获取对话步骤 (可能支持分页)
-- `GetCascadeTrajectoryGeneratorMetadata` — 获取生成器元数据
-- `GetAllCascadeTrajectories` — 获取所有对话摘要 (标题等) ✅
+- `GetCascadeTrajectorySteps` — 获取对话步骤 (支持 `stepOffset` 分页) ✅
+- `GetCascadeTrajectoryGeneratorMetadata` — 获取生成器元数据 (模型/Prompt信息) ✅
+- `GetAllCascadeTrajectories` — 获取所有对话摘要 (返回 cascadeId 为 Key 的 Map) ✅
 - `DeleteCascadeTrajectory` — 删除对话轨迹 ✅
-- `CopyTrajectory` — 复制对话 (克隆完整轨迹, 返回新 cascadeId) ✅
-- `LoadTrajectory` — 加载轨迹到内存 ✅
-- `ConvertTrajectoryToMarkdown` — 导出对话为 Markdown
-- `CreateTrajectoryShare` — 创建对话分享链接
+- `CopyTrajectory` — 复制对话 (克隆完整轨迹, 返回新 cascadeId), 接受 `additionalDetails` ✅
+- `LoadTrajectory` — 加载轨迹到内存 (返回空响应) ✅
+- `ConvertTrajectoryToMarkdown` — 将 Trajectory 对象导出为 Markdown 文本 ✅
+- `CreateTrajectoryShare` — 创建对话分享链接 (Headless下不出错但返回空) ✅
 
-### 对话控制
+### 对话控制 (Headless E2E 验证完毕 ✅)
 
-- `CancelCascadeInvocation` — 取消正在执行的对话
-- `CancelCascadeSteps` — 取消特定步骤
-- `RevertToCascadeStep` — 回退到某个步骤
-- `ResolveOutstandingSteps` — 解决待处理步骤
-- `DeleteQueuedUserInputStep` — 删除排队的用户输入
-- `SendAllQueuedMessages` — 发送所有排队消息
-- `HandleCascadeUserInteraction` — 处理用户交互 (如确认)
-- `AcknowledgeCascadeCodeEdit` — 确认代码编辑
-- `AcknowledgeCodeActionStep` — 确认代码操作步骤
-- `SmartFocusConversation` — 智能聚焦对话
+*详细的请求/响应参数抓包及 E2E 测试脚本记录请参阅: [260309-probe-cascade-control.md](../findings/260309-probe-cascade-control.md)*
+
+- `CancelCascadeInvocation` — 终止正在生成的回答 (实测可用 200) ✅
+- `CancelCascadeSteps` — 停止/取消指定的步骤生成 (如正在写某个较长文件，但中途取消) ✅
+- `RevertToCascadeStep` — 撤销回到某个步骤状态 (撤销操作, 需带 `override_config.requested_model`) ✅
+- `ResolveOutstandingSteps` — 处理待决步骤 (实测可用 200) ✅
+- `DeleteQueuedUserInputStep` — 删除队列中等候发送的用户输入 (当发送过快时) ✅
+- `SendAllQueuedMessages` — 冲刷发出队列中的所有消息 ✅
+- `HandleCascadeUserInteraction` — 处理人类用户的交互 (比如同意执行风险命令, 点击了 Approve) ✅
+- `AcknowledgeCascadeCodeEdit` — 通过 IDE diff viewer 接受/拒绝代码修改 (在 Headless 中无 diff 视角，可用来直接审批) ✅
+- `AcknowledgeCodeActionStep` — 对代码操作步骤做出确认 ✅
+- `SmartFocusConversation` — 聚焦当前激活的对话窗 (IDE-Specific, Headless 报错: extension server client is disconnected) 🚫
 
 ### 对话注释
 
-- `UpdateConversationAnnotations` — 更新对话注释 ✅
+- `UpdateConversationAnnotations` — 修改对话标签/描述 (如置顶、改名等) (依赖本地持久化，Headless 可能因为路径或挂载问题报错) ⚠️
 
 ### 对话面板
 
@@ -413,3 +417,11 @@ flags=0x02: end-of-stream (trailer)
 3. **CSRF Token 随 LS 进程变化** — 每次 LS 重启后需重新获取
 4. **LS 端口随机分配** — 通过 daemon JSON 文件或进程参数获取
 5. **部分方法名可能包含 Go 编译噪音** — 如 `ListPagesANNOYANCE` 等可能需要去掉后缀
+
+
+核心文件
+文件	内容
+exa-language-server-pb-language-server.proto	LS 主 API -- 148 个 RPC 方法，336 个 message
+exa-cortex-pb-cortex.proto	所有 Step/对话/记忆/交互类型 -- 381 个 message, 58 个 enum
+exa-codeium-common-pb-codeium-common.proto	通用数据结构 -- 273 个 message, 96 个 enum
+exa-extension-server-pb-extension-server.proto	Extension Server 回调 -- 52 个方法
