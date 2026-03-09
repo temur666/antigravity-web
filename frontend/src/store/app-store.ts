@@ -291,7 +291,31 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             if (res.type === 'res_new_chat') {
                 const data = res as ResNewChat;
+                const now = new Date().toISOString();
+
+                // Optimistic Update: 立即插入占位记录，侧边栏/标签栏秒级刷新
+                set(prev => {
+                    const exists = prev.conversations.some(c => c.id === data.cascadeId);
+                    if (exists) return {};
+                    return {
+                        conversations: [{
+                            id: data.cascadeId,
+                            title: '',
+                            updatedAt: now,
+                            createdAt: now,
+                            sizeBytes: 0,
+                            status: 'IDLE',
+                            stepCount: 0,
+                        }, ...prev.conversations],
+                        conversationsTotal: prev.conversationsTotal + 1,
+                    };
+                });
+
                 await get().selectConversation(data.cascadeId);
+
+                // Background Sync: 静默刷新列表，服务端数据覆盖占位记录
+                get().loadConversations().catch(() => {/* 静默失败 */});
+
                 return data.cascadeId;
             }
 
