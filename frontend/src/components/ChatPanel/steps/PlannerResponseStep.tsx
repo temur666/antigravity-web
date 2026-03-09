@@ -104,10 +104,7 @@ export function PlannerResponseStep({ step, stepIndex }: Props) {
                 ) : null;
             })()}
 
-            {/* 无内容时的 fallback */}
-            {!pr.response && !pr.thinking && (!pr.toolCalls || pr.toolCalls.length === 0) && (
-                <div className="step-content ai-response empty">（无内容）</div>
-            )}
+
         </div>
     );
 }
