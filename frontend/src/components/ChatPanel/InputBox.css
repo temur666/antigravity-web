@@ -432,7 +432,7 @@
   justify-content: center;
   border: none;
   cursor: pointer;
-  background: rgba(255, 255, 255, 0.1);
+  background: #3a3a3a;
   color: var(--color-text-secondary);
   transition: width 0.25s ease, min-width 0.25s ease, opacity 0.2s ease, margin 0.25s ease, padding 0.25s ease;
   overflow: hidden;
@@ -441,7 +441,7 @@
 }
 
 .conv-tags-toggle:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: #484848;
   color: var(--color-text-primary);
 }
 
@@ -503,8 +503,8 @@
   gap: 5px;
   padding: 4px 12px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid #444;
+  background: #333;
   color: var(--color-text-secondary);
   font-size: 12px;
   font-weight: 500;
@@ -516,13 +516,26 @@
 }
 
 .conv-tag:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: #404040;
   color: var(--color-text-primary);
 }
 
 .conv-tag-active {
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.22);
+  background: #484848;
+  border-color: #666;
+  color: var(--color-text-primary);
+}
+
+.conv-tag-new {
+  background: #2a2a2a;
+  border: 1px dashed #555;
+  color: var(--color-text-secondary);
+  padding: 4px 10px;
+}
+
+.conv-tag-new:hover {
+  background: #383838;
+  border-color: #777;
   color: var(--color-text-primary);
 }
 

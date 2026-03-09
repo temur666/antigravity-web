@@ -9,7 +9,7 @@
 import './InputBox.css';
 import { useState, useCallback, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useAppStore } from '@/store';
-import { Mic, ArrowRight, Square, Paperclip, X, MessagesSquare } from 'lucide-react';
+import { Mic, ArrowRight, Square, Paperclip, X, MessagesSquare, Plus } from 'lucide-react';
 import { truncate } from '@/utils/format';
 
 import { useDraggable } from '@/hooks/useDraggable';
@@ -86,6 +86,7 @@ export function InputBox() {
     const cancelConversation = useAppStore(s => s.cancelConversation);
     const conversations = useAppStore(s => s.conversations);
     const selectConversation = useAppStore(s => s.selectConversation);
+    const newChat = useAppStore(s => s.newChat);
     const [showTags, setShowTags] = useState(false);
     const recentConversations = conversations.slice(0, 5);
     const hasText = text.trim().length > 0;
@@ -331,6 +332,14 @@ export function InputBox() {
 
             {/* 对话标签栏 */}
             <div className={`conversation-tags-row${showTags ? ' open' : ''}`}>
+                <button
+                    className="conv-tag conv-tag-new"
+                    onClick={() => newChat()}
+                    title="新建对话"
+                    style={{ animationDelay: '0ms' }}
+                >
+                    <Plus size={14} />
+                </button>
                 {recentConversations.map((conv, idx) => {
                     const isActiveConv = conv.id === activeConversationId;
                     const running = isActiveConv
@@ -344,7 +353,7 @@ export function InputBox() {
                             key={conv.id}
                             className={`conv-tag${isActiveConv ? ' conv-tag-active' : ''}${running ? ' conv-tag-running' : ''}`}
                             onClick={() => selectConversation(conv.id)}
-                            style={{ animationDelay: `${idx * 50}ms` }}
+                            style={{ animationDelay: `${(idx + 1) * 50}ms` }}
                         >
                             {running && <span className="conv-tag-dot" />}
                             <span className="conv-tag-label">{title}</span>
