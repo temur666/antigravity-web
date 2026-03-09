@@ -212,7 +212,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 type: 'req_subscribe',
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
-            } as any, 15000);
+            }, 15000);
         },
 
         newChat: async () => {
@@ -403,7 +403,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                                 reqId: wsClient.nextReqId(),
                                 cascadeId: currentState.activeConversationId,
                                 lastSeq: currentState.lastSeq,
-                            } as any);
+                            });
                         }
                     } else {
                         // 场景 C: 首次 WS 连接，LS 已在线

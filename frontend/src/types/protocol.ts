@@ -49,6 +49,7 @@ export interface ReqSubscribe {
     type: 'req_subscribe';
     reqId?: string;
     cascadeId: string;
+    lastSeq?: number;
 }
 
 export interface ReqUnsubscribe {

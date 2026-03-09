@@ -23,10 +23,15 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
     const currentYRef = useRef(0);
     const isDraggingRef = useRef(false);
 
-    // 开关状态控制
+    // ── 渲染阶段：isOpen 变 true 时立即挂载 DOM ──
+    // React 允许在渲染期间基于 props 变化同步 setState（官方推荐模式）
+    if (isOpen && !shouldRender) {
+        setShouldRender(true);
+    }
+
+    // ── Effect：处理打开时的样式重置 & 关闭时的延迟卸载 ──
     useEffect(() => {
         if (isOpen) {
-            setShouldRender(true);
             // reset translation immediately
             if (sheetRef.current) {
                 sheetRef.current.style.transition = '';
@@ -61,7 +66,7 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
 
     const onTouchMove = useCallback((e: TouchEvent) => {
         if (!isDraggingRef.current) return;
-        
+
         const deltaY = e.touches[0].clientY - startYRef.current;
         // 只能往下拉 (deltaY > 0); 往上拉则提供极强的阻力或者直接不允许
         if (deltaY < 0) {
@@ -73,7 +78,7 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
         if (sheetRef.current) {
             sheetRef.current.style.transform = `translateY(${Math.max(0, currentYRef.current)}px)`;
         }
-        
+
         // 如果正在往下拉，防止触发页面原生滚动
         if (deltaY > 0 && e.cancelable) {
             e.preventDefault();
@@ -83,10 +88,10 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
     const onTouchEnd = useCallback((e: TouchEvent) => {
         if (!isDraggingRef.current) return;
         isDraggingRef.current = false;
-        
+
         if (!sheetRef.current) return;
         sheetRef.current.style.transition = `transform ${CLOSE_ANIMATION_MS}ms cubic-bezier(0.25, 0.8, 0.25, 1)`;
-        
+
         const deltaY = currentYRef.current;
         const dt = e.timeStamp - startTRef.current;
         const velocity = deltaY / (dt || 1);
@@ -105,15 +110,15 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
     useEffect(() => {
         if (!shouldRender || !sheetRef.current) return;
         const sheet = sheetRef.current;
-        
+
         sheet.addEventListener('touchstart', onTouchStart, { passive: false });
         sheet.addEventListener('touchmove', onTouchMove, { passive: false });
         sheet.addEventListener('touchend', onTouchEnd, { passive: true });
 
         return () => {
-             sheet.removeEventListener('touchstart', onTouchStart);
-             sheet.removeEventListener('touchmove', onTouchMove);
-             sheet.removeEventListener('touchend', onTouchEnd);
+            sheet.removeEventListener('touchstart', onTouchStart);
+            sheet.removeEventListener('touchmove', onTouchMove);
+            sheet.removeEventListener('touchend', onTouchEnd);
         };
     }, [shouldRender, onTouchStart, onTouchMove, onTouchEnd]);
 
@@ -122,12 +127,12 @@ export function BottomSheet({ isOpen, onClose, children }: BottomSheetProps) {
 
     return createPortal(
         <>
-            <div 
+            <div
                 className={`bottom-sheet-backdrop ${isOpen ? 'open' : ''}`}
                 onClick={onClose}
             />
-            <div 
-                className={`bottom-sheet ${isOpen ? 'open' : ''}`} 
+            <div
+                className={`bottom-sheet ${isOpen ? 'open' : ''}`}
                 ref={sheetRef}
             >
                 <div className="bottom-sheet-drag-handle" />

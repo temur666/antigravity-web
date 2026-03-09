@@ -19,13 +19,24 @@ const renderer = new marked.Renderer();
 renderer.code = function ({ text, lang }: { text: string; lang?: string }) {
     if (lang && hljs.getLanguage(lang)) {
         const highlighted = hljs.highlight(text, { language: lang }).value;
-        return `<pre><code class="hljs language-${lang}">${highlighted}</code></pre>`;
+        return `<div class="code-block-wrapper"><pre><code class="hljs language-${lang}">${highlighted}</code></pre></div>`;
     }
     const escaped = text
         .replace(/&/g, '&amp;')
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;');
-    return `<pre><code class="hljs">${escaped}</code></pre>`;
+    return `<div class="code-block-wrapper"><pre><code class="hljs">${escaped}</code></pre></div>`;
+};
+
+// 自定义链接渲染：拦截 file:// 协议
+renderer.link = function ({ href, text }: { href: string; text: string }) {
+    if (href && href.startsWith('file:///')) {
+        // file:///home/user/project/docs/foo.md → docs/foo.md
+        const absPath = href.slice(7); // 去掉 file://
+        return `<a class="file-link" data-file-path="${escapeHtml(absPath)}" href="#" title="${escapeHtml(absPath)}">${text || absPath}</a>`;
+    }
+    // 普通链接：新窗口打开
+    return `<a href="${escapeHtml(href || '')}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 };
 
 marked.use({ renderer });

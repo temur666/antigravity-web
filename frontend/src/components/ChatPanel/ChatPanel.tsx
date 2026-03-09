@@ -14,6 +14,7 @@ import { InputBox } from './InputBox';
 import { PagedOverlay } from './PagedOverlay';
 import { StickyBubble } from './StickyBubble';
 import { TurnNav } from './TurnNav';
+import { FileViewer } from '../FileViewer/FileViewer';
 
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
@@ -30,6 +31,7 @@ export function ChatPanel() {
     const toggleReadingMode = useAppStore(s => s.toggleReadingMode);
     const isKeyboardVisible = useKeyboard();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+    const [fileViewerPath, setFileViewerPath] = useState<string | null>(null);
 
     // 滚动模式的 refs
     const bottomRef = useRef<HTMLDivElement>(null);
@@ -161,6 +163,17 @@ export function ChatPanel() {
     // ---- 点击空白区域切换阅读模式 ----
     const handleContentClick = useCallback((e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
+
+        // 拦截 file-link 点击 → 打开 FileViewer
+        const fileLink = target.closest('a.file-link') as HTMLAnchorElement | null;
+        if (fileLink) {
+            e.preventDefault();
+            e.stopPropagation();
+            const filePath = fileLink.getAttribute('data-file-path');
+            if (filePath) setFileViewerPath(filePath);
+            return;
+        }
+
         // 排除可交互元素
         const interactive = target.closest(
             'a, button, pre, code, input, textarea, select, ' +
@@ -220,7 +233,7 @@ export function ChatPanel() {
                 });
             }
         }
-    }, [steps.length, loading, isPaged, recalcPages]);
+    }, [steps.length, loading, isPaged, recalcPages, pagedColumns]);
 
     // ---- 增量推送处理 ----
     useEffect(() => {
@@ -250,7 +263,7 @@ export function ChatPanel() {
                 }
             }
         }
-    }, [steps.length, loading, isPaged, currentPage]);
+    }, [steps.length, loading, isPaged, currentPage, pagedColumns]);
 
     // ---- 翻页操作 ----
     const goToPage = useCallback((page: number) => {
@@ -399,7 +412,7 @@ export function ChatPanel() {
             {isPaged ? (
                 /* ====== 翻页模式 ====== */
                 <div className="paged-viewport" ref={viewportRef} data-columns={pagedColumns}>
-                    <div className="paged-content" ref={contentRef}>
+                    <div className="paged-content" ref={contentRef} onClick={handleContentClick}>
                         {stepsContent}
                     </div>
                 </div>
@@ -456,6 +469,14 @@ export function ChatPanel() {
                         isMobile={isMobile}
                     />
                 </>
+            )}
+
+            {/* 文件查看器模态框 */}
+            {fileViewerPath && (
+                <FileViewer
+                    filePath={fileViewerPath}
+                    onClose={() => setFileViewerPath(null)}
+                />
             )}
         </div>
     );

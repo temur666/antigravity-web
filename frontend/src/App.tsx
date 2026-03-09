@@ -54,7 +54,7 @@ export default function App() {
 
   // ── 移动端触摸跟手拖拽侧边栏 ──
   const sidebarOpenRef = useRef(showSidebar);
-  sidebarOpenRef.current = showSidebar;
+  useEffect(() => { sidebarOpenRef.current = showSidebar; }, [showSidebar]);
 
   const draggingRef = useRef(false);
   const touchStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
@@ -224,7 +224,7 @@ export default function App() {
                   )}
                   {isMobile && (
                     <BottomSheet isOpen={showConfig} onClose={() => setShowConfig(false)}>
-                       <ConfigPanel />
+                      <ConfigPanel />
                     </BottomSheet>
                   )}
                 </div>

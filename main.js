@@ -257,6 +257,54 @@ app.get('/api/conversations', async (_req, res) => {
     }
 });
 
+// ========== File Read API ==========
+
+const FILE_ROOT = process.env.FILE_ROOT || __dirname;
+
+app.get('/api/file', async (req, res) => {
+    const relPath = req.query.path;
+    if (!relPath || typeof relPath !== 'string') {
+        return res.status(400).json({ error: 'Missing path parameter' });
+    }
+
+    // 安全校验：realpath 防目录穿越
+    const absPath = path.resolve(FILE_ROOT, relPath);
+    try {
+        const realAbs = fs.realpathSync(absPath);
+        const realRoot = fs.realpathSync(FILE_ROOT);
+        if (!realAbs.startsWith(realRoot + path.sep) && realAbs !== realRoot) {
+            return res.status(403).json({ error: 'Access denied: path outside project root' });
+        }
+
+        const stat = fs.statSync(realAbs);
+        if (!stat.isFile()) {
+            return res.status(400).json({ error: 'Not a file' });
+        }
+
+        // 限制文件大小 (5MB)
+        if (stat.size > 5 * 1024 * 1024) {
+            return res.status(413).json({ error: 'File too large (max 5MB)' });
+        }
+
+        const content = fs.readFileSync(realAbs, 'utf-8');
+        const ext = path.extname(realAbs).slice(1); // 不带点
+
+        res.json({
+            content,
+            filename: path.basename(realAbs),
+            path: path.relative(realRoot, realAbs),
+            extension: ext,
+            size: stat.size,
+            mtime: stat.mtime.toISOString(),
+        });
+    } catch (err) {
+        if (err.code === 'ENOENT') {
+            return res.status(404).json({ error: 'File not found' });
+        }
+        return res.status(500).json({ error: err.message });
+    }
+});
+
 // ========== File Upload ==========
 const uploadDir = path.join('/tmp', 'antigravity_uploads');
 if (!fs.existsSync(uploadDir)) {

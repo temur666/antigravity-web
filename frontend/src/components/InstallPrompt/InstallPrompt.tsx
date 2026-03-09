@@ -38,8 +38,18 @@ function isMobileDevice(): boolean {
 type PromptMode = 'native' | 'ios' | 'generic';
 
 export function InstallPrompt() {
-    const [show, setShow] = useState(false);
-    const [mode, setMode] = useState<PromptMode>('generic');
+    // 初始化阶段就确定是否需要显示以及显示模式
+    const shouldShowInitially = () => {
+        if (typeof window === 'undefined') return { show: false, mode: 'generic' as PromptMode };
+        if (isStandalone() || localStorage.getItem(DISMISS_KEY)) return { show: false, mode: 'generic' as PromptMode };
+        if (!isMobileDevice()) return { show: false, mode: 'generic' as PromptMode };
+        if (isIOS()) return { show: true, mode: 'ios' as PromptMode };
+        return { show: false, mode: 'generic' as PromptMode }; // 非 iOS 等待 beforeinstallprompt
+    };
+
+    const initial = shouldShowInitially();
+    const [show, setShow] = useState(initial.show);
+    const [mode, setMode] = useState<PromptMode>(initial.mode);
     const deferredPromptRef = useRef<BeforeInstallPromptEvent | null>(null);
     const fallbackTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -50,12 +60,8 @@ export function InstallPrompt() {
         // 非移动设备 → 不显示（桌面端用户不需要安装提示）
         if (!isMobileDevice()) return;
 
-        // iOS: 直接显示手动指引
-        if (isIOS()) {
-            setMode('ios');
-            setShow(true);
-            return;
-        }
+        // iOS 已在初始化阶段处理，无需再处理
+        if (isIOS()) return;
 
         // 非 iOS 移动设备：监听 beforeinstallprompt
         let gotPrompt = false;

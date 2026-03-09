@@ -102,8 +102,8 @@ export function InputBox() {
                 });
             }
         }
-    // 只在 activeConversationId 变化时触发，不依赖 draftMap
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // 只在 activeConversationId 变化时触发，不依赖 draftMap
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeConversationId]);
 
     const {
@@ -158,7 +158,7 @@ export function InputBox() {
             setIsUploading(false);
             inputRef.current?.focus();
         }
-    }, [canSend, text, attachments, sendMessage]);
+    }, [canSend, text, attachments, sendMessage, activeConversationId, setDraft]);
 
     const handleKeyDown = useCallback((e: KeyboardEvent<HTMLTextAreaElement>) => {
         // 移动端 Enter = 换行，桌面端 Enter = 发送（Shift+Enter = 换行）
