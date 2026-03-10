@@ -13,3 +13,4 @@ tools/exports/
 tools/auth-dump.txt
 tools/csrf-capture.txt
 logs/
+scripts/oauth-login.js
