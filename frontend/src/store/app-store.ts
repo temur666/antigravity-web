@@ -52,6 +52,19 @@ interface ConversationSnapshot {
 }
 
 const conversationCache = new Map<string, ConversationSnapshot>();
+const CACHE_MAX_SIZE = 20;
+
+/** LRU 写入：超出上限时淘汰最早条目 */
+function cacheSet(id: string, snapshot: ConversationSnapshot) {
+    // 先删后插，保证 Map 顺序为最近访问
+    conversationCache.delete(id);
+    conversationCache.set(id, snapshot);
+    // 淘汰
+    while (conversationCache.size > CACHE_MAX_SIZE) {
+        const oldest = conversationCache.keys().next().value;
+        if (oldest) conversationCache.delete(oldest);
+    }
+}
 
 // ========== State 类型 ==========
 
@@ -191,7 +204,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 // 缓存当前对话数据
                 const prev = get();
                 if (prev.steps.length > 0) {
-                    conversationCache.set(oldId, {
+                    cacheSet(oldId, {
                         steps: prev.steps,
                         metadata: prev.metadata,
                         stepUsageMap: prev.stepUsageMap,
@@ -288,7 +301,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     archiveMarkdown: null,
                 });
                 // 写入缓存
-                conversationCache.set(id, {
+                cacheSet(id, {
                     steps: data.steps,
                     metadata: meta,
                     stepUsageMap: usageMap,
@@ -452,7 +465,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
             // 切走时缓存当前对话
             const prev = get();
             if (prev.activeConversationId && prev.steps.length > 0 && prev.activeConversationId !== id) {
-                conversationCache.set(prev.activeConversationId, {
+                cacheSet(prev.activeConversationId, {
                     steps: prev.steps,
                     metadata: prev.metadata,
                     stepUsageMap: prev.stepUsageMap,
