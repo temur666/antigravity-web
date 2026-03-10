@@ -112,6 +112,12 @@ start() {
     echo "  Log:       $LOG_FILE"
 
     # standalone=true (本地 OAuth) + ext-server (工具回调)
+    # GEMINI_DIR 控制 OAuth token 来源:
+    #   .gemini     → tiemuer2025@gmail.com (默认)
+    #   .gemini-alt → peakerlomascolo163@gmail.com
+    GEMINI_DIR="${GEMINI_DIR:-.gemini}"
+    echo "  GeminiDir: $GEMINI_DIR"
+
     cat "$METADATA_BIN" | exec "$LS_BIN" \
         -persistent_mode=true \
         -csrf_token="$CSRF_TOKEN" \
@@ -123,7 +129,7 @@ start() {
         -workspace_id=file_home_tiemuer \
         -cloud_code_endpoint="$CLOUD_ENDPOINT" \
         -app_data_dir=antigravity \
-        -gemini_dir=.gemini \
+        -gemini_dir="$GEMINI_DIR" \
         -enable_lsp=false \
         2>&1
 }
