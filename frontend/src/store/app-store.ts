@@ -145,6 +145,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
         ? localStorage.getItem('debugMode') : null;
     const persistedCols = typeof localStorage !== 'undefined'
         ? localStorage.getItem('pagedColumns') : null;
+    const persistedAutoReply = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('autoReply') === 'true' : false;
 
     const store = createStore<AppState>((set, get) => ({
         // ---- 初始状态 (从持久化恢复) ----
@@ -168,7 +170,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         loading: false,
         error: null,
         archiveMarkdown: null,
-        autoReply: false,
+        autoReply: persistedAutoReply,
         draftMap: {},
 
         // ---- Actions ----
@@ -511,7 +513,11 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         toggleAutoReply: () => {
-            set(state => ({ autoReply: !state.autoReply }));
+            set(state => {
+                const next = !state.autoReply;
+                localStorage.setItem('autoReply', String(next));
+                return { autoReply: next };
+            });
         },
 
         deleteConversation: async (id: string) => {
@@ -566,6 +572,23 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
     const AUTO_REPLY_COOLDOWN = 5000; // 5 秒冷却
     let autoReplyTimer: ReturnType<typeof setTimeout> | null = null;
+
+    // ========== autoReply: 自动批准 WAITING step ==========
+
+    function autoApproveIfWaiting(cascadeId: string, stepIndex: number, step: Step) {
+        const s = store.getState();
+        if (!s.autoReply) return;
+        if (step.status !== 'CORTEX_STEP_STATUS_WAITING') return;
+        // 只批准 RUN_COMMAND 类型的 WAITING step (安全限制)
+        if (step.type !== 'CORTEX_STEP_TYPE_RUN_COMMAND') return;
+        console.log(`[AutoApprove] step[${stepIndex}] →`, cascadeId.slice(0, 8));
+        wsClient.send({
+            type: 'req_approve_step',
+            reqId: wsClient.nextReqId(),
+            cascadeId,
+            stepIndex,
+        });
+    }
 
     // ========== 事件监听 ==========
 
@@ -675,6 +698,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         lastSeq: event.seq || prev.lastSeq,
                     };
                 });
+                // autoReply: 自动批准 WAITING step
+                autoApproveIfWaiting(event.cascadeId, event.stepIndex, event.step);
                 break;
             }
 
@@ -691,6 +716,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         lastSeq: event.seq || prev.lastSeq,
                     };
                 });
+                // autoReply: 自动批准 WAITING step
+                autoApproveIfWaiting(event.cascadeId, event.stepIndex, event.step);
                 break;
             }
 

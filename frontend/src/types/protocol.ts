@@ -93,6 +93,13 @@ export interface ReqExportMarkdown {
     cascadeId: string;
 }
 
+export interface ReqApproveStep {
+    type: 'req_approve_step';
+    reqId?: string;
+    cascadeId: string;
+    stepIndex: number;
+}
+
 export type ClientMessage =
     | ReqStatus
     | ReqConversations
@@ -105,7 +112,8 @@ export type ClientMessage =
     | ReqGetConfig
     | ReqCancel
     | ReqDeleteConversation
-    | ReqExportMarkdown;
+    | ReqExportMarkdown
+    | ReqApproveStep;
 
 // ========== 响应类型 (服务端 → 客户端) ==========
 
@@ -213,6 +221,14 @@ export interface ResExportMarkdown {
     title?: string;
 }
 
+export interface ResApproveStep {
+    type: 'res_approve_step';
+    reqId?: string;
+    ok: boolean;
+    cascadeId: string;
+    stepIndex: number;
+}
+
 export type ServerMessage =
     | ResStatus
     | ResConversations
@@ -226,6 +242,7 @@ export type ServerMessage =
     | ResCancel
     | ResDeleteConversation
     | ResExportMarkdown
+    | ResApproveStep
     | EventStepAdded
     | EventStepUpdated
     | EventStatusChanged

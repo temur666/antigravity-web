@@ -297,6 +297,33 @@ async function handleMessage(clientWs, data) {
                 break;
             }
 
+            case 'req_approve_step': {
+                if (!data.cascadeId || data.stepIndex === undefined) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId or stepIndex', reqId));
+                    break;
+                }
+                if (!controller.ls) {
+                    send(proto.makeError('LS_UNAVAILABLE', 'LS not connected', reqId));
+                    break;
+                }
+                try {
+                    await grpcCall(controller.ls.port, controller.ls.csrf, 'HandleCascadeUserInteraction', {
+                        cascadeId: data.cascadeId,
+                        interaction: {
+                            trajectoryId: data.cascadeId,
+                            stepIndex: data.stepIndex,
+                            runCommand: { confirm: true },
+                        },
+                    });
+                    console.log(`[AutoApprove] step[${data.stepIndex}] approved for ${data.cascadeId.slice(0, 8)}...`);
+                    send(proto.makeResponse('res_approve_step', { ok: true, cascadeId: data.cascadeId, stepIndex: data.stepIndex }, reqId));
+                } catch (err) {
+                    console.error(`[!] ApproveStep: ${err.message}`);
+                    send(proto.makeError('APPROVE_FAILED', err.message, reqId));
+                }
+                break;
+            }
+
             case 'req_cancel': {
                 if (!data.cascadeId) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
