@@ -18,7 +18,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const { grpcCall } = require('../lib/core/ls-discovery');
+const { grpcCall, discoverLS } = require('../lib/core/ls-discovery');
 const { buildSendBody, DEFAULT_CONFIG } = require('../lib/core/ws-protocol');
 
 // ========== 配置解析 ==========
@@ -28,8 +28,8 @@ function parseArgs() {
     const config = {
         docPath: null,
         timeout: 7200,
-        port: 42100,
-        csrf: 'daemon-with-ext-server',
+        port: null,
+        csrf: null,
         cascadeId: null,
         cooldown: 5,
         pollInterval: 3,
@@ -216,8 +216,8 @@ async function main() {
         console.error('');
         console.error('选项:');
         console.error('  --timeout <秒>       最大运行时长（默认 7200）');
-        console.error('  --port <端口>        LS 端口（默认 42100）');
-        console.error('  --csrf <token>       CSRF token');
+        console.error('  --port <端口>        LS 端口（自动发现）');
+        console.error('  --csrf <token>       CSRF token（自动发现）');
         console.error('  --cascade <id>       复用已有对话');
         console.error('  --cooldown <秒>      自动回复冷却时间（默认 5）');
         console.error('  --poll-interval <秒> 轮询间隔（默认 3）');
@@ -229,6 +229,21 @@ async function main() {
     if (!fs.existsSync(docFullPath)) {
         console.error(`参考文档不存在: ${docFullPath}`);
         process.exit(1);
+    }
+
+    // 自动发现 LS（用户显式传参时优先）
+    if (!config.port || !config.csrf) {
+        const ls = discoverLS();
+        if (ls) {
+            if (!config.port) config.port = ls.port;
+            if (!config.csrf) config.csrf = ls.csrf;
+        } else {
+            if (!config.port) config.port = 42100;
+            if (!config.csrf) {
+                console.error('无法自动发现 LS，请手动指定 --csrf <token>');
+                process.exit(1);
+            }
+        }
     }
 
     // 初始化日志
