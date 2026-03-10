@@ -107,6 +107,7 @@
   font-size: 16px;
   line-height: 1.8;
   color: #e4e4e7;
+  width: 100%;
   min-width: 0;
   max-width: 100%;
   overflow-x: hidden;
