@@ -85,6 +85,9 @@ export interface AppState {
     loading: boolean;
     error: string | null;
 
+    // Archive 降级
+    archiveMarkdown: string | null;   // 非 null 时表示当前对话是归档模式
+
     // 输入草稿缓存 (conversationId -> draft text)
     draftMap: Record<string, string>;
 
@@ -143,6 +146,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         readingMode: false,
         loading: false,
         error: null,
+        archiveMarkdown: null,
         draftMap: {},
 
         // ---- Actions ----
@@ -244,6 +248,21 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             if (trajectoryRes.type === 'res_trajectory') {
                 const data = trajectoryRes as ResTrajectory & { seq?: number };
+
+                // Archive 降级：返回 markdown 而不是 steps
+                if (data.source === 'archive' && data.markdown) {
+                    set({
+                        steps: [],
+                        conversationStatus: 'IDLE',
+                        metadata: [],
+                        stepUsageMap: new Map(),
+                        lastSeq: 0,
+                        loading: false,
+                        archiveMarkdown: data.markdown,
+                    });
+                    return;
+                }
+
                 const meta = (data.metadata || []) as GeneratorMetadata[];
                 const usageMap = buildStepUsageMap(meta);
                 set({
@@ -253,6 +272,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     stepUsageMap: usageMap,
                     lastSeq: data.seq || 0,
                     loading: false,
+                    archiveMarkdown: null,
                 });
                 // 写入缓存
                 conversationCache.set(id, {
@@ -314,7 +334,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 await get().selectConversation(data.cascadeId);
 
                 // Background Sync: 静默刷新列表，服务端数据覆盖占位记录
-                get().loadConversations().catch(() => {/* 静默失败 */});
+                get().loadConversations().catch(() => {/* 静默失败 */ });
 
                 return data.cascadeId;
             }
@@ -432,6 +452,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 activeConversationId: id,
                 steps: [],
                 conversationStatus: 'IDLE',
+                archiveMarkdown: null,
             });
         },
 

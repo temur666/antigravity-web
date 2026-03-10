@@ -94,9 +94,37 @@ async function handleMessage(clientWs, data) {
             }
 
             case 'req_conversations': {
-                const list = await controller.listConversations();
                 const limit = data.limit || 50;
                 const search = data.search;
+
+                // 策略：索引为主源（包含所有账号/LS 的对话），LS 补充实时状态
+                const archive = controller.archive;
+                let list = await controller.listConversations();
+
+                // 将索引中独有的对话追加到 LS 列表
+                if (archive) {
+                    const indexed = archive.index.list({ limit: 500, search });
+                    const lsIds = new Set(list.map(c => c.id));
+                    for (const row of indexed) {
+                        if (!lsIds.has(row.cascade_id)) {
+                            list.push({
+                                id: row.cascade_id,
+                                title: row.title || '',
+                                stepCount: row.step_count || 0,
+                                status: row.status || 'IDLE',
+                                workspace: row.workspace || '',
+                                createdAt: row.created_at || null,
+                                updatedAt: row.updated_at || null,
+                                source: row.source || 'index',
+                                account: row.account || '',
+                                hasArchive: !!(row.markdown && row.markdown.length > 0),
+                            });
+                        }
+                    }
+                    // 重新按 updatedAt 排序
+                    list.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
+                }
+
                 let filtered = list;
                 if (search) {
                     const q = search.toLowerCase();
@@ -117,7 +145,44 @@ async function handleMessage(clientWs, data) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
                 }
-                const traj = await controller.getTrajectory(data.cascadeId);
+
+                // 优先 LS API 获取实时 steps
+                let traj = null;
+                try {
+                    traj = await controller.getTrajectory(data.cascadeId);
+                } catch { /* LS 可能不可用 */ }
+
+                if (traj?.trajectory?.steps?.length > 0) {
+                    send(proto.makeResponse('res_trajectory', {
+                        cascadeId: data.cascadeId,
+                        status: traj.status || 'CASCADE_RUN_STATUS_IDLE',
+                        steps: traj.trajectory.steps,
+                        totalSteps: traj.numTotalSteps || traj.trajectory.steps.length,
+                        metadata: traj.trajectory.generatorMetadata || [],
+                        seq: controller.getCurrentSeq(data.cascadeId),
+                        source: 'live',
+                    }, reqId));
+                    break;
+                }
+
+                // 降级：从索引获取 markdown 归档
+                const archiveRow = controller.archive?.index.get(data.cascadeId);
+                if (archiveRow && archiveRow.markdown) {
+                    send(proto.makeResponse('res_trajectory', {
+                        cascadeId: data.cascadeId,
+                        status: 'CASCADE_RUN_STATUS_IDLE',
+                        steps: [],
+                        totalSteps: archiveRow.step_count || 0,
+                        metadata: [],
+                        seq: 0,
+                        source: 'archive',
+                        markdown: archiveRow.markdown,
+                        title: archiveRow.title || '',
+                    }, reqId));
+                    break;
+                }
+
+                // 既无实时数据也无归档 → 返回空
                 send(proto.makeResponse('res_trajectory', {
                     cascadeId: data.cascadeId,
                     status: traj?.status || 'CASCADE_RUN_STATUS_IDLE',
@@ -125,6 +190,7 @@ async function handleMessage(clientWs, data) {
                     totalSteps: traj?.numTotalSteps || 0,
                     metadata: traj?.trajectory?.generatorMetadata || [],
                     seq: controller.getCurrentSeq(data.cascadeId),
+                    source: 'live',
                 }, reqId));
                 break;
             }

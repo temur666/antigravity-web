@@ -15,6 +15,7 @@ import { PagedOverlay } from './PagedOverlay';
 import { StickyBubble } from './StickyBubble';
 import { TurnNav } from './TurnNav';
 import { FileViewer } from '../FileViewer/FileViewer';
+import { renderMarkdown } from '@/utils/markdown';
 
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
@@ -29,6 +30,7 @@ export function ChatPanel() {
     const setActiveConversation = useAppStore(s => s.setActiveConversation);
     const readingMode = useAppStore(s => s.readingMode);
     const toggleReadingMode = useAppStore(s => s.toggleReadingMode);
+    const archiveMarkdown = useAppStore(s => s.archiveMarkdown);
     const isKeyboardVisible = useKeyboard();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [fileViewerPath, setFileViewerPath] = useState<string | null>(null);
@@ -392,8 +394,16 @@ export function ChatPanel() {
         );
     }
 
-    // ---- 渲染 steps 列表 ----
-    const stepsContent = (
+    // ---- 渲染 steps 列表（或 archive markdown） ----
+    const stepsContent = archiveMarkdown ? (
+        <div className="archive-content">
+            <div className="archive-badge">Archived</div>
+            <div
+                className="ai-response archive-markdown"
+                dangerouslySetInnerHTML={{ __html: renderMarkdown(archiveMarkdown) }}
+            />
+        </div>
+    ) : (
         <>
             {loading && <div className="chat-loading">加载中...</div>}
             {error && (

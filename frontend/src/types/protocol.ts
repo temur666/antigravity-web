@@ -134,6 +134,9 @@ export interface ResTrajectory {
     totalSteps: number;
     steps: Step[];
     metadata: GeneratorMetadata[];
+    source?: 'live' | 'archive';     // archive = markdown 降级
+    markdown?: string;               // source='archive' 时有值
+    title?: string;                  // source='archive' 时有值
 }
 
 export interface ResNewChat {
