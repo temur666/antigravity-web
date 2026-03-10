@@ -18,6 +18,7 @@ const { Controller } = require('./lib/core/controller');
 const { grpcCall } = require('./lib/core/ls-discovery');
 const proto = require('./lib/core/ws-protocol');
 const { startBot } = require('./lib/telegram/bot');
+const { YoloEngine } = require('./lib/yolo');
 
 // ========== 静态文件检查 ==========
 
@@ -49,6 +50,37 @@ controller.on('ls_reconnected', (ls) => {
 });
 controller.on('status_changed', ({ cascadeId, from, to }) => {
     console.log(`[~] 对话 ${cascadeId.slice(0, 8)}... ${from} -> ${to}`);
+});
+
+// ========== YOLO Engine ==========
+
+const yoloEngine = new YoloEngine();
+
+// YOLO 事件广播给所有 WS 客户端
+function broadcastYolo(eventType, payload) {
+    const msg = proto.makeEvent(eventType, payload);
+    for (const ws of clients) {
+        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
+    }
+}
+
+yoloEngine.on('started', (data) => {
+    console.log(`[YOLO] 已启动 cascade=${data.cascadeId}`);
+    broadcastYolo('event_yolo_status', { status: 'running', cascadeId: data.cascadeId, task: data.task });
+});
+yoloEngine.on('round', (data) => {
+    console.log(`[YOLO] 第 ${data.round} 轮完成`);
+    broadcastYolo('event_yolo_round', data);
+});
+yoloEngine.on('step', (data) => {
+    broadcastYolo('event_yolo_step', data);
+});
+yoloEngine.on('done', (data) => {
+    console.log(`[YOLO] 结束: ${data.reason} (${data.round} 轮)`);
+    broadcastYolo('event_yolo_status', { status: 'stopped', reason: data.reason, summary: data.summary, round: data.round, elapsed: data.elapsed });
+});
+yoloEngine.on('error', (data) => {
+    broadcastYolo('event_yolo_error', data);
 });
 
 // ========== WebSocket 客户端管理 ==========
@@ -272,6 +304,40 @@ async function handleMessage(clientWs, data) {
                 }
                 await controller.cancelCascade(data.cascadeId);
                 send(proto.makeResponse('res_cancel', { ok: true, cascadeId: data.cascadeId }, reqId));
+                break;
+            }
+
+            case 'req_yolo_start': {
+                if (yoloEngine.getStatus().running) {
+                    send(proto.makeError('YOLO_RUNNING', 'YOLO 已在运行中', reqId));
+                    break;
+                }
+                const yoloOpts = {
+                    task: data.task || null,
+                    docPath: data.docPath || null,
+                    timeout: data.timeout || undefined,
+                    cooldown: data.cooldown || undefined,
+                    pollInterval: data.pollInterval || undefined,
+                    agentic: data.agentic || false,
+                    cascadeId: data.cascadeId || null,
+                };
+                send(proto.makeResponse('res_yolo_start', { ok: true }, reqId));
+                // 异步启动，不阻塞 WS
+                yoloEngine.start(yoloOpts).catch((err) => {
+                    console.error('[YOLO] 启动失败:', err.message);
+                    broadcastYolo('event_yolo_status', { status: 'error', message: err.message });
+                });
+                break;
+            }
+
+            case 'req_yolo_stop': {
+                yoloEngine.stop();
+                send(proto.makeResponse('res_yolo_stop', { ok: true }, reqId));
+                break;
+            }
+
+            case 'req_yolo_status': {
+                send(proto.makeResponse('res_yolo_status', yoloEngine.getStatus(), reqId));
                 break;
             }
 

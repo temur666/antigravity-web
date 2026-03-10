@@ -220,6 +220,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     reqId: wsClient.nextReqId(),
                     cascadeId: id,
                 }, 15000);
+                // Background Sync: 静默刷新列表，确保标题等字段同步
+                get().loadConversations().catch(() => { });
                 return;
             }
 
@@ -303,6 +305,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 reqId: wsClient.nextReqId(),
                 cascadeId: id,
             }, 15000);
+            // Background Sync: 静默刷新列表，确保标题等字段同步
+            get().loadConversations().catch(() => { });
         },
 
         newChat: async () => {

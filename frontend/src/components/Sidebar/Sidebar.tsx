@@ -4,7 +4,7 @@
 import './Sidebar.css';
 import { useEffect, useCallback } from 'react';
 import { useAppStore } from '@/store';
-import { formatRelativeTime, formatBytes, truncate } from '@/utils/format';
+import { formatRelativeTime, truncate } from '@/utils/format';
 import type { ConversationSummary } from '@/types';
 
 export interface SidebarProps {
@@ -104,7 +104,6 @@ function ChatItem({ conversation, isActive, onSelect }: ChatItemProps) {
                 <div className="chat-item-title">{title}</div>
                 <div className="chat-item-meta">
                     <span>{formatRelativeTime(conversation.updatedAt)}</span>
-                    <span>{formatBytes(conversation.sizeBytes)}</span>
                 </div>
             </div>
         </button>
