@@ -247,14 +247,93 @@ app.get('/api/status', (_req, res) => {
     res.json(controller.getStatus());
 });
 
-app.get('/api/conversations', async (_req, res) => {
-    const limit = Math.min(Number(_req.query.limit) || 50, 500);
+app.get('/api/conversations', async (req, res) => {
+    const limit = Math.min(Number(req.query.limit) || 50, 500);
+    const account = req.query.account || null;
+    const source = req.query.source || null;
+    const search = req.query.search || null;
+
     try {
+        // 从索引获取（如果有过滤条件，直接走索引）
+        const archive = controller.archive;
+        if (archive && (account || source || search)) {
+            const indexed = archive.index.list({ limit, account, source, search });
+            const conversations = indexed.map(row => ({
+                id: row.cascade_id,
+                title: row.title || '',
+                stepCount: row.step_count || 0,
+                status: row.status || 'IDLE',
+                account: row.account || '',
+                source: row.source || '',
+                workspace: row.workspace || '',
+                createdAt: row.created_at || null,
+                updatedAt: row.updated_at || null,
+                hasArchive: !!(row.markdown && row.markdown.length > 0),
+            }));
+            return res.json({ total: conversations.length, conversations });
+        }
+
+        // 无过滤条件时走原有逻辑（LS + .pb + SQLite 融合）
         const list = await controller.listConversations();
+
+        // 补充索引中的额外字段
+        if (archive) {
+            for (const conv of list) {
+                const row = archive.index.get(conv.id);
+                if (row) {
+                    conv.account = conv.account || row.account || '';
+                    conv.source = conv.source || row.source || '';
+                    conv.hasArchive = !!(row.markdown && row.markdown.length > 0);
+                }
+            }
+        }
+
         res.json({ total: list.length, conversations: list.slice(0, limit) });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
+});
+
+app.get('/api/conversations/:id', async (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) {
+        return res.status(400).json({ error: 'Missing conversation id' });
+    }
+
+    try {
+        // 优先 LS API
+        const traj = await controller.getTrajectory(cascadeId);
+        if (traj && traj.trajectory) {
+            return res.json({
+                id: cascadeId,
+                status: (traj.status || '').replace('CASCADE_RUN_STATUS_', ''),
+                steps: traj.trajectory.steps || [],
+                totalSteps: traj.numTotalSteps || 0,
+                source: 'live',
+            });
+        }
+    } catch { /* LS 不可用，降级到归档 */ }
+
+    // 降级: 从索引获取 markdown 归档
+    const archive = controller.archive;
+    if (archive) {
+        const row = archive.index.get(cascadeId);
+        if (row) {
+            return res.json({
+                id: cascadeId,
+                title: row.title || '',
+                status: row.status || 'IDLE',
+                stepCount: row.step_count || 0,
+                markdown: row.markdown || '',
+                account: row.account || '',
+                source: 'archive',
+                createdAt: row.created_at,
+                updatedAt: row.updated_at,
+            });
+        }
+    }
+
+    res.status(404).json({ error: 'Conversation not found' });
 });
 
 // ========== File Read API ==========
@@ -325,7 +404,7 @@ app.get('/api/fs/list', async (req, res) => {
         }
 
         const entries = fs.readdirSync(realAbs, { withFileTypes: true });
-        
+
         // 分离文件夹和文件，并排序
         const dirs = [];
         const files = [];

@@ -459,6 +459,11 @@ async function main() {
 
     // ========== 结束 ==========
 
+    const totalMin = ((Date.now() - startTime) / 60000).toFixed(1);
+    logger.info(`=== YOLO 模式结束 === (总运行 ${totalMin}min, ${round} 轮)`);
+    logger.info(`对话 ID: ${cascadeId}`);
+    logger.info(`日志文件: ${logger.logPath}`);
+
     // ========== 归档到索引 ==========
 
     try {

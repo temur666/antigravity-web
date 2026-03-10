@@ -14,3 +14,11 @@ tools/auth-dump.txt
 tools/csrf-capture.txt
 logs/
 scripts/oauth-login.js
+
+# SQLite databases
+data/*.db
+data/*.db-wal
+data/*.db-shm
+
+# YOLO marker
+.yolo-done
