@@ -16,6 +16,8 @@ export function ConfigPanel() {
     const loadConfig = useAppStore(s => s.loadConfig);
     const viewMode = useAppStore(s => s.viewMode);
     const toggleViewMode = useAppStore(s => s.toggleViewMode);
+    const autoReply = useAppStore(s => s.autoReply);
+    const toggleAutoReply = useAppStore(s => s.toggleAutoReply);
 
     useEffect(() => {
         loadConfig();
@@ -30,7 +32,21 @@ export function ConfigPanel() {
 
     return (
         <div className="config-panel">
-            <div className="config-panel-title">⚙️ 配置</div>
+            <div className="config-panel-title">&#x2699;&#xFE0F; 配置</div>
+
+            {/* 自动回复 (YOLO) */}
+            <div className="config-item config-item-highlight">
+                <div className="config-item-header">
+                    <label className="config-item-label">自动回复</label>
+                    <div className="config-item-desc">AI 回复完毕后自动发送"继续"指令</div>
+                </div>
+                <button
+                    className={`config-toggle ${autoReply ? 'on' : 'off'}`}
+                    onClick={toggleAutoReply}
+                >
+                    {autoReply ? 'ON' : 'OFF'}
+                </button>
+            </div>
 
             {(Object.keys(CONFIG_META) as Array<keyof CascadeConfig>).map(key => {
                 const meta = CONFIG_META[key];

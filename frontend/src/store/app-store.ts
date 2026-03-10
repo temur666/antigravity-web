@@ -88,6 +88,9 @@ export interface AppState {
     // Archive 降级
     archiveMarkdown: string | null;   // 非 null 时表示当前对话是归档模式
 
+    // 自动回复 (YOLO 模式)
+    autoReply: boolean;
+
     // 输入草稿缓存 (conversationId -> draft text)
     draftMap: Record<string, string>;
 
@@ -106,6 +109,7 @@ export interface AppState {
     cancelConversation: () => Promise<void>;
     setDraft: (conversationId: string, text: string) => void;
     toggleReadingMode: () => void;
+    toggleAutoReply: () => void;
 }
 
 export type AppStore = StoreApi<AppState>;
@@ -147,6 +151,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         loading: false,
         error: null,
         archiveMarkdown: null,
+        autoReply: false,
         draftMap: {},
 
         // ---- Actions ----
@@ -487,7 +492,22 @@ export function createAppStore(wsClient: WSClient): AppStore {
         toggleReadingMode: () => {
             set(state => ({ readingMode: !state.readingMode }));
         },
+
+        toggleAutoReply: () => {
+            set(state => ({ autoReply: !state.autoReply }));
+        },
     }));
+
+    // ========== 自动回复模板 ==========
+
+    const AUTO_REPLY_TEXT = `继续你的工作，自行判断所有决策。
+- 遇到错误：分析原因，尝试解决，解决不了就跳过并记录
+- 产品决策：从用户价值角度思考
+- 技术决策：从架构合理性角度思考
+- 完成所有工作后：按照参考文档中的完成 Hook 执行`;
+
+    const AUTO_REPLY_COOLDOWN = 5000; // 5 秒冷却
+    let autoReplyTimer: ReturnType<typeof setTimeout> | null = null;
 
     // ========== 事件监听 ==========
 
@@ -635,6 +655,26 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     }
                     return { conversations: newConversations };
                 });
+
+                // 自动回复：IDLE + autoReply ON + 是当前活跃对话
+                const afterState = store.getState();
+                if (
+                    event.to === 'IDLE'
+                    && afterState.autoReply
+                    && event.cascadeId === afterState.activeConversationId
+                    && afterState.steps.length > 0  // 排除空对话
+                ) {
+                    if (autoReplyTimer) clearTimeout(autoReplyTimer);
+                    autoReplyTimer = setTimeout(() => {
+                        autoReplyTimer = null;
+                        const s = store.getState();
+                        // 二次确认：仍然 autoReply ON、仍然 IDLE、仍然是同一对话
+                        if (s.autoReply && s.conversationStatus === 'IDLE' && s.activeConversationId === event.cascadeId) {
+                            console.log('[AutoReply] 自动回复 →', event.cascadeId.slice(0, 8));
+                            s.sendMessage(AUTO_REPLY_TEXT);
+                        }
+                    }, AUTO_REPLY_COOLDOWN);
+                }
                 break;
             }
 
