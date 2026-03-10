@@ -25,7 +25,7 @@ status: confirmed
 - **F-07** ✗ 原 `oauth-login.js` 中的 CLIENT_ID (`681255809395`) 已完全失效, `invalid_client: Unauthorized` → `[E-07]`
 - **F-08** ✓ LS daemon 使用 `-gemini_dir` 参数控制 token 文件路径, 可实现多账号隔离 → `[E-08]`
 - **F-09** ✓ Token 文件格式为 `{ access_token, token_type, refresh_token, expiry }`, LS 使用内置 CLIENT_ID 自动 refresh → `[E-04]`
-- **F-10** ✗ 浏览器 OAuth 登录流程 (authorization_code flow) 在 code exchange 阶段失败, Google 授权页面本身可以正常打开 → `[E-09]`
+- **F-10** ✓ 浏览器 OAuth 登录流程 (authorization_code flow) 在使用正确的 CLIENT_ID 后已验证成功 (之前因旧 CLIENT_ID 在 code exchange 阶段失败) → `[E-09]` `[E-10]`
 - **F-11** ✓ refresh_token 的实际获取来源是 Cockpit 扩展 (jlcodes.antigravity-cockpit), 该扩展有显示账号配额的功能, 登录后可直接导出 refresh_token → `[E-09]`
 
 ## 2. 结论 (Conclusions)
@@ -37,9 +37,9 @@ LS standalone 模式的 OAuth 认证使用组1 credentials (`1071006060591-...` 
 - `.gemini-alt` → peakerlomascolo163@gmail.com
 
 refresh_token 的获取方式 (F-10, F-11):
+- **实际可行**: 浏览器 OAuth authorization_code flow — 使用正确的 CLIENT_ID (`1071006060591-...`) + 对齐 Scopes 后验证成功, 账号 tiemuer2025@gmail.com
 - **实际可行**: 通过 Cockpit 扩展获取 — 该扩展在 IDE 中登录 Google 账号后, 可导出 refresh_token 供 standalone LS 使用
-- **已失败**: 浏览器 OAuth authorization_code flow — Google 授权页面正常打开, 用户可以登录授权, 但 code → token 交换阶段返回 `invalid_client: Unauthorized` (旧 CLIENT_ID 的 secret 已被 rotate)
-- **理论可行**: 使用更新后的 CLIENT_ID 重新走浏览器授权流程 (未实测, 因为已有 Cockpit 路径)
+- **已修复**: 之前浏览器流程失败是因为旧 CLIENT_ID (`681255809395`) 的 secret 已被 Google rotate
 
 提取 CLIENT_ID 时需注意 13 位数字的情况 (F-02), `\d{12}` 正则会截断前导数字。
 
@@ -170,6 +170,23 @@ refresh_token 的获取方式 (F-10, F-11):
   → 用 refresh_token + 从 LS binary 提取的 CLIENT_ID 创建 token 文件
   ```
 - **结论**: 浏览器流程因旧 CLIENT_SECRET 失败, 但 Cockpit 扩展提供了可用的 refresh_token
+
+### E-10: 浏览器 OAuth 登录验证成功 (修复后)
+- **类型**: script-result
+- **来源**: `node lib/core/oauth/index.js login` (更新 CLIENT_ID 和 Scopes 后)
+- **复现方法**:
+  ```bash
+  # GCP 服务器上
+  node lib/core/oauth/index.js login --port 9876 --gemini-dir .gemini
+
+  # 本地 SSH 端口转发
+  ssh -L 9876:127.0.0.1:9876 gcp-iap
+
+  # 本地浏览器打开输出的 OAuth URL
+  ```
+- **结果**: Login Success, Account: tiemuer2025@gmail.com
+- **修复内容**: 更新 Scopes (去掉 openid, 加上 cclog + experimentsandconfigs, 与 Cockpit 扩展对齐)
+- **根因确认**: 之前失败是因为旧 CLIENT_ID, 不是流程问题
 
 ## 4. 探索过程 (Exploration Summary)
 
