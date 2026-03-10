@@ -146,11 +146,17 @@ async function handleMessage(clientWs, data) {
                     break;
                 }
 
+                const cid = data.cascadeId.slice(0, 8);
+                console.log(`[req_trajectory] ${cid}... 开始获取`);
+
                 // 优先 LS API 获取实时 steps
                 let traj = null;
                 try {
                     traj = await controller.getTrajectory(data.cascadeId);
-                } catch { /* LS 可能不可用 */ }
+                    console.log(`[req_trajectory] ${cid}... LS 返回: status=${traj?.status}, steps=${traj?.trajectory?.steps?.length ?? 'null'}`);
+                } catch (err) {
+                    console.warn(`[req_trajectory] ${cid}... LS 调用失败: ${err.message}`);
+                }
 
                 if (traj?.trajectory?.steps?.length > 0) {
                     send(proto.makeResponse('res_trajectory', {

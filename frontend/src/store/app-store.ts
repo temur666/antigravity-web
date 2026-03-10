@@ -209,6 +209,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                     lastSeq: cached.lastSeq,
                     loading: false,
                     error: null,
+                    archiveMarkdown: null,
                 });
                 localStorage.setItem('activeConversationId', id);
                 pushConversationUrl(id);
@@ -232,6 +233,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 lastSeq: 0,
                 loading: !isSameConv,
                 error: null,
+                archiveMarkdown: null,
             });
             localStorage.setItem('activeConversationId', id);
             pushConversationUrl(id);
