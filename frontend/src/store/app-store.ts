@@ -29,6 +29,8 @@ import type {
     ResNewChat,
     ResConfig,
     ResStatus,
+    ResDeleteConversation,
+    ResExportMarkdown,
     CascadeConfig,
     ModelInfo,
     GeneratorMetadata,
@@ -110,6 +112,8 @@ export interface AppState {
     setDraft: (conversationId: string, text: string) => void;
     toggleReadingMode: () => void;
     toggleAutoReply: () => void;
+    deleteConversation: (id: string) => Promise<boolean>;
+    exportMarkdown: (id: string) => Promise<string | null>;
 }
 
 export type AppStore = StoreApi<AppState>;
@@ -495,6 +499,47 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
         toggleAutoReply: () => {
             set(state => ({ autoReply: !state.autoReply }));
+        },
+
+        deleteConversation: async (id: string) => {
+            const res = await wsClient.sendAndWait({
+                type: 'req_delete_conversation',
+                reqId: wsClient.nextReqId(),
+                cascadeId: id,
+            });
+
+            if (res.type === 'res_delete_conversation') {
+                const data = res as ResDeleteConversation;
+                if (data.ok) {
+                    // 从列表删除
+                    set(prev => ({
+                        conversations: prev.conversations.filter(c => c.id !== id),
+                        conversationsTotal: Math.max(0, prev.conversationsTotal - 1),
+                    }));
+                    // 从缓存删除
+                    conversationCache.delete(id);
+                    // 如果是当前对话，跳回主页
+                    if (get().activeConversationId === id) {
+                        get().setActiveConversation(null);
+                    }
+                    return true;
+                }
+            }
+            return false;
+        },
+
+        exportMarkdown: async (id: string) => {
+            const res = await wsClient.sendAndWait({
+                type: 'req_export_markdown',
+                reqId: wsClient.nextReqId(),
+                cascadeId: id,
+            }, 30000);
+
+            if (res.type === 'res_export_markdown') {
+                const data = res as ResExportMarkdown;
+                return data.markdown;
+            }
+            return null;
         },
     }));
 

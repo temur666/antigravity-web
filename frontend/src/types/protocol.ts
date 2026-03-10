@@ -81,6 +81,18 @@ export interface ReqCancel {
     cascadeId: string;
 }
 
+export interface ReqDeleteConversation {
+    type: 'req_delete_conversation';
+    reqId?: string;
+    cascadeId: string;
+}
+
+export interface ReqExportMarkdown {
+    type: 'req_export_markdown';
+    reqId?: string;
+    cascadeId: string;
+}
+
 export type ClientMessage =
     | ReqStatus
     | ReqConversations
@@ -91,7 +103,9 @@ export type ClientMessage =
     | ReqUnsubscribe
     | ReqSetConfig
     | ReqGetConfig
-    | ReqCancel;
+    | ReqCancel
+    | ReqDeleteConversation
+    | ReqExportMarkdown;
 
 // ========== 响应类型 (服务端 → 客户端) ==========
 
@@ -184,6 +198,21 @@ export interface ResCancel {
     cascadeId: string;
 }
 
+export interface ResDeleteConversation {
+    type: 'res_delete_conversation';
+    reqId?: string;
+    ok: boolean;
+    cascadeId: string;
+}
+
+export interface ResExportMarkdown {
+    type: 'res_export_markdown';
+    reqId?: string;
+    cascadeId: string;
+    markdown: string;
+    title?: string;
+}
+
 export type ServerMessage =
     | ResStatus
     | ResConversations
@@ -195,6 +224,8 @@ export type ServerMessage =
     | ResConfig
     | ResError
     | ResCancel
+    | ResDeleteConversation
+    | ResExportMarkdown
     | EventStepAdded
     | EventStepUpdated
     | EventStatusChanged
@@ -251,7 +282,9 @@ export interface ConversationSummary {
     createdAt?: string;
     lastUserInputTime?: string;
     workspace?: string;
-    source?: string;          // ls | file | sqlite
+    source?: string;          // ls | file | sqlite | index
+    account?: string;         // 账号标识
+    hasArchive?: boolean;     // 是否有归档 markdown
 }
 
 export interface TokenUsage {

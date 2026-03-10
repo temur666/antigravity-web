@@ -196,6 +196,115 @@
   margin-top: 4px;
 }
 
+/* ===== Search ===== */
+.sidebar-search {
+  padding: 0 var(--spacing-sm) var(--spacing-sm);
+  position: relative;
+}
+
+.sidebar-search-input {
+  width: 100%;
+  padding: 8px 32px 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.sidebar-search-input::placeholder {
+  color: var(--color-text-muted);
+}
+
+.sidebar-search-input:focus {
+  border-color: var(--color-accent);
+}
+
+.sidebar-search-clear {
+  position: absolute;
+  right: calc(var(--spacing-sm) + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+}
+
+.sidebar-search-clear:hover {
+  color: var(--color-text-primary);
+}
+
+/* ===== Running State ===== */
+.chat-item.running {
+  border-left: 2px solid var(--color-accent);
+}
+
+.chat-item-running-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-accent);
+  animation: sidebar-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes sidebar-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.chat-item-status-badge {
+  font-size: 10px;
+  background: rgba(45, 212, 191, 0.15);
+  color: var(--color-accent);
+  padding: 1px 6px;
+  border-radius: var(--radius-pill);
+  font-weight: 500;
+}
+
+/* ===== Context Menu ===== */
+.sidebar-context-menu {
+  position: fixed;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 4px 0;
+  min-width: 160px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+}
+
+.context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.context-menu-item:hover {
+  background: var(--color-bg-surface);
+}
+
+.context-menu-danger {
+  color: #ef4444;
+}
+
+.context-menu-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
   .sidebar {

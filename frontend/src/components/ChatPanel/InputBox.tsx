@@ -412,7 +412,7 @@ export function InputBox() {
                     {attachments.length > 0 && (
                         <div className="input-attachments-preview">
                             {attachments.map((att, idx) => (
-                                <div key={Math.random()} className="input-attachment-item">
+                                <div key={att.previewUrl} className="input-attachment-item">
                                     <img src={att.previewUrl} alt="attachment" />
                                     <button
                                         className="input-attachment-remove"
@@ -451,7 +451,7 @@ export function InputBox() {
 
                 {/* 右侧区域：麦克风、发送/终止按钮 */}
                 <div className="input-actions-right">
-                    <button className="input-circle-btn ghost btn-mic" title="语音">
+                    <button className="input-circle-btn ghost btn-mic" title="语音 (即将推出)" disabled>
                         <Mic size={16} />
                     </button>
 

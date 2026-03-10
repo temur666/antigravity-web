@@ -23,7 +23,7 @@ export type ArtifactReviewMode =
     | 'ARTIFACT_REVIEW_MODE_STRICT';
 
 export const DEFAULT_CONFIG: CascadeConfig = {
-    model: 'MODEL_PLACEHOLDER_M26',
+    model: 'MODEL_PLACEHOLDER_M37',
     agenticMode: false,
     autoExecutionPolicy: 'CASCADE_COMMANDS_AUTO_EXECUTION_EAGER',
     artifactReviewMode: 'ARTIFACT_REVIEW_MODE_TURBO',

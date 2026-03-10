@@ -307,6 +307,68 @@ async function handleMessage(clientWs, data) {
                 break;
             }
 
+            case 'req_delete_conversation': {
+                if (!data.cascadeId) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
+                    break;
+                }
+                try {
+                    if (controller.ls) {
+                        await grpcCall(controller.ls.port, controller.ls.csrf, 'DeleteCascadeTrajectory', {
+                            cascadeId: data.cascadeId,
+                        });
+                    }
+                    // 同时从索引中删除
+                    if (controller.archive?.index) {
+                        controller.archive.index.delete(data.cascadeId);
+                    }
+                    // 取消该对话的所有订阅
+                    controller.unsubscribeAll(clientWs);
+                    send(proto.makeResponse('res_delete_conversation', { ok: true, cascadeId: data.cascadeId }, reqId));
+                } catch (err) {
+                    console.error(`[!] DeleteCascadeTrajectory: ${err.message}`);
+                    send(proto.makeError('DELETE_FAILED', err.message, reqId));
+                }
+                break;
+            }
+
+            case 'req_export_markdown': {
+                if (!data.cascadeId) {
+                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
+                    break;
+                }
+                try {
+                    let markdown = '';
+                    let title = '';
+                    if (controller.ls) {
+                        const traj = await controller.getTrajectory(data.cascadeId);
+                        if (traj?.trajectory) {
+                            const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'ConvertTrajectoryToMarkdown', {
+                                trajectory: traj.trajectory,
+                            });
+                            markdown = r.data?.markdown || '';
+                        }
+                    }
+                    // fallback: 从归档获取
+                    if (!markdown && controller.archive?.index) {
+                        const row = controller.archive.index.get(data.cascadeId);
+                        if (row?.markdown) {
+                            markdown = row.markdown;
+                            title = row.title || '';
+                        }
+                    }
+                    send(proto.makeResponse('res_export_markdown', {
+                        cascadeId: data.cascadeId,
+                        markdown,
+                        title,
+                    }, reqId));
+                } catch (err) {
+                    console.error(`[!] ExportMarkdown: ${err.message}`);
+                    send(proto.makeError('EXPORT_FAILED', err.message, reqId));
+                }
+                break;
+            }
+
             case 'req_yolo_start': {
                 if (yoloEngine.getStatus().running) {
                     send(proto.makeError('YOLO_RUNNING', 'YOLO 已在运行中', reqId));
