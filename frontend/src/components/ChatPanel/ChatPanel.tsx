@@ -49,6 +49,9 @@ export function ChatPanel() {
     // 触摸滑动
     const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
+    // 阅读模式：区分点击 vs 拖选
+    const mouseDownRef = useRef<{ x: number; y: number } | null>(null);
+
     const isPaged = viewMode === 'paged';
 
     // ---- 重算分页 ----
@@ -160,6 +163,11 @@ export function ChatPanel() {
         return () => window.removeEventListener('resize', onResize);
     }, []);
 
+    // ---- 记录 mousedown 坐标（用于区分点击 vs 拖选） ----
+    const handleContentMouseDown = useCallback((e: React.MouseEvent) => {
+        mouseDownRef.current = { x: e.clientX, y: e.clientY };
+    }, []);
+
     // ---- 点击空白区域切换阅读模式 ----
     const handleContentClick = useCallback((e: React.MouseEvent) => {
         const target = e.target as HTMLElement;
@@ -181,6 +189,19 @@ export function ChatPanel() {
             '.step-toggle, img, video, summary'
         );
         if (interactive) return;
+
+        // 拖选检测：鼠标位移超过 5px → 判定为拖选，跳过
+        const DRAG_THRESHOLD = 5;
+        if (mouseDownRef.current) {
+            const dx = Math.abs(e.clientX - mouseDownRef.current.x);
+            const dy = Math.abs(e.clientY - mouseDownRef.current.y);
+            if (dx > DRAG_THRESHOLD || dy > DRAG_THRESHOLD) return;
+        }
+
+        // 选中文字检测：有选中文本 → 跳过
+        const selection = window.getSelection();
+        if (selection && selection.toString().trim().length > 0) return;
+
         toggleReadingMode();
     }, [toggleReadingMode]);
 
@@ -412,13 +433,13 @@ export function ChatPanel() {
             {isPaged ? (
                 /* ====== 翻页模式 ====== */
                 <div className="paged-viewport" ref={viewportRef} data-columns={pagedColumns}>
-                    <div className="paged-content" ref={contentRef} onClick={handleContentClick}>
+                    <div className="paged-content" ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
                         {stepsContent}
                     </div>
                 </div>
             ) : (
                 /* ====== 滚动模式 ====== */
-                <div className="chat-panel-messages" ref={contentRef} onClick={handleContentClick}>
+                <div className="chat-panel-messages" ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
                     {stepsContent}
                     <div ref={bottomRef} />
                 </div>

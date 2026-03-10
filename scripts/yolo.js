@@ -20,6 +20,7 @@ const fs = require('fs');
 const path = require('path');
 const { grpcCall, discoverLS } = require('../lib/core/ls-discovery');
 const { buildSendBody, DEFAULT_CONFIG } = require('../lib/core/ws-protocol');
+const ConversationIndex = require('../lib/data/conversation-index');
 
 // ========== 配置解析 ==========
 
@@ -27,6 +28,7 @@ function parseArgs() {
     const args = process.argv.slice(2);
     const config = {
         docPath: null,
+        task: null,
         timeout: 7200,
         port: null,
         csrf: null,
@@ -59,6 +61,9 @@ function parseArgs() {
                 break;
             case '--agentic':
                 config.agentic = true;
+                break;
+            case '--task':
+                config.task = args[++i];
                 break;
             default:
                 if (!args[i].startsWith('--') && !config.docPath) {
@@ -102,9 +107,9 @@ class Logger {
 
     logRound(roundNum, aiResponsePreview) {
         this.roundCount = roundNum;
-        this.info(`--- 第 ${roundNum} 轮 ---`);
+        this.info(`--- 第 ${roundNum} 轮完成 ---`);
         if (aiResponsePreview) {
-            this.info(`AI 回复预览: ${aiResponsePreview.slice(0, 300)}...`);
+            this.info(`AI 回复:\n${aiResponsePreview}`);
         }
     }
 
@@ -128,7 +133,7 @@ async function safeCall(port, csrf, method, body, timeoutMs = 30000) {
  * 同时自动处理 WAITING 状态的 step（自动批准命令执行）
  * @returns {{ idle: boolean, steps: Array, lastAiText: string }}
  */
-async function waitForIdle(port, csrf, cascadeId, pollIntervalSec, logger) {
+async function waitForIdle(port, csrf, cascadeId, pollIntervalSec, logger, lastShownIndex = 0) {
     let lastAiText = '';
     const maxPoll = 600; // 最多轮询 600 次（= pollInterval * 600）
 
@@ -148,6 +153,17 @@ async function waitForIdle(port, csrf, cascadeId, pollIntervalSec, logger) {
 
         const status = r.data?.status || '';
         const steps = r.data?.trajectory?.steps || [];
+
+        // 实时显示新 step
+        for (let s = lastShownIndex; s < steps.length; s++) {
+            const step = steps[s];
+            const type = (step.type || '').replace('CORTEX_STEP_TYPE_', '');
+            const sts = (step.status || '').replace('CORTEX_STEP_STATUS_', '');
+            const text = step?.content?.text || step?.content?.message || step?.text || '';
+            const preview = text.length > 120 ? text.slice(0, 120).replace(/\n/g, ' ') + '...' : text.replace(/\n/g, ' ');
+            logger.info(`  [Step ${s}] ${type} (${sts})${preview ? ' ' + preview : ''}`);
+        }
+        lastShownIndex = steps.length;
 
         // 自动处理 WAITING 状态的 step（批准命令执行）
         for (let j = 0; j < steps.length; j++) {
@@ -174,17 +190,17 @@ async function waitForIdle(port, csrf, cascadeId, pollIntervalSec, logger) {
         }
 
         if (status.includes('IDLE') || status.includes('COMPLETED')) {
-            return { idle: true, steps, lastAiText };
+            return { idle: true, steps, lastAiText, lastShownIndex };
         }
 
-        // 每 30 次轮询打一条心跳日志
-        if (i > 0 && i % 30 === 0) {
-            logger.info(`仍在等待 AI 完成... (已轮询 ${i} 次, 状态: ${status})`);
+        // 每 10 次轮询打一条心跳日志
+        if (i > 0 && i % 10 === 0) {
+            logger.info(`仍在等待... (轮询 ${i} 次, 状态: ${status}, steps: ${steps.length})`);
         }
     }
 
     logger.warn('等待 IDLE 超时');
-    return { idle: false, steps: [], lastAiText };
+    return { idle: false, steps: [], lastAiText, lastShownIndex };
 }
 
 // ========== 标记文件检测 ==========
@@ -211,10 +227,13 @@ async function main() {
     const config = parseArgs();
 
     // 参数校验
-    if (!config.docPath) {
-        console.error('用法: node scripts/yolo.js <参考文档.md> [选项]');
+    if (!config.docPath && !config.task) {
+        console.error('用法:');
+        console.error('  node scripts/yolo.js <参考文档.md> [选项]');
+        console.error('  node scripts/yolo.js --task "你的任务指令" [选项]');
         console.error('');
         console.error('选项:');
+        console.error('  --task <文本>         直接传任务指令（与文件二选一）');
         console.error('  --timeout <秒>       最大运行时长（默认 7200）');
         console.error('  --port <端口>        LS 端口（自动发现）');
         console.error('  --csrf <token>       CSRF token（自动发现）');
@@ -225,10 +244,12 @@ async function main() {
         process.exit(1);
     }
 
-    const docFullPath = path.resolve(config.docPath);
-    if (!fs.existsSync(docFullPath)) {
-        console.error(`参考文档不存在: ${docFullPath}`);
-        process.exit(1);
+    if (config.docPath) {
+        const docFullPath = path.resolve(config.docPath);
+        if (!fs.existsSync(docFullPath)) {
+            console.error(`参考文档不存在: ${docFullPath}`);
+            process.exit(1);
+        }
     }
 
     // 自动发现 LS（用户显式传参时优先）
@@ -252,7 +273,18 @@ async function main() {
     const logger = new Logger(logDir);
 
     logger.info('=== YOLO 模式启动 ===');
-    logger.info(`参考文档: ${docFullPath}`);
+
+    // 获取 LS 版本和账户信息
+    const statusRes = await safeCall(config.port, config.csrf, 'GetStatus', {});
+    const userRes = await safeCall(config.port, config.csrf, 'GetUserStatus', {});
+
+    const version = statusRes.data?.version || statusRes.data?.serverVersion || '未知';
+    const user = userRes.data?.userStatus || {};
+    const plan = user.planStatus?.planInfo || {};
+
+    logger.info(`LS 版本: ${version}`);
+    logger.info(`账户: ${user.name || '未知'} <${user.email || '未知'}> (${plan.planName || '未知'})`);
+    logger.info(`来源: ${config.task ? '命令行指令' : config.docPath}`);
     logger.info(`超时: ${config.timeout}s`);
     logger.info(`端口: ${config.port}, CSRF: ${config.csrf}`);
     logger.info(`冷却: ${config.cooldown}s, 轮询间隔: ${config.pollInterval}s`);
@@ -261,9 +293,16 @@ async function main() {
     // 清理旧标记文件
     cleanMarker();
 
-    // 读取参考文档
-    const docContent = fs.readFileSync(docFullPath, 'utf-8');
-    logger.info(`参考文档已读取 (${docContent.length} 字符)`);
+    // 读取任务内容
+    let docContent;
+    if (config.task) {
+        docContent = config.task;
+        logger.info(`任务指令 (${docContent.length} 字符): ${docContent.slice(0, 100)}...`);
+    } else {
+        const docFullPath = path.resolve(config.docPath);
+        docContent = fs.readFileSync(docFullPath, 'utf-8');
+        logger.info(`参考文档已读取: ${docFullPath} (${docContent.length} 字符)`);
+    }
 
     // 创建或复用对话
     let cascadeId = config.cascadeId;
@@ -276,6 +315,20 @@ async function main() {
             process.exit(1);
         }
         logger.info(`新对话已创建: ${cascadeId}`);
+
+        // 记录到对话索引
+        try {
+            const convIndex = new ConversationIndex();
+            convIndex.insert(cascadeId, {
+                account: user.email || null,
+                source: 'yolo',
+                yoloTask: docContent.slice(0, 500),
+                createdAt: new Date().toISOString(),
+            });
+            convIndex.close();
+        } catch (err) {
+            logger.warn(`对话索引 insert 失败: ${err.message}`);
+        }
     } else {
         logger.info(`复用已有对话: ${cascadeId}`);
     }
@@ -302,6 +355,7 @@ async function main() {
     const startTime = Date.now();
     const timeoutMs = config.timeout * 1000;
     let round = 0;
+    let lastShownIndex = 0;
     let consecutiveErrors = 0;
     const MAX_CONSECUTIVE_ERRORS = 10;
 
@@ -331,10 +385,11 @@ async function main() {
 
         // 等待 AI 完成当前轮次
         logger.info('等待 AI 完成...');
-        const { idle, steps, lastAiText } = await waitForIdle(
+        const { idle, steps, lastAiText, lastShownIndex: newShown } = await waitForIdle(
             config.port, config.csrf, cascadeId,
-            config.pollInterval, logger
+            config.pollInterval, logger, lastShownIndex
         );
+        lastShownIndex = newShown;
 
         if (!idle) {
             consecutiveErrors++;
@@ -404,10 +459,23 @@ async function main() {
 
     // ========== 结束 ==========
 
-    const totalMin = ((Date.now() - startTime) / 60000).toFixed(1);
-    logger.info(`=== YOLO 模式结束 === (总运行 ${totalMin}min, ${round} 轮)`);
-    logger.info(`对话 ID: ${cascadeId}`);
-    logger.info(`日志文件: ${logger.logPath}`);
+    // ========== 归档到索引 ==========
+
+    try {
+        const convIndex = new ConversationIndex();
+        convIndex.insert(cascadeId, { account: user.email || null, source: 'yolo' }); // 确保存在
+        convIndex.finalize(cascadeId, {
+            title: 'YOLO: ' + (config.task ? config.task.slice(0, 80) : path.basename(config.docPath || '')),
+            stepCount: lastShownIndex,
+            yoloSummary: `${round} 轮完成, ${totalMin}min`,
+            updatedAt: new Date().toISOString(),
+        });
+        convIndex.close();
+        logger.info('对话已归档到索引');
+    } catch (err) {
+        logger.warn(`对话索引 finalize 失败: ${err.message}`);
+    }
+
     logger.close();
 }
 
