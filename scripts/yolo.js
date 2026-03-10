@@ -322,8 +322,11 @@ async function main() {
             convIndex.insert(cascadeId, {
                 account: user.email || null,
                 source: 'yolo',
-                yoloTask: docContent.slice(0, 500),
                 createdAt: new Date().toISOString(),
+            });
+            // yoloTask 需要通过 finalize 写入（insert 只写基本字段）
+            convIndex.finalize(cascadeId, {
+                yoloTask: docContent.slice(0, 500),
             });
             convIndex.close();
         } catch (err) {
