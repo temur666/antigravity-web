@@ -25,6 +25,8 @@ status: confirmed
 - **F-07** ✗ 原 `oauth-login.js` 中的 CLIENT_ID (`681255809395`) 已完全失效, `invalid_client: Unauthorized` → `[E-07]`
 - **F-08** ✓ LS daemon 使用 `-gemini_dir` 参数控制 token 文件路径, 可实现多账号隔离 → `[E-08]`
 - **F-09** ✓ Token 文件格式为 `{ access_token, token_type, refresh_token, expiry }`, LS 使用内置 CLIENT_ID 自动 refresh → `[E-04]`
+- **F-10** ✗ 浏览器 OAuth 登录流程 (authorization_code flow) 在 code exchange 阶段失败, Google 授权页面本身可以正常打开 → `[E-09]`
+- **F-11** ✓ refresh_token 的实际获取来源是 Cockpit 扩展 (jlcodes.antigravity-cockpit), 该扩展有显示账号配额的功能, 登录后可直接导出 refresh_token → `[E-09]`
 
 ## 2. 结论 (Conclusions)
 
@@ -34,9 +36,10 @@ LS standalone 模式的 OAuth 认证使用组1 credentials (`1071006060591-...` 
 - `.gemini` → tiemuer2025@gmail.com (默认)
 - `.gemini-alt` → peakerlomascolo163@gmail.com
 
-refresh_token 可通过两种方式获取 (F-05):
-1. **Cockpit 扩展** — 安装后直接从扩展中提取 (已验证可行)
-2. **oauth-login.js** — 使用更新后的 CLIENT_ID 重新走浏览器授权流程
+refresh_token 的获取方式 (F-10, F-11):
+- **实际可行**: 通过 Cockpit 扩展获取 — 该扩展在 IDE 中登录 Google 账号后, 可导出 refresh_token 供 standalone LS 使用
+- **已失败**: 浏览器 OAuth authorization_code flow — Google 授权页面正常打开, 用户可以登录授权, 但 code → token 交换阶段返回 `invalid_client: Unauthorized` (旧 CLIENT_ID 的 secret 已被 rotate)
+- **理论可行**: 使用更新后的 CLIENT_ID 重新走浏览器授权流程 (未实测, 因为已有 Cockpit 路径)
 
 提取 CLIENT_ID 时需注意 13 位数字的情况 (F-02), `\d{12}` 正则会截断前导数字。
 
@@ -140,23 +143,66 @@ refresh_token 可通过两种方式获取 (F-05):
   ```
 - **结果**: 两个账号均通过 Heartbeat + CreateCascade 验证
 
+### E-09: 浏览器 OAuth 登录失败 + Cockpit 扩展成功
+- **类型**: log
+- **来源**: 终端输出 + 浏览器
+- **浏览器流程复现**:
+  ```bash
+  # 1. 在远程 GCP 机器上启动 oauth-login.js
+  node scripts/oauth-login.js --gemini-dir .gemini-alt
+  # 输出: OAuth URL + 等待回调...
+
+  # 2. 本地机器 SSH 端口转发
+  ssh -L 9876:127.0.0.1:9876 gcp-iap
+
+  # 3. 本地浏览器打开 OAuth URL → Google 授权页面正常打开
+  #    用户选择第二个 Google 账号 → 授权成功 → 浏览器回调到 localhost:9876
+
+  # 4. 回调到达, 但 code exchange 失败:
+  #    POST https://oauth2.googleapis.com/token → invalid_client: Unauthorized
+  #    原因: oauth-login.js 中的 CLIENT_SECRET 已被 Google rotate
+  ```
+- **Cockpit 扩展流程**:
+  ```
+  IDE 中安装 jlcodes.antigravity-cockpit v2.1.29 → 显示账号配额
+  → 扩展已用正确的 CLIENT_ID 完成 OAuth 登录
+  → 从扩展中导出 refresh_token (JSON 格式, 包含 email + refresh_token)
+  → 用 refresh_token + 从 LS binary 提取的 CLIENT_ID 创建 token 文件
+  ```
+- **结论**: 浏览器流程因旧 CLIENT_SECRET 失败, 但 Cockpit 扩展提供了可用的 refresh_token
+
 ## 4. 探索过程 (Exploration Summary)
 
 用户发现 DaemonLS 只有一个账号 (tiemuer2025) 的 token, 想添加第二个账号:
   ↓
-尝试用现有 `oauth-login.js` 走 OAuth flow → Google 授权页面正常打开:
+**尝试1: 浏览器 OAuth 登录 (失败)**:
+  运行 `oauth-login.js` → 在 GCP 远程机器上启动 HTTP 回调服务器 (port 9876)
+  → SSH 端口转发 `ssh -L 9876:127.0.0.1:9876 gcp-iap`
+  → 本地浏览器打开 Google OAuth URL → 授权页面正常打开
+  → 用第二个 Google 账号登录并授权 → Google 回调到 localhost:9876
+  → 回调到达服务器, 但 code exchange 失败: `invalid_client: Unauthorized`
+  → 结论: oauth-login.js 中硬编码的旧 CLIENT_SECRET 已被 Google rotate
   ↓
-code exchange 阶段失败: `invalid_client: Unauthorized` → CLIENT_SECRET 或 CLIENT_ID 已被 rotate:
+**尝试2: 从 LS binary 提取新 credentials, 更新 oauth-login.js (部分成功)**:
+  从 LS binary (v1.19.6) 用 strings + grep 提取 OAuth credentials → 找到两组
   ↓
-从 LS binary (v1.19.6) 用 strings + grep 提取 OAuth credentials → 找到两组:
+  用提取到的 CLIENT_ID `071006060591` (12位) 测试 refresh → `The OAuth client was not found`
   ↓
-用提取到的 CLIENT_ID `071006060591` 测试 refresh → `The OAuth client was not found`:
+  **死胡同**: 所有已知 CLIENT_ID 测试均失败, AI 得出 "credentials 全部被 Google 吊销" 的错误结论
   ↓
-**关键转折**: 用户质疑 "CLIENT_ID 被删除" 的结论 — 如果被删了, 全世界用户都会坏掉:
+  **关键转折**: 用户质疑 — 如果被删了, 全世界用户都会坏掉
+  → 重新检查 strings 输出, 发现正则 `\d{12}` 截断了一位
+  → 正确的 CLIENT_ID 是 13 位 `1071006060591`
   ↓
-重新检查 strings 输出, 发现正则 `\d{12}` 截断了一位 → 正确的 CLIENT_ID 是 13 位 `1071006060591`:
+  用正确的 CLIENT_ID 测试 → refresh 成功!
   ↓
-用正确的 CLIENT_ID 测试 → 两个账号 refresh 全部成功:
+**问题: refresh_token 从哪来?**
+  用户提供了二个账号的 refresh_token, 来源是 Cockpit 扩展 (jlcodes.antigravity-cockpit)
+  → 该扩展是一个显示 Gemini 账号配额的 IDE 插件
+  → 用户在 IDE 中用两个 Google 账号登录该扩展后, 导出了 refresh_token
+  → 验证: Cockpit 扩展使用的 CLIENT_ID 与 LS binary 中的组1 完全一致
+  ↓
+用 Cockpit 扩展的 refresh_token + LS binary 的 CLIENT_ID 创建 token 文件 → 成功:
   ↓
 创建完整 OAuth 模块 (`lib/core/oauth/`) 并用 CLI 生成第二个账号的 token 文件:
   ↓
