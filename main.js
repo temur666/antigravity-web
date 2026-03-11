@@ -38,6 +38,7 @@ controller.on('ls_connected', (ls) => console.log(`[+] LS 已连接 PID=${ls.pid
 controller.on('ls_disconnected', () => {
     console.log('[-] LS 断开');
     const msg = proto.makeEvent('event_ls_status', { connected: false, port: null, pid: null });
+    broadcastSSE(msg);
     for (const ws of clients) {
         try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
     }
@@ -45,6 +46,7 @@ controller.on('ls_disconnected', () => {
 controller.on('ls_reconnected', (ls) => {
     console.log(`[+] LS 重连成功 PID=${ls.pid} Port=${ls.port}`);
     const msg = proto.makeEvent('event_ls_status', { connected: true, port: ls.port, pid: ls.pid });
+    broadcastSSE(msg);
     for (const ws of clients) {
         try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
     }
@@ -57,9 +59,12 @@ controller.on('status_changed', ({ cascadeId, from, to }) => {
 
 const yoloEngine = new YoloEngine();
 
-// YOLO 事件广播给所有 WS 客户端
+// YOLO 事件广播给所有 SSE 客户端（兼容 WS 客户端）
 function broadcastYolo(eventType, payload) {
     const msg = proto.makeEvent(eventType, payload);
+    // SSE 广播
+    broadcastSSE(msg);
+    // WS 广播 (兼容期保留)
     for (const ws of clients) {
         try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
     }
@@ -84,7 +89,44 @@ yoloEngine.on('error', (data) => {
     broadcastYolo('event_yolo_error', data);
 });
 
-// ========== WebSocket 客户端管理 ==========
+// ========== SSE 客户端管理 ==========
+
+const sseClients = new Set();
+
+/**
+ * 包装 SSE res 对象，使其和 WS 接口兼容
+ * @param {import('http').ServerResponse} res
+ */
+function sseAdapter(res) {
+    return {
+        isOpen: () => !res.writableEnded,
+        send: (msg) => {
+            if (!res.writableEnded) {
+                res.write(`data: ${msg}\n\n`);
+            }
+        },
+    };
+}
+
+/**
+ * 向所有 SSE 客户端广播消息
+ * @param {string} msg - JSON 字符串
+ */
+function broadcastSSE(msg) {
+    for (const res of sseClients) {
+        try {
+            if (!res.writableEnded) {
+                res.write(`data: ${msg}\n\n`);
+            } else {
+                sseClients.delete(res);
+            }
+        } catch {
+            sseClients.delete(res);
+        }
+    }
+}
+
+// ========== WebSocket 客户端管理 (保留，待前端迁移完成后删除) ==========
 
 const clients = new Set();
 
@@ -449,6 +491,9 @@ const app = express();
 const serverHttp = http.createServer(app);
 const wss = new WebSocket.Server({ server: serverHttp });
 
+// JSON body parser（POST 请求必须；限制 50MB 以支持 base64 图片）
+app.use(express.json({ limit: '50mb' }));
+
 // Hashed assets (Vite content hash): 1 年不可变缓存
 app.use('/assets', express.static(path.join(distPath, 'assets'), {
     maxAge: '1y',
@@ -474,9 +519,103 @@ app.get('*', (req, res, next) => {
     res.sendFile(path.join(distPath, 'index.html'));
 });
 
-// REST API
-app.get('/api/status', (_req, res) => {
-    res.json(controller.getStatus());
+// ========== SSE 端点 ==========
+
+app.get('/api/events', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no'); // nginx 透传
+    res.flushHeaders();
+
+    sseClients.add(res);
+    console.log(`[+] SSE 客户端连接 (总: ${sseClients.size})`);
+
+    // 发送初始 LS 状态
+    const initMsg = proto.makeEvent('event_ls_status', {
+        connected: !!controller.ls,
+        port: controller.ls?.port || null,
+        pid: controller.ls?.pid || null,
+    });
+    res.write(`data: ${initMsg}\n\n`);
+
+    // 注册 SSE 适配器到 controller（如果有活跃对话可恢复）
+    // 这里只负责推送，subscribe 由前端显式调用
+
+    req.on('close', () => {
+        sseClients.delete(res);
+        controller.unsubscribeAll(sseAdapter(res));
+        // 实际上 unsubscribeAll 按对象引用匹配，这里记录一个清理占位
+        // 真正的清理靠 sseClientMap（见下方）
+        console.log(`[-] SSE 客户端断开 (总: ${sseClients.size})`);
+    });
+});
+
+// SSE 订阅 Map: res -> adapter（用于正确的 unsubscribeAll）
+const sseClientMap = new Map();
+
+app.get('/api/events/stream', (req, res) => {
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
+    res.flushHeaders();
+
+    const adapter = sseAdapter(res);
+    sseClients.add(res);
+    sseClientMap.set(res, adapter);
+    console.log(`[+] SSE 客户端连接 (总: ${sseClients.size})`);
+
+    // 发送初始 LS 状态
+    const initMsg = proto.makeEvent('event_ls_status', {
+        connected: !!controller.ls,
+        port: controller.ls?.port || null,
+        pid: controller.ls?.pid || null,
+    });
+    res.write(`data: ${initMsg}\n\n`);
+
+    req.on('close', () => {
+        sseClients.delete(res);
+        const adp = sseClientMap.get(res);
+        if (adp) {
+            controller.unsubscribeAll(adp);
+            sseClientMap.delete(res);
+        }
+        console.log(`[-] SSE 客户端断开 (总: ${sseClients.size})`);
+    });
+});
+
+// ========== REST API ==========
+
+app.get('/api/status', async (_req, res) => {
+    try {
+        const status = controller.getStatus();
+        if (controller.ls) {
+            try {
+                const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'GetUserStatus', {});
+                const us = r.data?.userStatus || {};
+                status.account = {
+                    email: us.email || '',
+                    tier: us.userTier?.name || '',
+                };
+                const modelConfigs = us.cascadeModelConfigData?.clientModelConfigs || [];
+                status.models = modelConfigs.map(c => ({
+                    label: c.label,
+                    model: c.modelOrAlias?.model,
+                    supportsImages: c.supportsImages || false,
+                    supportedMimeTypes: c.supportedMimeTypes || {},
+                    quota: c.quotaInfo?.remainingFraction,
+                    tag: c.tagTitle || '',
+                }));
+                status.defaultModel = us.cascadeModelConfigData?.defaultOverrideModelConfig?.modelOrAlias?.model || null;
+            } catch (err) {
+                console.warn('[!] GetUserStatus:', err.message);
+            }
+        }
+        res.json(status);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get('/api/conversations', async (req, res) => {
@@ -526,6 +665,63 @@ app.get('/api/conversations', async (req, res) => {
     }
 });
 
+// POST /api/conversations — 新建对话
+app.post('/api/conversations', async (_req, res) => {
+    try {
+        const cascadeId = await controller.newChat();
+        res.json({ cascadeId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/config — 获取配置
+app.get('/api/config', (_req, res) => {
+    res.json({ config: controller.getConfig() });
+});
+
+// PUT /api/config — 更新配置
+app.put('/api/config', (req, res) => {
+    try {
+        controller.setConfig(req.body);
+        res.json({ config: controller.getConfig() });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/yolo/start
+app.post('/api/yolo/start', (req, res) => {
+    if (yoloEngine.getStatus().running) {
+        return res.status(409).json({ error: 'YOLO 已在运行中' });
+    }
+    const yoloOpts = {
+        task: req.body.task || null,
+        docPath: req.body.docPath || null,
+        timeout: req.body.timeout || undefined,
+        cooldown: req.body.cooldown || undefined,
+        pollInterval: req.body.pollInterval || undefined,
+        agentic: req.body.agentic || false,
+        cascadeId: req.body.cascadeId || null,
+    };
+    res.json({ ok: true });
+    yoloEngine.start(yoloOpts).catch((err) => {
+        console.error('[YOLO] 启动失败:', err.message);
+        broadcastSSE(proto.makeEvent('event_yolo_status', { status: 'error', message: err.message }));
+    });
+});
+
+// POST /api/yolo/stop
+app.post('/api/yolo/stop', (_req, res) => {
+    yoloEngine.stop();
+    res.json({ ok: true });
+});
+
+// GET /api/yolo/status
+app.get('/api/yolo/status', (_req, res) => {
+    res.json(yoloEngine.getStatus());
+});
+
 app.get('/api/conversations/:id', async (req, res) => {
     const cascadeId = req.params.id;
     if (!cascadeId) {
@@ -566,6 +762,160 @@ app.get('/api/conversations/:id', async (req, res) => {
     }
 
     res.status(404).json({ error: 'Conversation not found' });
+});
+
+// POST /api/conversations/:id/messages — 发送消息
+app.post('/api/conversations/:id/messages', async (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+
+    const { text, config, mentions, media, traceId } = req.body;
+    const traceIdVal = traceId || 'no-trace';
+    console.log(`[Trace:3-REST] POST /messages | traceId=${traceIdVal} cascadeId=${cascadeId.slice(0, 8)}`);
+
+    const extras = {};
+    if (mentions) extras.mentions = mentions;
+    if (media) {
+        extras.media = media;
+        console.log(`[REST] Media received: ${media.length} items`);
+    }
+    extras.traceId = traceIdVal;
+
+    const msgText = text || (media && media.length > 0 ? '请查看这张图片' : '');
+    if (!msgText) return res.status(400).json({ error: 'Missing text or media' });
+
+    try {
+        await controller.sendMessage(cascadeId, msgText, config, extras);
+        res.json({ ok: true, cascadeId });
+    } catch (err) {
+        console.error(`[!] sendMessage REST:`, err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/conversations/:id/subscribe — 订阅实时更新
+app.post('/api/conversations/:id/subscribe', (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+
+    // 找到对应的 SSE 适配器（按请求头中的 clientId 关联）
+    // 注意：SSE 连接和后续 REST 调用是不同的 HTTP 连接
+    // 实现方式：客户端在建立 SSE 后，服务端将 adapter 注册到 sseClientMap
+    // subscribe 调用时，前端通过 lastSeq 参数，服务端从所有 SSE 客户端进行广播即可
+    // 这里只需要启动 stream 订阅，实际广播通过 sseClients 全量推送
+    const lastSeq = req.body.lastSeq || null;
+
+    // 用第一个活跃的 SSE adapter 作为占位符（广播是全量的，不需要精确匹配）
+    // 如果有多个 SSE 客户端，每个都会收到推送（SSE 类似于广播）
+    const adapters = [...sseClientMap.values()];
+    if (adapters.length > 0) {
+        controller.subscribe(cascadeId, adapters[0], lastSeq);
+    }
+
+    const seq = controller.getCurrentSeq(cascadeId);
+    res.json({ ok: true, cascadeId, seq });
+});
+
+// POST /api/conversations/:id/unsubscribe — 取消订阅
+app.post('/api/conversations/:id/unsubscribe', (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+
+    const adapters = [...sseClientMap.values()];
+    for (const adp of adapters) {
+        controller.unsubscribe(cascadeId, adp);
+    }
+    res.json({ ok: true, cascadeId });
+});
+
+// POST /api/conversations/:id/cancel — 取消对话
+app.post('/api/conversations/:id/cancel', async (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+    try {
+        await controller.cancelCascade(cascadeId);
+        res.json({ ok: true, cascadeId });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// DELETE /api/conversations/:id — 删除对话
+app.delete('/api/conversations/:id', async (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+    try {
+        if (controller.ls) {
+            await grpcCall(controller.ls.port, controller.ls.csrf, 'DeleteCascadeTrajectory', { cascadeId });
+        }
+        if (controller.archive?.index) {
+            controller.archive.index.delete(cascadeId);
+        }
+        // 清理所有 SSE 客户端对该对话的订阅
+        for (const adp of sseClientMap.values()) {
+            controller.unsubscribe(cascadeId, adp);
+        }
+        res.json({ ok: true, cascadeId });
+    } catch (err) {
+        console.error(`[!] DELETE conversation:`, err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// GET /api/conversations/:id/export — 导出 Markdown
+app.get('/api/conversations/:id/export', async (req, res) => {
+    const cascadeId = req.params.id;
+    if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
+    try {
+        let markdown = '';
+        let title = '';
+        if (controller.ls) {
+            const traj = await controller.getTrajectory(cascadeId);
+            if (traj?.trajectory) {
+                const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'ConvertTrajectoryToMarkdown', {
+                    trajectory: traj.trajectory,
+                });
+                markdown = r.data?.markdown || '';
+            }
+        }
+        if (!markdown && controller.archive?.index) {
+            const row = controller.archive.index.get(cascadeId);
+            if (row?.markdown) {
+                markdown = row.markdown;
+                title = row.title || '';
+            }
+        }
+        res.json({ cascadeId, markdown, title });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// POST /api/conversations/:id/approve-step — 批准 step
+app.post('/api/conversations/:id/approve-step', async (req, res) => {
+    const cascadeId = req.params.id;
+    const { stepIndex } = req.body;
+    if (!cascadeId || stepIndex === undefined) {
+        return res.status(400).json({ error: 'Missing cascadeId or stepIndex' });
+    }
+    if (!controller.ls) {
+        return res.status(503).json({ error: 'LS not connected' });
+    }
+    try {
+        await grpcCall(controller.ls.port, controller.ls.csrf, 'HandleCascadeUserInteraction', {
+            cascadeId,
+            interaction: {
+                trajectoryId: cascadeId,
+                stepIndex,
+                runCommand: { confirm: true },
+            },
+        });
+        console.log(`[ApproveStep] step[${stepIndex}] approved for ${cascadeId.slice(0, 8)}...`);
+        res.json({ ok: true, cascadeId, stepIndex });
+    } catch (err) {
+        console.error(`[!] ApproveStep REST:`, err.message);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // ========== File Read API ==========

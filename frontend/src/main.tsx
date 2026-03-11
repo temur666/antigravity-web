@@ -1,11 +1,11 @@
 /**
  * main.tsx — 应用入口
  *
- * 初始化 WSClient + Store，然后挂载 React 应用
+ * 初始化 SSEClient + Store，然后挂载 React 应用
  */
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { WSClient } from './store/ws-client';
+import { SSEClient } from './store/sse-client';
 import { createAppStore } from './store/app-store';
 import { setStoreInstance } from './store/hooks';
 import App from './App';
@@ -13,18 +13,18 @@ import './index.css';
 
 // ========== 初始化 ==========
 
-// 1. 创建 WSClient
-const wsClient = new WSClient();
+// 1. 创建 SSEClient
+const sseClient = new SSEClient();
 
-// 2. 创建 Store (注入 WSClient)
-const store = createAppStore(wsClient);
+// 2. 创建 Store (注入 SSEClient)
+const store = createAppStore(sseClient);
 setStoreInstance(store);
 
-// 3. 连接 WebSocket
-wsClient.connect();
+// 3. 连接 SSE
+sseClient.connect();
 
 // 4. 重连恢复统一由 app-store 的 event_ls_status 事件处理
-//    （服务端在 WS 连接建立后立即推送 event_ls_status）
+//    （服务端在 SSE 连接建立后立即推送 event_ls_status）
 
 // ========== 挂载 React ==========
 

@@ -24,20 +24,14 @@ import type {
     EventStatusChanged,
     EventLsStatus,
     EventMetadataUpdated,
-    ResConversations,
-    ResTrajectory,
-    ResNewChat,
-    ResConfig,
-    ResStatus,
-    ResDeleteConversation,
-    ResExportMarkdown,
     CascadeConfig,
     ModelInfo,
     GeneratorMetadata,
     StepUsageInfo,
 } from '@/types';
 import { DEFAULT_CONFIG } from '@/types';
-import type { WSClient } from './ws-client';
+import type { SSEClient } from './sse-client';
+import { api } from './api-client';
 import { buildStepUsageMap } from '@/utils/metadata';
 import { getConversationIdFromUrl, pushConversationUrl } from '@/utils/url';
 
@@ -135,7 +129,7 @@ export type AppStore = StoreApi<AppState>;
 
 // ========== Store 工厂 ==========
 
-export function createAppStore(wsClient: WSClient): AppStore {
+export function createAppStore(sseClient: SSEClient): AppStore {
     // ── 持久化恢复（URL 优先 > localStorage fallback） ──
     const urlConvId = getConversationIdFromUrl();
     const persistedConvId = urlConvId
@@ -181,20 +175,11 @@ export function createAppStore(wsClient: WSClient): AppStore {
         // ---- Actions ----
 
         loadConversations: async (limit = 50, search?: string) => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_conversations',
-                reqId: wsClient.nextReqId(),
-                limit,
-                search,
+            const data = await api.getConversations({ limit, search });
+            set({
+                conversations: data.conversations,
+                conversationsTotal: data.total,
             });
-
-            if (res.type === 'res_conversations') {
-                const data = res as ResConversations;
-                set({
-                    conversations: data.conversations,
-                    conversationsTotal: data.total,
-                });
-            }
         },
 
         selectConversation: async (id: string) => {
@@ -219,11 +204,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         lastSeq: prev.lastSeq,
                     });
                 }
-                wsClient.send({
-                    type: 'req_unsubscribe',
-                    reqId: wsClient.nextReqId(),
-                    cascadeId: oldId,
-                });
+                api.unsubscribe(oldId).catch(() => { /* 静默失败 */ });
             }
 
             // 检查缓存：命中则秒开
@@ -244,11 +225,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 pushConversationUrl(id);
 
                 // 后台重订阅增量更新
-                await wsClient.sendAndWait({
-                    type: 'req_subscribe',
-                    reqId: wsClient.nextReqId(),
-                    cascadeId: id,
-                }, 15000);
+                await api.subscribe(id, cached.lastSeq);
                 // Background Sync: 静默刷新列表，确保标题等字段同步
                 get().loadConversations().catch(() => { });
                 return;
@@ -269,18 +246,19 @@ export function createAppStore(wsClient: WSClient): AppStore {
             localStorage.setItem('activeConversationId', id);
             pushConversationUrl(id);
 
-            // 拉取完整轨迹（超时 30s）
-            const trajectoryRes = await wsClient.sendAndWait({
-                type: 'req_trajectory',
-                reqId: wsClient.nextReqId(),
-                cascadeId: id,
-            }, 30000);
+            // 拉取完整轨迹
+            let trajectoryData;
+            try {
+                trajectoryData = await api.getTrajectory(id);
+            } catch {
+                trajectoryData = null;
+            }
 
             // 竞态保护
             if (get().activeConversationId !== id) return;
 
-            if (trajectoryRes.type === 'res_trajectory') {
-                const data = trajectoryRes as ResTrajectory & { seq?: number };
+            if (trajectoryData) {
+                const data = trajectoryData;
 
                 // Archive 降级：返回 markdown 而不是 steps
                 if (data.source === 'archive' && data.markdown) {
@@ -329,52 +307,39 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
             if (get().activeConversationId !== id) return;
 
-            await wsClient.sendAndWait({
-                type: 'req_subscribe',
-                reqId: wsClient.nextReqId(),
-                cascadeId: id,
-            }, 15000);
+            await api.subscribe(id);
             // Background Sync: 静默刷新列表，确保标题等字段同步
             get().loadConversations().catch(() => { });
         },
 
         newChat: async () => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_new_chat',
-                reqId: wsClient.nextReqId(),
+            const data = await api.newChat();
+            const now = new Date().toISOString();
+
+            // Optimistic Update: 立即插入占位记录，侧边栏/标签栏秒级刷新
+            set(prev => {
+                const exists = prev.conversations.some(c => c.id === data.cascadeId);
+                if (exists) return {};
+                return {
+                    conversations: [{
+                        id: data.cascadeId,
+                        title: '',
+                        updatedAt: now,
+                        createdAt: now,
+                        sizeBytes: 0,
+                        status: 'IDLE',
+                        stepCount: 0,
+                    }, ...prev.conversations],
+                    conversationsTotal: prev.conversationsTotal + 1,
+                };
             });
 
-            if (res.type === 'res_new_chat') {
-                const data = res as ResNewChat;
-                const now = new Date().toISOString();
+            await get().selectConversation(data.cascadeId);
 
-                // Optimistic Update: 立即插入占位记录，侧边栏/标签栏秒级刷新
-                set(prev => {
-                    const exists = prev.conversations.some(c => c.id === data.cascadeId);
-                    if (exists) return {};
-                    return {
-                        conversations: [{
-                            id: data.cascadeId,
-                            title: '',
-                            updatedAt: now,
-                            createdAt: now,
-                            sizeBytes: 0,
-                            status: 'IDLE',
-                            stepCount: 0,
-                        }, ...prev.conversations],
-                        conversationsTotal: prev.conversationsTotal + 1,
-                    };
-                });
+            // Background Sync: 静默刷新列表，服务端数据覆盖占位记录
+            get().loadConversations().catch(() => {/* 静默失败 */ });
 
-                await get().selectConversation(data.cascadeId);
-
-                // Background Sync: 静默刷新列表，服务端数据覆盖占位记录
-                get().loadConversations().catch(() => {/* 静默失败 */ });
-
-                return data.cascadeId;
-            }
-
-            return null;
+            return data.cascadeId;
         },
 
         sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }>; traceId?: string }) => {
@@ -395,12 +360,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 ),
             }));
 
-            const reqId = wsClient.nextReqId();
-            console.log(`[Trace:2-Store] sending WS req_send_message | traceId=${traceId} reqId=${reqId}`);
-            await wsClient.sendAndWait({
-                type: 'req_send_message',
-                reqId,
-                cascadeId,
+            console.log(`[Trace:2-Store] calling REST POST /messages | traceId=${traceId}`);
+            await api.sendMessage(cascadeId, {
                 text,
                 traceId,
                 ...(configOverride ? { config: configOverride } : {}),
@@ -410,48 +371,26 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         loadConfig: async () => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_get_config',
-                reqId: wsClient.nextReqId(),
-            });
-
-            if (res.type === 'res_config') {
-                const data = res as ResConfig;
-                set({ config: data.config });
-            }
+            const data = await api.getConfig();
+            set({ config: data.config });
         },
 
         setConfig: async (partial: Partial<CascadeConfig>) => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_set_config',
-                reqId: wsClient.nextReqId(),
-                ...partial,
-            });
-
-            if (res.type === 'res_config') {
-                const data = res as ResConfig;
-                set({ config: data.config });
-            }
+            const data = await api.setConfig(partial);
+            set({ config: data.config });
         },
 
         loadStatus: async () => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_status',
-                reqId: wsClient.nextReqId(),
+            const data = await api.getStatus();
+            set({
+                lsConnected: data.ls.connected,
+                lsInfo: data.ls.connected
+                    ? { port: data.ls.port!, pid: data.ls.pid! }
+                    : null,
+                config: data.config,
+                models: data.models,
+                account: data.account,
             });
-
-            if (res.type === 'res_status') {
-                const data = res as ResStatus;
-                set({
-                    lsConnected: data.ls.connected,
-                    lsInfo: data.ls.connected
-                        ? { port: data.ls.port!, pid: data.ls.pid! }
-                        : null,
-                    config: data.config,
-                    models: data.models,
-                    account: data.account,
-                });
-            }
         },
 
         toggleDebugMode: () => {
@@ -504,11 +443,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         cancelConversation: async () => {
             const cascadeId = get().activeConversationId;
             if (!cascadeId) return;
-            await wsClient.sendAndWait({
-                type: 'req_cancel',
-                reqId: wsClient.nextReqId(),
-                cascadeId,
-            });
+            await api.cancel(cascadeId);
         },
 
         setDraft: (conversationId: string, text: string) => {
@@ -544,44 +479,27 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         deleteConversation: async (id: string) => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_delete_conversation',
-                reqId: wsClient.nextReqId(),
-                cascadeId: id,
-            });
-
-            if (res.type === 'res_delete_conversation') {
-                const data = res as ResDeleteConversation;
-                if (data.ok) {
-                    // 从列表删除
-                    set(prev => ({
-                        conversations: prev.conversations.filter(c => c.id !== id),
-                        conversationsTotal: Math.max(0, prev.conversationsTotal - 1),
-                    }));
-                    // 从缓存删除
-                    conversationCache.delete(id);
-                    // 如果是当前对话，跳回主页
-                    if (get().activeConversationId === id) {
-                        get().setActiveConversation(null);
-                    }
-                    return true;
+            const data = await api.deleteConversation(id);
+            if (data.ok) {
+                // 从列表删除
+                set(prev => ({
+                    conversations: prev.conversations.filter(c => c.id !== id),
+                    conversationsTotal: Math.max(0, prev.conversationsTotal - 1),
+                }));
+                // 从缓存删除
+                conversationCache.delete(id);
+                // 如果是当前对话，跳回主页
+                if (get().activeConversationId === id) {
+                    get().setActiveConversation(null);
                 }
+                return true;
             }
             return false;
         },
 
         exportMarkdown: async (id: string) => {
-            const res = await wsClient.sendAndWait({
-                type: 'req_export_markdown',
-                reqId: wsClient.nextReqId(),
-                cascadeId: id,
-            }, 30000);
-
-            if (res.type === 'res_export_markdown') {
-                const data = res as ResExportMarkdown;
-                return data.markdown;
-            }
-            return null;
+            const data = await api.exportMarkdown(id);
+            return data.markdown;
         },
     }));
 
@@ -605,11 +523,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
         // 只批准 RUN_COMMAND 类型的 WAITING step (安全限制)
         if (step.type !== 'CORTEX_STEP_TYPE_RUN_COMMAND') return;
         console.log(`[AutoApprove] step[${stepIndex}] →`, cascadeId.slice(0, 8));
-        wsClient.send({
-            type: 'req_approve_step',
-            reqId: wsClient.nextReqId(),
-            cascadeId,
-            stepIndex,
+        api.approveStep(cascadeId, stepIndex).catch(err => {
+            console.warn(`[AutoApprove] failed:`, err.message);
         });
     }
 
@@ -620,7 +535,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
     // 防重入锁：避免多次 event_ls_status 触发重复的 selectConversation
     let isRestoringConversation = false;
 
-    wsClient.onMessage((msg: ServerMessage) => {
+    sseClient.onMessage((msg: ServerMessage) => {
         const state = store.getState();
 
         switch (msg.type) {
@@ -644,12 +559,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
                         if (currentState.activeConversationId && !isRestoringConversation) {
                             // C: 已有 steps 数据 → 跳过全量拉取，只重订阅
                             if (currentState.steps.length > 0) {
-                                wsClient.send({
-                                    type: 'req_subscribe',
-                                    reqId: wsClient.nextReqId(),
-                                    cascadeId: currentState.activeConversationId,
-                                    lastSeq: currentState.lastSeq,
-                                });
+                                api.subscribe(
+                                    currentState.activeConversationId,
+                                    currentState.lastSeq,
+                                ).catch(() => { });
                             } else {
                                 isRestoringConversation = true;
                                 currentState.selectConversation(currentState.activeConversationId)
@@ -661,32 +574,28 @@ export function createAppStore(wsClient: WSClient): AppStore {
                             }
                         }
                     } else if (hasReceivedLsStatus) {
-                        // 场景 B: WS 断开重连，但 LS 一直在线
+                        // 场景 B: SSE 断开重连，但 LS 一直在线
                         // → 轻量恢复：刷新列表 + 重新订阅（不重置当前对话内容）
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId) {
                             // 只重新订阅，带 lastSeq 做增量恢复
-                            wsClient.send({
-                                type: 'req_subscribe',
-                                reqId: wsClient.nextReqId(),
-                                cascadeId: currentState.activeConversationId,
-                                lastSeq: currentState.lastSeq,
-                            });
+                            api.subscribe(
+                                currentState.activeConversationId,
+                                currentState.lastSeq,
+                            ).catch(() => { });
                         }
                     } else {
-                        // 场景 C: 首次 WS 连接，LS 已在线
+                        // 场景 C: 首次 SSE 连接，LS 已在线
                         currentState.loadConversations();
                         currentState.loadStatus();
                         if (currentState.activeConversationId && !isRestoringConversation) {
                             // C: 已有 steps 数据 → 跳过全量拉取，只重订阅
                             if (currentState.steps.length > 0) {
-                                wsClient.send({
-                                    type: 'req_subscribe',
-                                    reqId: wsClient.nextReqId(),
-                                    cascadeId: currentState.activeConversationId,
-                                    lastSeq: currentState.lastSeq,
-                                });
+                                api.subscribe(
+                                    currentState.activeConversationId,
+                                    currentState.lastSeq,
+                                ).catch(() => { });
                             } else {
                                 isRestoringConversation = true;
                                 currentState.selectConversation(currentState.activeConversationId)
