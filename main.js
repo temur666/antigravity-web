@@ -241,6 +241,8 @@ async function handleMessage(clientWs, data) {
             }
 
             case 'req_send_message': {
+                const traceId = data.traceId || 'no-trace';
+                console.log(`[Trace:3-WS] req_send_message received | traceId=${traceId} cascadeId=${(data.cascadeId || '').slice(0, 8)} reqId=${reqId}`);
                 if (!data.cascadeId) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
                     break;
@@ -251,12 +253,14 @@ async function handleMessage(clientWs, data) {
                     extras.media = data.media;
                     console.log(`[WS] Media received: ${data.media.length} items, sizes: ${data.media.map(m => (m.data?.length || 0) + ' (' + m.mimeType + ')').join(', ')}`);
                 }
+                extras.traceId = traceId;
                 // 有 media 但无 text 时，使用默认提示文字
                 const msgText = data.text || (data.media && data.media.length > 0 ? '请查看这张图片' : '');
                 if (!msgText) {
                     send(proto.makeError('INVALID_PARAMS', 'Missing text or media', reqId));
                     break;
                 }
+                console.log(`[Trace:3-WS] calling controller.sendMessage | traceId=${traceId}`);
                 await controller.sendMessage(data.cascadeId, msgText, data.config, extras);
                 controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
                 send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));

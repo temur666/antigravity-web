@@ -114,7 +114,7 @@ export interface AppState {
     loadConversations: (limit?: number, search?: string) => Promise<void>;
     selectConversation: (id: string) => Promise<void>;
     newChat: () => Promise<string | null>;
-    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }> }) => Promise<void>;
+    sendMessage: (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }>; traceId?: string }) => Promise<void>;
     loadConfig: () => Promise<void>;
     setConfig: (partial: Partial<CascadeConfig>) => Promise<void>;
     loadStatus: () => Promise<void>;
@@ -377,11 +377,16 @@ export function createAppStore(wsClient: WSClient): AppStore {
             return null;
         },
 
-        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }> }) => {
+        sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }>; traceId?: string }) => {
+            const traceId = extras?.traceId || 'no-trace';
             const { activeConversationId: cascadeId, conversationStatus } = get();
+            console.log(`[Trace:2-Store] sendMessage called | traceId=${traceId} cascadeId=${cascadeId?.slice(0, 8)} status=${conversationStatus}`);
             if (!cascadeId) return;
             // 防重入：UI 层有 canSend + isSendingRef，这里是 store 级最后防线
-            if (conversationStatus === 'RUNNING') return;
+            if (conversationStatus === 'RUNNING') {
+                console.warn(`[Trace:2-Store] BLOCKED by status=RUNNING | traceId=${traceId}`);
+                return;
+            }
 
             set(prev => ({
                 conversationStatus: 'RUNNING',
@@ -390,11 +395,14 @@ export function createAppStore(wsClient: WSClient): AppStore {
                 ),
             }));
 
+            const reqId = wsClient.nextReqId();
+            console.log(`[Trace:2-Store] sending WS req_send_message | traceId=${traceId} reqId=${reqId}`);
             await wsClient.sendAndWait({
                 type: 'req_send_message',
-                reqId: wsClient.nextReqId(),
+                reqId,
                 cascadeId,
                 text,
+                traceId,
                 ...(configOverride ? { config: configOverride } : {}),
                 ...(extras?.mentions ? { mentions: extras.mentions } : {}),
                 ...(extras?.media ? { media: extras.media } : {}),

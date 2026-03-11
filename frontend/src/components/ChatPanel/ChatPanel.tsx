@@ -21,6 +21,7 @@ import { renderMarkdown } from '@/utils/markdown';
 export function ChatPanel() {
     const steps = useAppStore(s => s.steps);
     const activeConversationId = useAppStore(s => s.activeConversationId);
+
     const conversationStatus = useAppStore(s => s.conversationStatus);
     const debugMode = useAppStore(s => s.debugMode);
     const viewMode = useAppStore(s => s.viewMode);
@@ -57,6 +58,8 @@ export function ChatPanel() {
     const mouseDownRef = useRef<{ x: number; y: number } | null>(null);
 
     const isPaged = viewMode === 'paged';
+
+
 
     // ---- 重算分页 ----
     const recalcPages = useCallback(() => {

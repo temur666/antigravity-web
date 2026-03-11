@@ -122,8 +122,13 @@ export function InputBox() {
     const canSend = (text.trim().length > 0 || attachments.length > 0) && !isRunning && !!activeConversationId && !isUploading;
 
     const handleSend = useCallback(async () => {
+        const traceId = Math.random().toString(36).slice(2, 8);
+        console.log(`[Trace:1-UI] handleSend fired | traceId=${traceId} canSend=${canSend}`);
         if (!canSend) return;
-        if (isSendingRef.current) return; // 防止手机端多点/快速点击重复触发
+        if (isSendingRef.current) {
+            console.warn(`[Trace:1-UI] BLOCKED by isSendingRef lock | traceId=${traceId}`);
+            return;
+        }
         isSendingRef.current = true;
 
         setIsUploading(true);
@@ -151,7 +156,9 @@ export function InputBox() {
             }
 
             // Send message with media if any
-            await sendMessage(msg, undefined, mediaDetails.length > 0 ? { media: mediaDetails } : undefined);
+            const extras = mediaDetails.length > 0 ? { media: mediaDetails, traceId } : { traceId };
+            console.log(`[Trace:1-UI] calling store.sendMessage | traceId=${traceId} text="${msg.slice(0, 30)}"`);
+            await sendMessage(msg, undefined, extras);
 
             // Revoke object URLs to prevent memory leaks
             attachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
