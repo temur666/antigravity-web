@@ -16,6 +16,8 @@ export function ConfigPanel() {
     const loadConfig = useAppStore(s => s.loadConfig);
     const viewMode = useAppStore(s => s.viewMode);
     const toggleViewMode = useAppStore(s => s.toggleViewMode);
+    const typography = useAppStore(s => s.typography);
+    const toggleTypography = useAppStore(s => s.toggleTypography);
     const autoReply = useAppStore(s => s.autoReply);
     const toggleAutoReply = useAppStore(s => s.toggleAutoReply);
 
@@ -105,6 +107,19 @@ export function ConfigPanel() {
                     onClick={toggleViewMode}
                 >
                     {viewMode === 'paged' ? 'ON' : 'OFF'}
+                </button>
+            </div>
+
+            <div className="config-item">
+                <div className="config-item-header">
+                    <label className="config-item-label">排版风格</label>
+                    <div className="config-item-desc">Default = 紧凑工具风 / Editorial = 疏朗阅读风 (Infinite)</div>
+                </div>
+                <button
+                    className={`config-toggle ${typography === 'editorial' ? 'on' : 'off'}`}
+                    onClick={toggleTypography}
+                >
+                    {typography === 'editorial' ? 'Editorial' : 'Default'}
                 </button>
             </div>
         </div>

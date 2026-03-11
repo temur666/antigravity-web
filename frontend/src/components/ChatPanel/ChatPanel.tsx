@@ -6,6 +6,7 @@
  *   - paged:  微信读书式左右翻页（CSS multi-column + JS 计算）
  */
 import './ChatPanel.css';
+import './typography-editorial.css';
 import { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { useAppStore } from '@/store';
 import { useKeyboard } from '@/hooks/useKeyboard';
@@ -31,6 +32,7 @@ export function ChatPanel() {
     const readingMode = useAppStore(s => s.readingMode);
     const toggleReadingMode = useAppStore(s => s.toggleReadingMode);
     const archiveMarkdown = useAppStore(s => s.archiveMarkdown);
+    const typography = useAppStore(s => s.typography);
     const isKeyboardVisible = useKeyboard();
     const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
     const [fileViewerPath, setFileViewerPath] = useState<string | null>(null);
@@ -443,13 +445,13 @@ export function ChatPanel() {
             {isPaged ? (
                 /* ====== 翻页模式 ====== */
                 <div className="paged-viewport" ref={viewportRef} data-columns={pagedColumns}>
-                    <div className="paged-content" ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
+                    <div className={`paged-content${typography === 'editorial' ? ' editorial-typography' : ''}`} ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
                         {stepsContent}
                     </div>
                 </div>
             ) : (
                 /* ====== 滚动模式 ====== */
-                <div className="chat-panel-messages" ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
+                <div className={`chat-panel-messages${typography === 'editorial' ? ' editorial-typography' : ''}`} ref={contentRef} onMouseDown={handleContentMouseDown} onClick={handleContentClick}>
                     {stepsContent}
                     <div ref={bottomRef} />
                 </div>

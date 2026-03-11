@@ -96,6 +96,7 @@ export interface AppState {
     debugMode: boolean;
     viewMode: 'scroll' | 'paged';
     pagedColumns: 1 | 2;
+    typography: 'default' | 'editorial';
     readingMode: boolean;
     loading: boolean;
     error: string | null;
@@ -124,6 +125,7 @@ export interface AppState {
     cancelConversation: () => Promise<void>;
     setDraft: (conversationId: string, text: string) => void;
     toggleReadingMode: () => void;
+    toggleTypography: () => void;
     toggleAutoReply: () => void;
     deleteConversation: (id: string) => Promise<boolean>;
     exportMarkdown: (id: string) => Promise<string | null>;
@@ -147,6 +149,8 @@ export function createAppStore(wsClient: WSClient): AppStore {
         ? localStorage.getItem('pagedColumns') : null;
     const persistedAutoReply = typeof localStorage !== 'undefined'
         ? localStorage.getItem('autoReply') === 'true' : false;
+    const persistedTypography = typeof localStorage !== 'undefined'
+        ? localStorage.getItem('typography') as 'default' | 'editorial' | null : null;
 
     const store = createStore<AppState>((set, get) => ({
         // ---- 初始状态 (从持久化恢复) ----
@@ -166,6 +170,7 @@ export function createAppStore(wsClient: WSClient): AppStore {
         debugMode: persistedDebug === 'true',
         viewMode: persistedViewMode || 'scroll',
         pagedColumns: (persistedCols === '2' ? 2 : 1) as 1 | 2,
+        typography: persistedTypography || 'default',
         readingMode: false,
         loading: false,
         error: null,
@@ -510,6 +515,14 @@ export function createAppStore(wsClient: WSClient): AppStore {
 
         toggleReadingMode: () => {
             set(state => ({ readingMode: !state.readingMode }));
+        },
+
+        toggleTypography: () => {
+            set(state => {
+                const next = state.typography === 'default' ? 'editorial' : 'default';
+                localStorage.setItem('typography', next);
+                return { typography: next };
+            });
         },
 
         toggleAutoReply: () => {
