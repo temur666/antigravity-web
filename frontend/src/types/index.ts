@@ -1,35 +1,20 @@
+// ========== SSE 事件类型 ==========
 export type {
-    ClientMessage,
     ServerMessage,
-    ReqStatus,
-    ReqConversations,
-    ReqTrajectory,
-    ReqNewChat,
-    ReqSendMessage,
-    ReqSubscribe,
-    ReqUnsubscribe,
-    ReqSetConfig,
-    ReqGetConfig,
-    ReqCancel,
-    ReqDeleteConversation,
-    ReqExportMarkdown,
-    ResStatus,
-    ResConversations,
-    ResTrajectory,
-    ResNewChat,
-    ResSendMessage,
-    ResSubscribe,
-    ResUnsubscribe,
-    ResConfig,
-    ResError,
-    ResCancel,
-    ResDeleteConversation,
-    ResExportMarkdown,
     EventStepAdded,
     EventStepUpdated,
     EventStatusChanged,
     EventLsStatus,
     EventMetadataUpdated,
+    EventBatch,
+    EventYoloStatus,
+    EventYoloRound,
+    EventYoloStep,
+    EventYoloError,
+} from './protocol';
+
+// ========== 共享数据模型 ==========
+export type {
     ConversationSummary,
     GeneratorMetadata,
     TokenUsage,
@@ -38,6 +23,7 @@ export type {
 } from './protocol';
 export type { CascadeConfig } from './protocol';
 
+// ========== Step 类型 ==========
 export type {
     Step,
     StepType,
@@ -74,6 +60,7 @@ export {
     getUserInputText,
 } from './step';
 
+// ========== Config ==========
 export type {
     AutoExecutionPolicy,
     ArtifactReviewMode,
