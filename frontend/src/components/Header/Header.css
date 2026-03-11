@@ -48,8 +48,10 @@
   border-radius: var(--radius-lg);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
   overflow: hidden;
+  overflow-y: auto;
   z-index: 200;
   width: 320px;
+  max-height: calc(100vh - 80px);
 }
 
 .header-config-popover .config-panel {
