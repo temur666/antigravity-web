@@ -14,7 +14,7 @@ const fs = require('fs');
 const multer = require('multer');
 
 const { Controller } = require('./lib/core/controller');
-const { grpcCall } = require('./lib/core/ls-discovery');
+// grpcCall 已收编到 Controller 内部，此处不再需要
 const proto = require('./lib/core/ws-protocol');
 const { startBot } = require('./lib/telegram/bot');
 const { YoloEngine } = require('./lib/yolo');
@@ -216,25 +216,11 @@ app.get('/api/status', async (_req, res) => {
     try {
         const status = controller.getStatus();
         if (controller.ls) {
-            try {
-                const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'GetUserStatus', {});
-                const us = r.data?.userStatus || {};
-                status.account = {
-                    email: us.email || '',
-                    tier: us.userTier?.name || '',
-                };
-                const modelConfigs = us.cascadeModelConfigData?.clientModelConfigs || [];
-                status.models = modelConfigs.map(c => ({
-                    label: c.label,
-                    model: c.modelOrAlias?.model,
-                    supportsImages: c.supportsImages || false,
-                    supportedMimeTypes: c.supportedMimeTypes || {},
-                    quota: c.quotaInfo?.remainingFraction,
-                    tag: c.tagTitle || '',
-                }));
-                status.defaultModel = us.cascadeModelConfigData?.defaultOverrideModelConfig?.modelOrAlias?.model || null;
-            } catch (err) {
-                console.warn('[!] GetUserStatus:', err.message);
+            const userStatus = await controller.getUserStatus();
+            if (userStatus) {
+                status.account = userStatus.account;
+                status.models = userStatus.models;
+                status.defaultModel = userStatus.defaultModel;
             }
         }
         res.json(status);
@@ -470,13 +456,8 @@ app.delete('/api/conversations/:id', async (req, res) => {
     const cascadeId = req.params.id;
     if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
     try {
-        if (controller.ls) {
-            await grpcCall(controller.ls.port, controller.ls.csrf, 'DeleteCascadeTrajectory', { cascadeId });
-        }
-        if (controller.archive?.index) {
-            controller.archive.index.delete(cascadeId);
-        }
-        // 清理所有 SSE 客户端对该对话的订阅
+        await controller.deleteConversation(cascadeId);
+        // SSE 退订 (路由层关注点)
         for (const adp of sseClientMap.values()) {
             controller.unsubscribe(cascadeId, adp);
         }
@@ -492,24 +473,7 @@ app.get('/api/conversations/:id/export', async (req, res) => {
     const cascadeId = req.params.id;
     if (!cascadeId) return res.status(400).json({ error: 'Missing cascadeId' });
     try {
-        let markdown = '';
-        let title = '';
-        if (controller.ls) {
-            const traj = await controller.getTrajectory(cascadeId);
-            if (traj?.trajectory) {
-                const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'ConvertTrajectoryToMarkdown', {
-                    trajectory: traj.trajectory,
-                });
-                markdown = r.data?.markdown || '';
-            }
-        }
-        if (!markdown && controller.archive?.index) {
-            const row = controller.archive.index.get(cascadeId);
-            if (row?.markdown) {
-                markdown = row.markdown;
-                title = row.title || '';
-            }
-        }
+        const { markdown, title } = await controller.exportMarkdown(cascadeId);
         res.json({ cascadeId, markdown, title });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -527,14 +491,7 @@ app.post('/api/conversations/:id/approve-step', async (req, res) => {
         return res.status(503).json({ error: 'LS not connected' });
     }
     try {
-        await grpcCall(controller.ls.port, controller.ls.csrf, 'HandleCascadeUserInteraction', {
-            cascadeId,
-            interaction: {
-                trajectoryId: cascadeId,
-                stepIndex,
-                runCommand: { confirm: true },
-            },
-        });
+        await controller.approveStep(cascadeId, stepIndex);
         console.log(`[ApproveStep] step[${stepIndex}] approved for ${cascadeId.slice(0, 8)}...`);
         res.json({ ok: true, cascadeId, stepIndex });
     } catch (err) {
