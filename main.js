@@ -9,7 +9,6 @@
 
 const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
@@ -37,19 +36,11 @@ controller.on('error', (err) => console.error('[!] Controller:', err.message));
 controller.on('ls_connected', (ls) => console.log(`[+] LS 已连接 PID=${ls.pid} Port=${ls.port}`));
 controller.on('ls_disconnected', () => {
     console.log('[-] LS 断开');
-    const msg = proto.makeEvent('event_ls_status', { connected: false, port: null, pid: null });
-    broadcastSSE(msg);
-    for (const ws of clients) {
-        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
-    }
+    broadcastSSE(proto.makeEvent('event_ls_status', { connected: false, port: null, pid: null }));
 });
 controller.on('ls_reconnected', (ls) => {
     console.log(`[+] LS 重连成功 PID=${ls.pid} Port=${ls.port}`);
-    const msg = proto.makeEvent('event_ls_status', { connected: true, port: ls.port, pid: ls.pid });
-    broadcastSSE(msg);
-    for (const ws of clients) {
-        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
-    }
+    broadcastSSE(proto.makeEvent('event_ls_status', { connected: true, port: ls.port, pid: ls.pid }));
 });
 controller.on('status_changed', ({ cascadeId, from, to }) => {
     console.log(`[~] 对话 ${cascadeId.slice(0, 8)}... ${from} -> ${to}`);
@@ -59,15 +50,9 @@ controller.on('status_changed', ({ cascadeId, from, to }) => {
 
 const yoloEngine = new YoloEngine();
 
-// YOLO 事件广播给所有 SSE 客户端（兼容 WS 客户端）
+// YOLO 事件广播给所有 SSE 客户端
 function broadcastYolo(eventType, payload) {
-    const msg = proto.makeEvent(eventType, payload);
-    // SSE 广播
-    broadcastSSE(msg);
-    // WS 广播 (兼容期保留)
-    for (const ws of clients) {
-        try { if (ws.readyState === WebSocket.OPEN) ws.send(msg); } catch { /* ignore */ }
-    }
+    broadcastSSE(proto.makeEvent(eventType, payload));
 }
 
 yoloEngine.on('started', (data) => {
@@ -126,370 +111,10 @@ function broadcastSSE(msg) {
     }
 }
 
-// ========== WebSocket 客户端管理 (保留，待前端迁移完成后删除) ==========
-
-const clients = new Set();
-
-// ========== 消息处理 ==========
-
-async function handleMessage(clientWs, data) {
-    const { type, reqId } = data;
-    const send = (msg) => {
-        if (clientWs.readyState === WebSocket.OPEN) clientWs.send(msg);
-    };
-
-    try {
-        switch (type) {
-            case 'req_status': {
-                const status = controller.getStatus();
-                if (controller.ls) {
-                    try {
-                        const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'GetUserStatus', {});
-                        const us = r.data?.userStatus || {};
-                        status.account = {
-                            email: us.email || '',
-                            tier: us.userTier?.name || '',
-                        };
-                        const modelConfigs = us.cascadeModelConfigData?.clientModelConfigs || [];
-                        status.models = modelConfigs.map(c => ({
-                            label: c.label,
-                            model: c.modelOrAlias?.model,
-                            supportsImages: c.supportsImages || false,
-                            supportedMimeTypes: c.supportedMimeTypes || {},
-                            quota: c.quotaInfo?.remainingFraction,
-                            tag: c.tagTitle || '',
-                        }));
-                        status.defaultModel = us.cascadeModelConfigData?.defaultOverrideModelConfig?.modelOrAlias?.model || null;
-                    } catch (err) {
-                        console.warn('[!] GetUserStatus:', err.message);
-                    }
-                }
-                send(proto.makeResponse('res_status', status, reqId));
-                break;
-            }
-
-            case 'req_conversations': {
-                const limit = data.limit || 50;
-                const search = data.search;
-
-                // 策略：索引为主源（包含所有账号/LS 的对话），LS 补充实时状态
-                const archive = controller.archive;
-                let list = await controller.listConversations();
-
-                // 将索引中独有的对话追加到 LS 列表
-                if (archive) {
-                    const indexed = archive.index.list({ limit: 500, search });
-                    const lsIds = new Set(list.map(c => c.id));
-                    for (const row of indexed) {
-                        if (!lsIds.has(row.cascade_id)) {
-                            list.push({
-                                id: row.cascade_id,
-                                title: row.title || '',
-                                stepCount: row.step_count || 0,
-                                status: row.status || 'IDLE',
-                                workspace: row.workspace || '',
-                                createdAt: row.created_at || null,
-                                updatedAt: row.updated_at || null,
-                                source: row.source || 'index',
-                                account: row.account || '',
-                                hasArchive: !!(row.markdown && row.markdown.length > 0),
-                            });
-                        }
-                    }
-                    // 重新按 updatedAt 排序
-                    list.sort((a, b) => new Date(b.updatedAt || 0).getTime() - new Date(a.updatedAt || 0).getTime());
-                }
-
-                let filtered = list;
-                if (search) {
-                    const q = search.toLowerCase();
-                    filtered = list.filter(c =>
-                        (c.title || '').toLowerCase().includes(q) ||
-                        (c.id || '').includes(q),
-                    );
-                }
-                send(proto.makeResponse('res_conversations', {
-                    conversations: filtered.slice(0, limit),
-                    total: filtered.length,
-                }, reqId));
-                break;
-            }
-
-            case 'req_trajectory': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-
-                const cid = data.cascadeId.slice(0, 8);
-                console.log(`[req_trajectory] ${cid}... 开始获取`);
-
-                // 优先 LS API 获取实时 steps
-                let traj = null;
-                try {
-                    traj = await controller.getTrajectory(data.cascadeId);
-                    console.log(`[req_trajectory] ${cid}... LS 返回: status=${traj?.status}, steps=${traj?.trajectory?.steps?.length ?? 'null'}`);
-                } catch (err) {
-                    console.warn(`[req_trajectory] ${cid}... LS 调用失败: ${err.message}`);
-                }
-
-                if (traj?.trajectory?.steps?.length > 0) {
-                    send(proto.makeResponse('res_trajectory', {
-                        cascadeId: data.cascadeId,
-                        status: traj.status || 'CASCADE_RUN_STATUS_IDLE',
-                        steps: normalizeSteps(traj.trajectory.steps),
-                        totalSteps: traj.numTotalSteps || traj.trajectory.steps.length,
-                        metadata: traj.trajectory.generatorMetadata || [],
-                        seq: controller.getCurrentSeq(data.cascadeId),
-                        source: 'live',
-                    }, reqId));
-                    break;
-                }
-
-                // 降级：从索引获取 markdown 归档
-                const archiveRow = controller.archive?.index.get(data.cascadeId);
-                if (archiveRow && archiveRow.markdown) {
-                    send(proto.makeResponse('res_trajectory', {
-                        cascadeId: data.cascadeId,
-                        status: 'CASCADE_RUN_STATUS_IDLE',
-                        steps: [],
-                        totalSteps: archiveRow.step_count || 0,
-                        metadata: [],
-                        seq: 0,
-                        source: 'archive',
-                        markdown: archiveRow.markdown,
-                        title: archiveRow.title || '',
-                    }, reqId));
-                    break;
-                }
-
-                // 既无实时数据也无归档 → 返回空
-                send(proto.makeResponse('res_trajectory', {
-                    cascadeId: data.cascadeId,
-                    status: traj?.status || 'CASCADE_RUN_STATUS_IDLE',
-                    steps: normalizeSteps(traj?.trajectory?.steps || []),
-                    totalSteps: traj?.numTotalSteps || 0,
-                    metadata: traj?.trajectory?.generatorMetadata || [],
-                    seq: controller.getCurrentSeq(data.cascadeId),
-                    source: 'live',
-                }, reqId));
-                break;
-            }
-
-            case 'req_new_chat': {
-                const cascadeId = await controller.newChat();
-                send(proto.makeResponse('res_new_chat', { cascadeId }, reqId));
-                break;
-            }
-
-            case 'req_send_message': {
-                const traceId = data.traceId || 'no-trace';
-                console.log(`[Trace:3-WS] req_send_message received | traceId=${traceId} cascadeId=${(data.cascadeId || '').slice(0, 8)} reqId=${reqId}`);
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                const extras = {};
-                if (data.mentions) extras.mentions = data.mentions;
-                if (data.media) {
-                    extras.media = data.media;
-                    console.log(`[WS] Media received: ${data.media.length} items, sizes: ${data.media.map(m => (m.data?.length || 0) + ' (' + m.mimeType + ')').join(', ')}`);
-                }
-                extras.traceId = traceId;
-                // 有 media 但无 text 时，使用默认提示文字
-                const msgText = data.text || (data.media && data.media.length > 0 ? '请查看这张图片' : '');
-                if (!msgText) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing text or media', reqId));
-                    break;
-                }
-                console.log(`[Trace:3-WS] calling controller.sendMessage | traceId=${traceId}`);
-                await controller.sendMessage(data.cascadeId, msgText, data.config, extras);
-                controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
-                send(proto.makeResponse('res_send_message', { ok: true, cascadeId: data.cascadeId }, reqId));
-                break;
-            }
-
-            case 'req_subscribe': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                controller.subscribe(data.cascadeId, clientWs, data.lastSeq || null);
-                send(proto.makeResponse('res_subscribe', {
-                    ok: true,
-                    cascadeId: data.cascadeId,
-                    seq: controller.getCurrentSeq(data.cascadeId),
-                }, reqId));
-                break;
-            }
-
-            case 'req_unsubscribe': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                controller.unsubscribe(data.cascadeId, clientWs);
-                send(proto.makeResponse('res_unsubscribe', { ok: true, cascadeId: data.cascadeId }, reqId));
-                break;
-            }
-
-            case 'req_set_config': {
-                controller.setConfig(data);
-                send(proto.makeResponse('res_config', { config: controller.getConfig() }, reqId));
-                break;
-            }
-
-            case 'req_get_config': {
-                send(proto.makeResponse('res_config', { config: controller.getConfig() }, reqId));
-                break;
-            }
-
-            case 'req_approve_step': {
-                if (!data.cascadeId || data.stepIndex === undefined) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId or stepIndex', reqId));
-                    break;
-                }
-                if (!controller.ls) {
-                    send(proto.makeError('LS_UNAVAILABLE', 'LS not connected', reqId));
-                    break;
-                }
-                try {
-                    await grpcCall(controller.ls.port, controller.ls.csrf, 'HandleCascadeUserInteraction', {
-                        cascadeId: data.cascadeId,
-                        interaction: {
-                            trajectoryId: data.cascadeId,
-                            stepIndex: data.stepIndex,
-                            runCommand: { confirm: true },
-                        },
-                    });
-                    console.log(`[AutoApprove] step[${data.stepIndex}] approved for ${data.cascadeId.slice(0, 8)}...`);
-                    send(proto.makeResponse('res_approve_step', { ok: true, cascadeId: data.cascadeId, stepIndex: data.stepIndex }, reqId));
-                } catch (err) {
-                    console.error(`[!] ApproveStep: ${err.message}`);
-                    send(proto.makeError('APPROVE_FAILED', err.message, reqId));
-                }
-                break;
-            }
-
-            case 'req_cancel': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                await controller.cancelCascade(data.cascadeId);
-                send(proto.makeResponse('res_cancel', { ok: true, cascadeId: data.cascadeId }, reqId));
-                break;
-            }
-
-            case 'req_delete_conversation': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                try {
-                    if (controller.ls) {
-                        await grpcCall(controller.ls.port, controller.ls.csrf, 'DeleteCascadeTrajectory', {
-                            cascadeId: data.cascadeId,
-                        });
-                    }
-                    // 同时从索引中删除
-                    if (controller.archive?.index) {
-                        controller.archive.index.delete(data.cascadeId);
-                    }
-                    // 取消该对话的所有订阅
-                    controller.unsubscribeAll(clientWs);
-                    send(proto.makeResponse('res_delete_conversation', { ok: true, cascadeId: data.cascadeId }, reqId));
-                } catch (err) {
-                    console.error(`[!] DeleteCascadeTrajectory: ${err.message}`);
-                    send(proto.makeError('DELETE_FAILED', err.message, reqId));
-                }
-                break;
-            }
-
-            case 'req_export_markdown': {
-                if (!data.cascadeId) {
-                    send(proto.makeError('INVALID_PARAMS', 'Missing cascadeId', reqId));
-                    break;
-                }
-                try {
-                    let markdown = '';
-                    let title = '';
-                    if (controller.ls) {
-                        const traj = await controller.getTrajectory(data.cascadeId);
-                        if (traj?.trajectory) {
-                            const r = await grpcCall(controller.ls.port, controller.ls.csrf, 'ConvertTrajectoryToMarkdown', {
-                                trajectory: traj.trajectory,
-                            });
-                            markdown = r.data?.markdown || '';
-                        }
-                    }
-                    // fallback: 从归档获取
-                    if (!markdown && controller.archive?.index) {
-                        const row = controller.archive.index.get(data.cascadeId);
-                        if (row?.markdown) {
-                            markdown = row.markdown;
-                            title = row.title || '';
-                        }
-                    }
-                    send(proto.makeResponse('res_export_markdown', {
-                        cascadeId: data.cascadeId,
-                        markdown,
-                        title,
-                    }, reqId));
-                } catch (err) {
-                    console.error(`[!] ExportMarkdown: ${err.message}`);
-                    send(proto.makeError('EXPORT_FAILED', err.message, reqId));
-                }
-                break;
-            }
-
-            case 'req_yolo_start': {
-                if (yoloEngine.getStatus().running) {
-                    send(proto.makeError('YOLO_RUNNING', 'YOLO 已在运行中', reqId));
-                    break;
-                }
-                const yoloOpts = {
-                    task: data.task || null,
-                    docPath: data.docPath || null,
-                    timeout: data.timeout || undefined,
-                    cooldown: data.cooldown || undefined,
-                    pollInterval: data.pollInterval || undefined,
-                    agentic: data.agentic || false,
-                    cascadeId: data.cascadeId || null,
-                };
-                send(proto.makeResponse('res_yolo_start', { ok: true }, reqId));
-                // 异步启动，不阻塞 WS
-                yoloEngine.start(yoloOpts).catch((err) => {
-                    console.error('[YOLO] 启动失败:', err.message);
-                    broadcastYolo('event_yolo_status', { status: 'error', message: err.message });
-                });
-                break;
-            }
-
-            case 'req_yolo_stop': {
-                yoloEngine.stop();
-                send(proto.makeResponse('res_yolo_stop', { ok: true }, reqId));
-                break;
-            }
-
-            case 'req_yolo_status': {
-                send(proto.makeResponse('res_yolo_status', yoloEngine.getStatus(), reqId));
-                break;
-            }
-
-            default:
-                send(proto.makeError('UNKNOWN_TYPE', `Unknown message type: ${type}`, reqId));
-        }
-    } catch (err) {
-        send(proto.makeError('INTERNAL', err.message, reqId));
-    }
-}
-
-// ========== Express + WebSocket ==========
+// ========== Express ==========
 
 const app = express();
 const serverHttp = http.createServer(app);
-const wss = new WebSocket.Server({ server: serverHttp });
 
 // JSON body parser（POST 请求必须；限制 50MB 以支持 base64 图片）
 app.use(express.json({ limit: '50mb' }));
@@ -1058,46 +683,6 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
     });
 });
 
-// WebSocket
-wss.on('connection', (clientWs) => {
-    clients.add(clientWs);
-    console.log(`[+] 客户端连接 (总: ${clients.size})`);
-
-    // 发送 LS 初始状态
-    clientWs.send(proto.makeEvent('event_ls_status', {
-        connected: !!controller.ls,
-        port: controller.ls?.port || null,
-        pid: controller.ls?.pid || null,
-    }));
-
-    clientWs.on('message', async (raw) => {
-        try {
-            const str = raw.toString();
-
-            // 心跳: 前端发 ping，回复 pong（不走 JSON 路径）
-            if (str === 'ping') {
-                if (clientWs.readyState === WebSocket.OPEN) clientWs.send('pong');
-                return;
-            }
-
-            const data = JSON.parse(str);
-            if (!data.type) {
-                clientWs.send(proto.makeError('INVALID_PARAMS', 'Missing type field'));
-                return;
-            }
-            await handleMessage(clientWs, data);
-        } catch (err) {
-            console.error('[!] WS 消息处理错误:', err.message);
-        }
-    });
-
-    clientWs.on('close', () => {
-        clients.delete(clientWs);
-        controller.unsubscribeAll(clientWs);
-        console.log(`[-] 客户端断开 (总: ${clients.size})`);
-    });
-});
-
 // ========== 启动 ==========
 
 const PORT = Number(process.env.PORT || 3210);
@@ -1123,7 +708,7 @@ async function main() {
 
     serverHttp.listen(PORT, '0.0.0.0', () => {
         console.log(`[*] HTTP : http://localhost:${PORT}`);
-        console.log(`[*] WS   : ws://localhost:${PORT}`);
+        console.log(`[*] SSE  : http://localhost:${PORT}/api/events/stream`);
         console.log('');
     });
 }

@@ -2,26 +2,48 @@
  * app-store 单元测试
  *
  * 测试 zustand Store 的状态转换逻辑。
- * 使用 Mock WSClient 隔离网络。
+ * 使用 Mock SSEClient + Mock fetch 隔离网络。
  */
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { createAppStore, type AppStore } from '@/store/app-store';
 import type { ServerMessage, Step, ConversationSummary } from '@/types';
 
-// ========== Mock WSClient ==========
+// ========== Mock api-client ==========
 
-let reqCounter = 0;
+const mockApi = vi.hoisted(() => ({
+    getStatus: vi.fn(),
+    getConversations: vi.fn(),
+    getTrajectory: vi.fn(),
+    newChat: vi.fn(),
+    sendMessage: vi.fn(),
+    subscribe: vi.fn(),
+    unsubscribe: vi.fn(),
+    cancel: vi.fn(),
+    deleteConversation: vi.fn(),
+    exportMarkdown: vi.fn(),
+    approveStep: vi.fn(),
+    getConfig: vi.fn(),
+    setConfig: vi.fn(),
+    yoloStart: vi.fn(),
+    yoloStop: vi.fn(),
+    yoloStatus: vi.fn(),
+}));
 
-function createMockWSClient() {
+vi.mock('@/store/api-client', () => ({ api: mockApi }));
+
+// ========== Mock SSEClient ==========
+
+function createMockSSEClient() {
     const handlers = new Set<(msg: ServerMessage) => void>();
 
     return {
         state: 'DISCONNECTED' as string,
         connect: vi.fn(),
         disconnect: vi.fn(),
-        send: vi.fn(() => true),
-        sendAndWait: vi.fn(),
-        nextReqId: vi.fn(() => `r${++reqCounter}`),
+        nextReqId: vi.fn((() => {
+            let n = 0;
+            return () => String(++n);
+        })()),
         onMessage: vi.fn((handler: (msg: ServerMessage) => void) => {
             handlers.add(handler);
         }),
@@ -38,22 +60,20 @@ function createMockWSClient() {
                 handler(msg);
             }
         },
-        _handlers: handlers,
     };
 }
 
-let mockClient: ReturnType<typeof createMockWSClient>;
+let mockClient: ReturnType<typeof createMockSSEClient>;
 let store: AppStore;
 
 // ========== 测试 ==========
 
 describe('AppStore', () => {
     beforeEach(() => {
-        reqCounter = 0;
+        vi.clearAllMocks();
         localStorage.clear();
-        // 重置 URL，防止 selectConversation 的 pushConversationUrl 泄漏到后续测试
         window.history.replaceState(null, '', '/');
-        mockClient = createMockWSClient();
+        mockClient = createMockSSEClient();
         store = createAppStore(mockClient as never);
     });
 
@@ -85,8 +105,13 @@ describe('AppStore', () => {
 
     describe('LS 状态事件', () => {
         it('event_ls_status connected=true 更新 lsConnected', () => {
-            // 新逻辑: connected=true 会触发 loadConversations + loadStatus
-            mockClient.sendAndWait.mockResolvedValue({ type: 'res_error', code: 'MOCK' });
+            mockApi.getConversations.mockResolvedValue({ conversations: [], total: 0 });
+            mockApi.getStatus.mockResolvedValue({
+                ls: { connected: true, port: 35711, pid: 12345 },
+                config: {},
+                models: [],
+                account: null,
+            });
 
             mockClient._simulateMessage({
                 type: 'event_ls_status',
@@ -99,7 +124,13 @@ describe('AppStore', () => {
         });
 
         it('event_ls_status connected=false 重置 lsInfo', () => {
-            mockClient.sendAndWait.mockResolvedValue({ type: 'res_error', code: 'MOCK' });
+            mockApi.getConversations.mockResolvedValue({ conversations: [], total: 0 });
+            mockApi.getStatus.mockResolvedValue({
+                ls: { connected: true, port: 35711, pid: 12345 },
+                config: {},
+                models: [],
+                account: null,
+            });
 
             mockClient._simulateMessage({
                 type: 'event_ls_status',
@@ -121,33 +152,25 @@ describe('AppStore', () => {
     // ---------- 对话列表 ----------
 
     describe('对话列表', () => {
-        it('loadConversations 发送 req_conversations 并更新列表', async () => {
+        it('loadConversations 调用 api.getConversations 并更新列表', async () => {
             const conversations: ConversationSummary[] = [
                 { id: 'c1', title: '对话1', updatedAt: '2026-01-01', sizeBytes: 100 },
                 { id: 'c2', title: '对话2', updatedAt: '2026-01-02', sizeBytes: 200 },
             ];
 
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_conversations',
-                reqId: 'r1',
-                total: 2,
-                conversations,
-            });
+            mockApi.getConversations.mockResolvedValue({ total: 2, conversations });
 
             await store.getState().loadConversations();
 
+            expect(mockApi.getConversations).toHaveBeenCalledWith({ limit: 50, search: undefined });
             expect(store.getState().conversations).toEqual(conversations);
             expect(store.getState().conversationsTotal).toBe(2);
         });
 
-        it('loadConversations 收到 error 不更新', async () => {
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_error',
-                code: 'INTERNAL',
-                message: 'fail',
-            });
+        it('loadConversations 失败时 conversations 保持不变', async () => {
+            mockApi.getConversations.mockRejectedValue(new Error('network error'));
 
-            await store.getState().loadConversations();
+            await expect(store.getState().loadConversations()).rejects.toThrow();
             expect(store.getState().conversations).toEqual([]);
         });
     });
@@ -160,19 +183,16 @@ describe('AppStore', () => {
                 { type: 'CORTEX_STEP_TYPE_USER_INPUT', status: 'CORTEX_STEP_STATUS_DONE', userInput: { items: [{ text: 'hello' }] } },
             ];
 
-            mockClient.sendAndWait
-                .mockResolvedValueOnce({  // req_trajectory
-                    type: 'res_trajectory',
-                    cascadeId: 'c1',
-                    status: 'CASCADE_RUN_STATUS_IDLE',
-                    totalSteps: 1,
-                    steps,
-                    metadata: [],
-                })
-                .mockResolvedValueOnce({  // req_subscribe
-                    type: 'res_subscribe',
-                    cascadeId: 'c1',
-                });
+            mockApi.getTrajectory.mockResolvedValue({
+                cascadeId: 'c1',
+                status: 'CASCADE_RUN_STATUS_IDLE',
+                totalSteps: 1,
+                steps,
+                metadata: [],
+                seq: 0,
+                source: 'live',
+            });
+            mockApi.subscribe.mockResolvedValue({ ok: true, cascadeId: 'c1', seq: 0 });
 
             await store.getState().selectConversation('c1');
 
@@ -186,66 +206,57 @@ describe('AppStore', () => {
 
     describe('新建对话', () => {
         it('newChat 创建并选择新对话', async () => {
-            mockClient.sendAndWait
-                .mockResolvedValueOnce({  // req_new_chat
-                    type: 'res_new_chat',
-                    cascadeId: 'new-c1',
-                })
-                .mockResolvedValueOnce({  // selectConversation → req_trajectory
-                    type: 'res_trajectory',
-                    cascadeId: 'new-c1',
-                    status: 'CASCADE_RUN_STATUS_IDLE',
-                    totalSteps: 0,
-                    steps: [],
-                    metadata: [],
-                })
-                .mockResolvedValueOnce({  // req_subscribe
-                    type: 'res_subscribe',
-                    cascadeId: 'new-c1',
-                });
+            mockApi.newChat.mockResolvedValue({ cascadeId: 'new-c1' });
+            mockApi.getTrajectory.mockResolvedValue({
+                cascadeId: 'new-c1',
+                status: 'CASCADE_RUN_STATUS_IDLE',
+                totalSteps: 0,
+                steps: [],
+                metadata: [],
+                seq: 0,
+                source: 'live',
+            });
+            mockApi.subscribe.mockResolvedValue({ ok: true, cascadeId: 'new-c1', seq: 0 });
+            mockApi.getConversations.mockResolvedValue({ conversations: [], total: 0 });
 
             await store.getState().newChat();
 
             expect(store.getState().activeConversationId).toBe('new-c1');
         });
 
-        it('newChat 失败返回 null', async () => {
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_error',
-                code: 'LS_NOT_CONNECTED',
-                message: 'No LS',
-            });
+        it('newChat 失败时抛出错误', async () => {
+            mockApi.newChat.mockRejectedValue(new Error('LS not connected'));
 
-            const result = await store.getState().newChat();
-            expect(result).toBeNull();
+            await expect(store.getState().newChat()).rejects.toThrow();
         });
     });
 
     // ---------- 发送消息 ----------
 
     describe('发送消息', () => {
-        it('sendMessage 发送 req_send_message', async () => {
+        it('sendMessage 调用 api.sendMessage', async () => {
             store.getState().setActiveConversation('c1');
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_send_message',
-                ok: true,
-                cascadeId: 'c1',
-            });
+            mockApi.sendMessage.mockResolvedValue({ ok: true, cascadeId: 'c1' });
 
             await store.getState().sendMessage('你好');
 
-            expect(mockClient.sendAndWait).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    type: 'req_send_message',
-                    cascadeId: 'c1',
-                    text: '你好',
-                }),
+            expect(mockApi.sendMessage).toHaveBeenCalledWith(
+                'c1',
+                expect.objectContaining({ text: '你好' }),
             );
         });
 
         it('无 activeConversationId 时 sendMessage 无效', async () => {
             await store.getState().sendMessage('你好');
-            expect(mockClient.sendAndWait).not.toHaveBeenCalled();
+            expect(mockApi.sendMessage).not.toHaveBeenCalled();
+        });
+
+        it('status=RUNNING 时 sendMessage 被拦截', async () => {
+            store.getState().setActiveConversation('c1');
+            store.setState({ conversationStatus: 'RUNNING' } as never);
+
+            await store.getState().sendMessage('你好');
+            expect(mockApi.sendMessage).not.toHaveBeenCalled();
         });
     });
 
@@ -286,31 +297,19 @@ describe('AppStore', () => {
         });
 
         it('event_step_updated 更新已有 step', () => {
-            // 先添加
             const step: Step = {
                 type: 'CORTEX_STEP_TYPE_PLANNER_RESPONSE',
                 status: 'CORTEX_STEP_STATUS_GENERATING',
                 plannerResponse: { response: 'partial...' },
             };
-            mockClient._simulateMessage({
-                type: 'event_step_added',
-                cascadeId: 'c1',
-                stepIndex: 0,
-                step,
-            });
+            mockClient._simulateMessage({ type: 'event_step_added', cascadeId: 'c1', stepIndex: 0, step });
 
-            // 再更新
             const updatedStep: Step = {
                 type: 'CORTEX_STEP_TYPE_PLANNER_RESPONSE',
                 status: 'CORTEX_STEP_STATUS_DONE',
                 plannerResponse: { response: 'complete answer', thinking: 'thought' },
             };
-            mockClient._simulateMessage({
-                type: 'event_step_updated',
-                cascadeId: 'c1',
-                stepIndex: 0,
-                step: updatedStep,
-            });
+            mockClient._simulateMessage({ type: 'event_step_updated', cascadeId: 'c1', stepIndex: 0, step: updatedStep });
 
             expect(store.getState().steps[0].status).toBe('CORTEX_STEP_STATUS_DONE');
             expect(store.getState().steps[0].plannerResponse?.response).toBe('complete answer');
@@ -343,8 +342,7 @@ describe('AppStore', () => {
 
     describe('配置管理', () => {
         it('loadConfig 获取并更新配置', async () => {
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_config',
+            mockApi.getConfig.mockResolvedValue({
                 config: {
                     model: 'MODEL_X',
                     agenticMode: false,
@@ -362,9 +360,8 @@ describe('AppStore', () => {
             expect(store.getState().config.agenticMode).toBe(false);
         });
 
-        it('setConfig 发送 req_set_config 并更新本地', async () => {
-            mockClient.sendAndWait.mockResolvedValue({
-                type: 'res_config',
+        it('setConfig 更新配置', async () => {
+            mockApi.setConfig.mockResolvedValue({
                 config: {
                     model: 'MODEL_Y',
                     agenticMode: true,
