@@ -50,6 +50,9 @@ let store: AppStore;
 describe('AppStore', () => {
     beforeEach(() => {
         reqCounter = 0;
+        localStorage.clear();
+        // 重置 URL，防止 selectConversation 的 pushConversationUrl 泄漏到后续测试
+        window.history.replaceState(null, '', '/');
         mockClient = createMockWSClient();
         store = createAppStore(mockClient as never);
     });

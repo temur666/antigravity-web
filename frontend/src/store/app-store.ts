@@ -378,8 +378,10 @@ export function createAppStore(wsClient: WSClient): AppStore {
         },
 
         sendMessage: async (text: string, configOverride?: Partial<CascadeConfig>, extras?: { mentions?: Array<{ file: { absoluteUri: string } }>; media?: Array<{ mimeType: string; data?: string; uri?: string; thumbnail?: string }> }) => {
-            const cascadeId = get().activeConversationId;
+            const { activeConversationId: cascadeId, conversationStatus } = get();
             if (!cascadeId) return;
+            // 防重入：UI 层有 canSend + isSendingRef，这里是 store 级最后防线
+            if (conversationStatus === 'RUNNING') return;
 
             set(prev => ({
                 conversationStatus: 'RUNNING',
