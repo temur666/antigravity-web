@@ -92,6 +92,7 @@ export function InputBox() {
     const hasText = text.trim().length > 0;
     const inputRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const isSendingRef = useRef(false); // 同步锁，防止重复发送
 
     // 切换对话时，从 store 恢复草稿
     useEffect(() => {
@@ -128,6 +129,8 @@ export function InputBox() {
 
     const handleSend = useCallback(async () => {
         if (!canSend) return;
+        if (isSendingRef.current) return; // 防止手机端多点/快速点击重复触发
+        isSendingRef.current = true;
 
         setIsUploading(true);
         const mediaDetails: { data: string, mimeType: string }[] = [];
@@ -154,15 +157,20 @@ export function InputBox() {
             }
 
             // Send message with media if any
-            sendMessage(msg, undefined, mediaDetails.length > 0 ? { media: mediaDetails } : undefined);
+            await sendMessage(msg, undefined, mediaDetails.length > 0 ? { media: mediaDetails } : undefined);
 
             // Revoke object URLs to prevent memory leaks
             attachments.forEach(att => URL.revokeObjectURL(att.previewUrl));
         } catch (err) {
             console.error('Failed to send message:', err);
         } finally {
+            isSendingRef.current = false;
             setIsUploading(false);
-            inputRef.current?.focus();
+            // 移动端不自动 focus，让键盘自然收起，避免用户手动折叠时触发幽灵 click
+            const isMobile = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (!isMobile) {
+                inputRef.current?.focus();
+            }
         }
     }, [canSend, text, attachments, sendMessage, activeConversationId, setDraft]);
 
@@ -268,8 +276,15 @@ export function InputBox() {
                 el.style.transform = `translateY(-${offsetBottom}px)`;
                 el.style.paddingBottom = '0'; // 键盘弹出时移除 safe-area padding
             } else {
+                // 键盘折叠：先禁用点击，防止 transform 位移产生幽灵 click
+                el.style.pointerEvents = 'none';
                 el.style.transform = '';
                 el.style.paddingBottom = ''; // 恢复 CSS 默认值
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        if (el) el.style.pointerEvents = '';
+                    });
+                });
             }
         };
 
