@@ -19,6 +19,7 @@ const { grpcCall } = require('./lib/core/ls-discovery');
 const proto = require('./lib/core/ws-protocol');
 const { startBot } = require('./lib/telegram/bot');
 const { YoloEngine } = require('./lib/yolo');
+const { normalizeSteps } = require('./lib/core/conversation/step-normalizer');
 
 // ========== 静态文件检查 ==========
 
@@ -194,7 +195,7 @@ async function handleMessage(clientWs, data) {
                     send(proto.makeResponse('res_trajectory', {
                         cascadeId: data.cascadeId,
                         status: traj.status || 'CASCADE_RUN_STATUS_IDLE',
-                        steps: traj.trajectory.steps,
+                        steps: normalizeSteps(traj.trajectory.steps),
                         totalSteps: traj.numTotalSteps || traj.trajectory.steps.length,
                         metadata: traj.trajectory.generatorMetadata || [],
                         seq: controller.getCurrentSeq(data.cascadeId),
@@ -224,7 +225,7 @@ async function handleMessage(clientWs, data) {
                 send(proto.makeResponse('res_trajectory', {
                     cascadeId: data.cascadeId,
                     status: traj?.status || 'CASCADE_RUN_STATUS_IDLE',
-                    steps: traj?.trajectory?.steps || [],
+                    steps: normalizeSteps(traj?.trajectory?.steps || []),
                     totalSteps: traj?.numTotalSteps || 0,
                     metadata: traj?.trajectory?.generatorMetadata || [],
                     seq: controller.getCurrentSeq(data.cascadeId),
@@ -534,7 +535,7 @@ app.get('/api/conversations/:id', async (req, res) => {
             return res.json({
                 id: cascadeId,
                 status: (traj.status || '').replace('CASCADE_RUN_STATUS_', ''),
-                steps: traj.trajectory.steps || [],
+                steps: normalizeSteps(traj.trajectory.steps || []),
                 totalSteps: traj.numTotalSteps || 0,
                 source: 'live',
             });

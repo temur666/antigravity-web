@@ -74,9 +74,8 @@ export function InputBox() {
     const draftMap = useAppStore(s => s.draftMap);
     const setDraft = useAppStore(s => s.setDraft);
 
-    // 从 store 读取当前对话的草稿作为初始值
-    const currentDraft = activeConversationId ? (draftMap[activeConversationId] || '') : '';
-    const [text, setText] = useState(currentDraft);
+    // 单一数据源：直接从 store 派生，不维护 local state
+    const text = activeConversationId ? (draftMap[activeConversationId] ?? '') : '';
     const [attachments, setAttachments] = useState<{ file: File, previewUrl: string }[]>([]);
     const [isUploading, setIsUploading] = useState(false);
     const [isDragOver, setIsDragOver] = useState(false);
@@ -94,22 +93,17 @@ export function InputBox() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isSendingRef = useRef(false); // 同步锁，防止重复发送
 
-    // 切换对话时，从 store 恢复草稿
+    // 切换对话时，重新计算 textarea 高度（text 已由 store 驱动，无需同步）
     useEffect(() => {
-        const draft = activeConversationId ? (draftMap[activeConversationId] || '') : '';
-        setText(draft);
-        if (inputRef.current) {
-            inputRef.current.style.height = 'auto';
-            if (draft) {
-                // 延迟一帧确保 DOM 更新后再计算高度
-                requestAnimationFrame(() => {
-                    if (inputRef.current) {
-                        inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-                    }
-                });
-            }
+        if (!inputRef.current) return;
+        inputRef.current.style.height = 'auto';
+        if (text) {
+            requestAnimationFrame(() => {
+                if (inputRef.current) {
+                    inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+                }
+            });
         }
-        // 只在 activeConversationId 变化时触发，不依赖 draftMap
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [activeConversationId]);
 
@@ -148,7 +142,7 @@ export function InputBox() {
                 msg = '请查看这张图片';
             }
 
-            setText('');
+
             setAttachments([]);
             // 发送成功后清除草稿
             if (activeConversationId) setDraft(activeConversationId, '');
@@ -446,9 +440,7 @@ export function InputBox() {
                         value={text}
                         onInput={handleInput}
                         onChange={e => {
-                            const val = e.target.value;
-                            setText(val);
-                            if (activeConversationId) setDraft(activeConversationId, val);
+                            if (activeConversationId) setDraft(activeConversationId, e.target.value);
                         }}
                         onKeyDown={handleKeyDown}
                         onPaste={handlePaste}
